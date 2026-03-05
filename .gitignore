@@ -1,0 +1,43 @@
+# Virtual environment
+.venv/
+venv/
+env/
+
+# Python bytecode
+__pycache__/
+*.py[cod]
+*.egg-info/
+
+# Environment secrets
+.env
+.env.dev
+.env.prod
+
+# IDE
+.idea/
+.vscode/
+*.swp
+*.swo
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Pytest / Coverage
+.pytest_cache/
+htmlcov/
+.coverage
+coverage.xml
+
+# Sphinx build artifacts
+docs/_build/
+
+# Logs
+*.log
+/tmp/
+
+# Jupyter
+.ipynb_checkpoints/
+
+# Claude
+.claude/
