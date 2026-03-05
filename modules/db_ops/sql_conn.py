@@ -1,9 +1,9 @@
 """
 
-UCL -- Institute of Finance & Technology
-Author  : Team XX
+Kolmogorov's team
+Author  : Kolmogorov's team
 Topic   : Database connection and operations
-Project : CW1 - Flow-Based Multi-Factor Equity Strategy
+Project : Systematic Equity Pipeline - Flow-Based Multi-Factor Equity Strategy
 
 Follows the DatabaseMethods pattern from the base repository
 (Scripts/Python/3_ETL_Duckdb_Postgres/modules/db_ops/sql_conn.py).
@@ -564,4 +564,4 @@ class DatabaseMethods:
         if db_type == "postgres":
             return self._conn_postgres()
         else:
-            raise exc.ArgumentError("Only postgres is supported for db_type in CW1")
+            raise exc.ArgumentError("Only postgres is supported for db_type in this pipeline")

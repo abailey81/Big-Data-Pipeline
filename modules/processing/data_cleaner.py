@@ -1,9 +1,9 @@
 """
 
-UCL -- Institute of Finance & Technology
-Author  : Team XX
+Kolmogorov's team
+Author  : Kolmogorov's team
 Topic   : Data cleaning, validation, and transformation
-Project : CW1 - Flow-Based Multi-Factor Equity Strategy
+Project : Systematic Equity Pipeline - Flow-Based Multi-Factor Equity Strategy
 
 Cleaning pipeline: Yahoo Finance → Pydantic validation → dict for upsert.
 Handles all data quality issues from Spec §7.2 Issue 6.

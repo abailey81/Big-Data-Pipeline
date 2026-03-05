@@ -1,9 +1,9 @@
 """
 
-UCL -- Institute of Finance & Technology
-Author  : Team XX
+Kolmogorov's team
+Author  : Kolmogorov's team
 Topic   : Pre-flight health checks for pipeline dependencies
-Project : CW1 - Flow-Based Multi-Factor Equity Strategy
+Project : Systematic Equity Pipeline - Flow-Based Multi-Factor Equity Strategy
 
 Runs connectivity and readiness checks for all external dependencies
 before the pipeline begins downloading data. This fail-fast pattern

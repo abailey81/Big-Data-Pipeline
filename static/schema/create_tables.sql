@@ -1,7 +1,6 @@
 -- =============================================================================
--- UCL Institute of Finance & Technology
--- IFTE0003: Big Data in Quantitative Finance
--- Coursework 1 – PostgreSQL Schema for Flow-Based Multi-Factor Strategy
+-- Kolmogorov's team
+-- Systematic Equity Pipeline – PostgreSQL Schema for Flow-Based Multi-Factor Strategy
 -- =============================================================================
 -- Database: fift
 -- Schema:   systematic_equity

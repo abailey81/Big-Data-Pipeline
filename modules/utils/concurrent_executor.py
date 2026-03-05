@@ -1,9 +1,9 @@
 """
 
-UCL -- Institute of Finance & Technology
-Author  : Team XX
+Kolmogorov's team
+Author  : Kolmogorov's team
 Topic   : Concurrent download executor using ThreadPoolExecutor
-Project : CW1 - Flow-Based Multi-Factor Equity Strategy
+Project : Systematic Equity Pipeline - Flow-Based Multi-Factor Equity Strategy
 
 Provides thread-pool-based concurrent execution for ticker-level
 downloads. Yahoo Finance API calls are I/O-bound (network latency),

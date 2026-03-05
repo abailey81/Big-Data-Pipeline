@@ -1,5 +1,5 @@
 """
-Pytest fixtures for CW1 pipeline tests.
+Pytest fixtures for Systematic Equity Pipeline tests.
 """
 
 from datetime import date, datetime

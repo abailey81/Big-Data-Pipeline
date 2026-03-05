@@ -2,7 +2,7 @@
 Advanced test patterns: parametrized tests, boundary conditions,
 error injection, and cross-component integration.
 
-Demonstrates sophisticated testing techniques for the CW1 pipeline:
+Demonstrates sophisticated testing techniques for the Systematic Equity Pipeline:
   - pytest.mark.parametrize for exhaustive input coverage
   - Boundary value analysis for edge cases
   - Error injection and fault tolerance verification

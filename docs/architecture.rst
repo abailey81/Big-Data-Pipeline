@@ -193,4 +193,4 @@ Key Design Patterns
 * **Pydantic Validation** -- all incoming data passes through typed models
   before database insertion.
 * **ift_global Integration** -- leverages ReadConfig, IFTLogger, MinioFileSystemRepo,
-  and trim_string from the shared UCL IFT library.
+  and trim_string from the shared Kolmogorov's team library.

@@ -1,9 +1,9 @@
 """
 
-UCL -- Institute of Finance & Technology
-Author  : Team XX
+Kolmogorov's team
+Author  : Kolmogorov's team
 Topic   : Pipeline observability and performance metrics
-Project : CW1 - Flow-Based Multi-Factor Equity Strategy
+Project : Systematic Equity Pipeline - Flow-Based Multi-Factor Equity Strategy
 
 Provides lightweight instrumentation for tracking pipeline execution:
   - Per-source timing and record counts

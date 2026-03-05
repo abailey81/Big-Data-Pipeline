@@ -1,9 +1,9 @@
 """
 
-UCL -- Institute of Finance & Technology
-Author  : Team XX
+Kolmogorov's team
+Author  : Kolmogorov's team
 Topic   : GDELT news article downloader for sentiment analysis
-Project : CW1 - Flow-Based Multi-Factor Equity Strategy
+Project : Systematic Equity Pipeline - Flow-Based Multi-Factor Equity Strategy
 
 Downloads recent news articles from the GDELT Project (Global Database
 of Events, Language, and Tone) DOC 2.0 API.  GDELT monitors broadcast,
@@ -36,7 +36,7 @@ from modules.input.base_downloader import BaseDownloader
 from modules.utils.info_logger import pipeline_logger
 
 GDELT_DOC_API = "https://api.gdeltproject.org/api/v2/doc/doc"
-USER_AGENT = "UCL-IFT-CW1/1.0 (Big Data Coursework)"
+USER_AGENT = "KolmogorovTeam/1.0 (Systematic Equity Pipeline)"
 
 
 class GdeltDownloader(BaseDownloader):

@@ -1,9 +1,9 @@
 """
 
-UCL -- Institute of Finance & Technology
-Author  : Team XX
+Kolmogorov's team
+Author  : Kolmogorov's team
 Topic   : NewsAPI article downloader for sentiment analysis
-Project : CW1 - Flow-Based Multi-Factor Equity Strategy
+Project : Systematic Equity Pipeline - Flow-Based Multi-Factor Equity Strategy
 
 Downloads recent news articles from the NewsAPI (newsapi.org)
 ``/v2/everything`` endpoint.  This serves as a secondary gap-fill
@@ -103,7 +103,7 @@ class NewsApiDownloader(BaseDownloader):
                 NEWSAPI_ENDPOINT,
                 params=params,
                 timeout=self.timeout,
-                headers={"User-Agent": "UCL-IFT-CW1/1.0"},
+                headers={"User-Agent": "KolmogorovTeam/1.0"},
             )
             if resp.status_code == 429:
                 pipeline_logger.debug("NewsAPI rate limit hit — backing off")

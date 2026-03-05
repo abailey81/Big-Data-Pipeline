@@ -1,7 +1,6 @@
 # =============================================================================
-# UCL Institute of Finance & Technology
-# IFTE0003: Big Data in Quantitative Finance
-# Coursework 1 – Docker Compose Infrastructure
+# Kolmogorov's team
+# Systematic Equity Pipeline – Docker Compose Infrastructure
 # =============================================================================
 
 services:

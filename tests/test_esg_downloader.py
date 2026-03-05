@@ -1,9 +1,9 @@
 """
 
-UCL -- Institute of Finance & Technology
-Author  : Team XX
+Kolmogorov's team
+Author  : Kolmogorov's team
 Topic   : Unit tests for ESG downloader
-Project : CW1 - Flow-Based Multi-Factor Equity Strategy
+Project : Systematic Equity Pipeline - Flow-Based Multi-Factor Equity Strategy
 
 Covers both LSEG Data Platform (primary) and yfinance (fallback) paths,
 as well as the clean_esg_record utility.
@@ -86,7 +86,7 @@ class TestInitLseg:
         with patch.dict(
             "os.environ",
             {
-                "REFINITIV_USERNAME": "user@ucl.ac.uk",
+                "REFINITIV_USERNAME": "user@example.com",
                 "REFINITIV_PASSWORD": "",
                 "REFINITIV_APP_KEY": "abc123",
             },

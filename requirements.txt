@@ -1,5 +1,5 @@
 # =============================================================================
-# IFTE0003 CW1: Flow-Based Multi-Factor Equity Strategy
+# Kolmogorov's team — Systematic Equity Pipeline
 # Python Dependencies
 # =============================================================================
 

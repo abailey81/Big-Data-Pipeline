@@ -1,14 +1,14 @@
 """
 
-UCL -- Institute of Finance & Technology
-Author  : Team XX
+Kolmogorov's team
+Author  : Kolmogorov's team
 Topic   : FRED risk-free rate downloader
-Project : CW1 - Flow-Based Multi-Factor Equity Strategy
+Project : Systematic Equity Pipeline - Flow-Based Multi-Factor Equity Strategy
 
 Downloads the 3-month US Treasury rate (DGS3MO) from FRED's public
 CSV endpoint. No API key or additional packages required.
 
-Used for Sharpe ratio calculation in CW2 (Spec §7.3, Priority P2).
+Used for Sharpe ratio calculation in Phase 2 (Spec §7.3, Priority P2).
 
 """
 

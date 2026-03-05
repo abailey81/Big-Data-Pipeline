@@ -1,5 +1,5 @@
 """
-Sphinx documentation configuration for the CW1 pipeline.
+Sphinx documentation configuration for the Systematic Equity Pipeline.
 
 Usage:
     cd docs/
@@ -13,9 +13,9 @@ import sys
 sys.path.insert(0, os.path.abspath('..'))
 
 # -- Project information ------------------------------------------------------
-project = 'CW1 Systematic Equity Pipeline'
-copyright = '2026, Team XX - UCL IFT'
-author = 'Team XX'
+project = 'Systematic Equity Pipeline'
+copyright = "2026, Kolmogorov's team"
+author = "Kolmogorov's team"
 release = '2.1.0'
 
 # -- General configuration ----------------------------------------------------

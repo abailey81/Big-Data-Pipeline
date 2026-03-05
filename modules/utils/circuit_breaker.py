@@ -1,9 +1,9 @@
 """
 
-UCL -- Institute of Finance & Technology
-Author  : Team XX
+Kolmogorov's team
+Author  : Kolmogorov's team
 Topic   : Circuit breaker pattern for resilient API calls
-Project : CW1 - Flow-Based Multi-Factor Equity Strategy
+Project : Systematic Equity Pipeline - Flow-Based Multi-Factor Equity Strategy
 
 Implements the circuit breaker pattern (Nygard, 2007) to prevent
 cascading failures when the Yahoo Finance API is unavailable.

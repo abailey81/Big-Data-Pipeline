@@ -1,9 +1,9 @@
 """
 
-UCL -- Institute of Finance & Technology
-Author  : Team XX
+Kolmogorov's team
+Author  : Kolmogorov's team
 Topic   : SEC EDGAR XBRL fundamentals downloader
-Project : CW1 - Flow-Based Multi-Factor Equity Strategy
+Project : Systematic Equity Pipeline - Flow-Based Multi-Factor Equity Strategy
 
 Downloads standardised XBRL financial data from SEC EDGAR's company
 facts API. No API key required — only a User-Agent header with
@@ -34,7 +34,7 @@ from modules.utils.rate_limiter import TokenBucketRateLimiter
 
 SEC_COMPANY_TICKERS_URL = "https://www.sec.gov/files/company_tickers.json"
 SEC_COMPANY_FACTS_URL = "https://data.sec.gov/api/xbrl/companyfacts/CIK{cik}.json"
-SEC_USER_AGENT = "UCL-IFTE0003 TeamXX research@ucl.ac.uk"
+SEC_USER_AGENT = "KolmogorovTeam research@kolmogorov.dev"
 
 # XBRL US-GAAP concept → canonical field name
 # When multiple concepts map to the same field, the first match wins.

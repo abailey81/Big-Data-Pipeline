@@ -1,9 +1,9 @@
 """
 
-UCL -- Institute of Finance & Technology
-Author  : Team XX
+Kolmogorov's team
+Author  : Kolmogorov's team
 Topic   : Pydantic validation models for pipeline data entities
-Project : CW1 - Flow-Based Multi-Factor Equity Strategy
+Project : Systematic Equity Pipeline - Flow-Based Multi-Factor Equity Strategy
 
 All incoming data passes through these models before database insertion.
 Uses ift_global.utils.string_utils.trim_string for symbol cleaning.
@@ -171,7 +171,7 @@ class FxRate(BaseModel):
 class VixRecord(BaseModel):
     """Pydantic model for a daily VIX index record.
 
-    Required for volatility regime classification in CW2 (Spec §4.4).
+    Required for volatility regime classification in Phase 2 (Spec §4.4).
 
     :param cob_date: Close of business date
     :param open_price: Opening VIX value
@@ -221,7 +221,7 @@ class RiskFreeRateRecord(BaseModel):
     """Pydantic model for a daily risk-free rate record from FRED.
 
     The 3-month US Treasury rate (DGS3MO) serves as the risk-free
-    rate proxy for Sharpe ratio calculation in CW2 (Spec §7.3, P2).
+    rate proxy for Sharpe ratio calculation in Phase 2 (Spec §7.3, P2).
 
     :param cob_date: Observation date
     :param rate_pct: Annual rate in percent (e.g. 4.25)

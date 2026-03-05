@@ -1,9 +1,9 @@
 """
 
-UCL -- Institute of Finance & Technology
-Author  : Team XX
+Kolmogorov's team
+Author  : Kolmogorov's team
 Topic   : args_parser utils
-Project : CW1 - Flow-Based Multi-Factor Equity Strategy
+Project : Systematic Equity Pipeline - Flow-Based Multi-Factor Equity Strategy
 
 """
 
@@ -12,13 +12,13 @@ from datetime import datetime
 
 
 def arg_parse_cmd():
-    """Creates the argument parser for the CW1 pipeline.
+    """Creates the argument parser for the Systematic Equity pipeline.
 
     :return: argparse.ArgumentParser instance
     :rtype: argparse.ArgumentParser
     """
     parser = argparse.ArgumentParser(
-        description="CW1 Data Pipeline: Extract and load equity data for multi-factor strategy"
+        description="Systematic Equity Pipeline: Extract and load equity data for multi-factor strategy"
     )
     parser.add_argument(
         "--env_type",

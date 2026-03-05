@@ -1,5 +1,5 @@
 """
-Integration tests for the CW1 pipeline.
+Integration tests for the Systematic Equity Pipeline.
 
 These tests require a running PostgreSQL and MinIO instance.
 Run with: poetry run pytest -m integration

@@ -1,9 +1,9 @@
 """
 
-UCL -- Institute of Finance & Technology
-Author  : Team XX
+Kolmogorov's team
+Author  : Kolmogorov's team
 Topic   : Rich-based animated pipeline dashboard
-Project : CW1 - Flow-Based Multi-Factor Equity Strategy
+Project : Systematic Equity Pipeline - Flow-Based Multi-Factor Equity Strategy
 
 Production-grade visual progress tracking using ``rich``.  All parallel
 sources share a *single* ``Progress`` + ``Live`` display, so Group A
@@ -289,7 +289,7 @@ class PipelineProgressTracker:
         """Print the pipeline startup banner with parallelism config."""
         if not RICH_AVAILABLE:
             pipeline_logger.info("=" * 68)
-            pipeline_logger.info("  CW1 Systematic Equity Pipeline")
+            pipeline_logger.info("  Kolmogorov's team — Systematic Equity Pipeline")
             pipeline_logger.info(f"  Run ID   : {self.run_id}")
             pipeline_logger.info(f"  Universe : {self.total_tickers:,} tickers")
             pipeline_logger.info(f"  Started  : {self._started_at.strftime('%Y-%m-%d %H:%M:%S')}")
@@ -346,8 +346,8 @@ class PipelineProgressTracker:
         self._console.print(
             Panel(
                 inner,
-                title="[bold bright_white]UCL · Institute of Finance & Technology[/bold bright_white]",
-                subtitle="[dim]IFTE0003 · Big Data in Quantitative Finance · CW1[/dim]",
+                title="[bold bright_white]Kolmogorov's team[/bold bright_white]",
+                subtitle="[dim]Systematic Equity Pipeline[/dim]",
                 border_style="bright_cyan",
                 padding=(1, 4),
                 expand=False,

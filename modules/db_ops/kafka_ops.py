@@ -1,9 +1,9 @@
 """
 
-UCL -- Institute of Finance & Technology
-Author  : Team XX
+Kolmogorov's team
+Author  : Kolmogorov's team
 Topic   : Apache Kafka producer and consumer for event-driven ingestion
-Project : CW1 - Flow-Based Multi-Factor Equity Strategy
+Project : Systematic Equity Pipeline - Flow-Based Multi-Factor Equity Strategy
 
 Implements Kafka-based event streaming for decoupling data ingestion
 (producers) from processing/storage (consumers).  The assignment spec

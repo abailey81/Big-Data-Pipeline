@@ -1,9 +1,9 @@
 """
 
-UCL -- Institute of Finance & Technology
-Author  : Team XX
+Kolmogorov's team
+Author  : Kolmogorov's team
 Topic   : Advanced financial news sentiment scoring engine
-Project : CW1 - Flow-Based Multi-Factor Equity Strategy
+Project : Systematic Equity Pipeline - Flow-Based Multi-Factor Equity Strategy
 
 Implements a dual-layer sentiment analysis pipeline for financial news:
 
@@ -33,7 +33,7 @@ Composite Sentiment Score (0-100 investable factor):
     agreement_bonus    = max(0, 1 - dispersion * 2) * 100
 
   score_dispersion (separate factor) = std dev of per-article scores.
-  High dispersion = market disagreement — a standalone CW2 factor.
+  High dispersion = market disagreement — a standalone Phase 2 factor.
 
 Article deduplication:
   Headlines are de-duplicated before scoring to prevent the same
@@ -300,7 +300,7 @@ def aggregate_sentiment(scored_articles: list[dict], symbol: str) -> Optional[di
     volume_factor = min(n / 20.0, 1.0)
 
     # Score dispersion — std dev of per-article scores
-    # High dispersion = market disagreement about this stock (standalone CW2 factor)
+    # High dispersion = market disagreement about this stock (standalone Phase 2 factor)
     if n > 1:
         variance = sum((s - avg_enhanced) ** 2 for s in scores) / n
         dispersion = math.sqrt(variance)

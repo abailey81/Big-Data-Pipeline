@@ -1,9 +1,9 @@
 """
 
-UCL -- Institute of Finance & Technology
-Author  : Team XX
+Kolmogorov's team
+Author  : Kolmogorov's team
 Topic   : News article downloader for sentiment analysis
-Project : CW1 - Flow-Based Multi-Factor Equity Strategy
+Project : Systematic Equity Pipeline - Flow-Based Multi-Factor Equity Strategy
 
 Downloads recent news articles per ticker using the yfinance
 ``Ticker.news`` property.  News sentiment is a complementary signal
@@ -14,7 +14,7 @@ quality and growth factor loadings.
 News data is semi-structured (variable-length titles, different
 providers, optional thumbnails) and therefore stored in MongoDB as
 the primary persistence layer, with aggregated sentiment scores
-written to PostgreSQL for efficient factor construction in CW2.
+written to PostgreSQL for efficient factor construction in Phase 2.
 
 Data flow:
   yfinance Ticker.news → MongoDB (raw documents)

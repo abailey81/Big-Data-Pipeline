@@ -1,6 +1,6 @@
 # Changelog
 
-All notable changes to the CW1 Systematic Equity Data Pipeline are documented here.
+All notable changes to the Systematic Equity Data Pipeline are documented here.
 
 Format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
@@ -54,7 +54,7 @@ Format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 ### Fixed
 
 - **`deduplicate_articles` logger format** — changed `pipeline_logger.debug(msg, arg)`
-  to f-string `pipeline_logger.debug(f"... {removed} ...")` to match `IFTLogger`
+  to f-string `pipeline_logger.debug(f"... {removed} ...")` to match the pipeline logger
   signature (only accepts single positional argument).
 - **Finnhub fundamentals 0% coverage (root cause)** — `futures_wait` timeout
   for Finnhub was 120 s, but processing 175 non-US tickers × 2 frequencies at
@@ -96,7 +96,7 @@ Format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
     `sentiment_score = vader_component × 0.45 + positive_ratio × 0.25
     + volume_component × 0.20 + agreement_bonus × 0.10`
   - `score_dispersion` (std dev of per-article VADER scores) stored as a
-    standalone CW2 factor measuring market disagreement.
+    standalone factor measuring market disagreement.
 - **Three new sentiment DB columns** — `positive_ratio`, `sentiment_score`,
   `score_dispersion` added to `news_sentiment` PostgreSQL table and ORM model.
   Migration applied via `ALTER TABLE ... ADD COLUMN IF NOT EXISTS`.

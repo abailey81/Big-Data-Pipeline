@@ -41,3 +41,7 @@ docs/_build/
 
 # Claude
 .claude/
+
+# Assignment documents (not part of codebase)
+*.pdf
+*.docx

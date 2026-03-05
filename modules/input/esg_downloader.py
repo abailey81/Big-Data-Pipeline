@@ -1,9 +1,9 @@
 """
 
-UCL -- Institute of Finance & Technology
-Author  : Team XX
+Kolmogorov's team
+Author  : Kolmogorov's team
 Topic   : ESG sustainability score downloader
-Project : CW1 - Flow-Based Multi-Factor Equity Strategy
+Project : Systematic Equity Pipeline - Flow-Based Multi-Factor Equity Strategy
 
 Downloads Environmental, Social, and Governance (ESG) scores using
 the LSEG Data Library (lseg-data) with a platform session as the
@@ -11,7 +11,7 @@ primary source, with a fallback to ``yfinance.Ticker.sustainability``.
 
 Primary source — LSEG Data Platform (REST API, no desktop required):
   Connects directly to the LSEG Data Platform via OAuth2 using:
-  - ``REFINITIV_USERNAME`` — UCL / LSEG account e-mail
+  - ``REFINITIV_USERNAME`` — LSEG account e-mail
   - ``REFINITIV_PASSWORD`` — LSEG account password
   - ``REFINITIV_APP_KEY``  — App key from LSEG App Key Generator
   Fields fetched: TR.TRESGScore, TR.EnvironmentPillarScore,

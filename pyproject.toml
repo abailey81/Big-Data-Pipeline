@@ -1,8 +1,8 @@
 [tool.poetry]
 name = "ift-systematic-equity"
 version = "1.9.0"
-description = "IFTE0003 CW1: Data Pipeline for Flow-Based Multi-Factor Equity Strategy"
-authors = ["Team XX <team_xx@ucl.ac.uk>"]
+description = "Systematic Equity Pipeline: Data Pipeline for Flow-Based Multi-Factor Equity Strategy"
+authors = ["Kolmogorov's team"]
 readme = "README.md"
 package-mode = false
 

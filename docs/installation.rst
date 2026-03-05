@@ -16,8 +16,8 @@ Step 1: Clone the Repository
 
 .. code-block:: bash
 
-   git clone https://github.com/YOUR-USERNAME/ift_coursework_2025.git
-   cd ift_coursework_2025
+   git clone https://github.com/abailey81/Big-Data-Pipeline.git
+   cd Big-Data-Pipeline
 
 Step 2: Start Infrastructure
 -----------------------------
@@ -49,7 +49,7 @@ Step 3: Install Python Dependencies
    poetry install
 
 This installs all core and development dependencies defined in ``pyproject.toml``,
-including ``ift_global`` from the UCL IFT GitHub repository.
+including ``ift_global`` from the Kolmogorov's team GitHub repository.
 
 Step 4: Initialise the Database Schema
 ----------------------------------------

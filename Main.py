@@ -1,9 +1,9 @@
 """
 
-UCL -- Institute of Finance & Technology
-Author  : Team XX
+Kolmogorov's team
+Author  : Kolmogorov's team
 Topic   : Main.py
-Project : CW1 - Data Pipeline for Flow-Based Multi-Factor Equity Strategy
+Project : Systematic Equity Pipeline - Data Pipeline for Flow-Based Multi-Factor Equity Strategy
 
 Orchestrates the full ETL pipeline:
   Yahoo Finance → MinIO (raw) → cleaning/validation → PostgreSQL (clean)
@@ -2572,7 +2572,7 @@ def _run_news_sentiment(
 
 
 def main():
-    """Main entry point for the CW1 data pipeline.
+    """Main entry point for the Systematic Equity data pipeline.
 
     Orchestration flow:
     1. Register signal handlers for graceful shutdown
@@ -2590,7 +2590,7 @@ def main():
     signal.signal(signal.SIGTERM, _signal_handler)
 
     pipeline_logger.info("=" * 60)
-    pipeline_logger.info("CW1 Systematic Equity Pipeline started")
+    pipeline_logger.info("Systematic Equity Pipeline started")
     pipeline_logger.info("=" * 60)
 
     # ── 1. Parse CLI args ──
@@ -3177,7 +3177,7 @@ def main():
     db_client.close()
     mongo_store.close()
     kafka_producer.close()
-    pipeline_logger.info("CW1 Pipeline completed successfully")
+    pipeline_logger.info("Pipeline completed successfully")
 
 
 if __name__ == "__main__":
