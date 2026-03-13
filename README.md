@@ -1,5 +1,11 @@
 # Systematic Equity Data Pipeline
 
+[![Python 3.10+](https://img.shields.io/badge/python-3.10%2B-blue.svg)](https://www.python.org/downloads/)
+[![Tests](https://img.shields.io/badge/tests-877%20passed-brightgreen.svg)](#testing)
+[![Coverage](https://img.shields.io/badge/coverage-92%25-brightgreen.svg)](#coverage-results)
+[![Code Style](https://img.shields.io/badge/code%20style-black-000000.svg)](https://github.com/psf/black)
+[![Security](https://img.shields.io/badge/security-bandit%20passed-brightgreen.svg)](#security)
+
 **Kolmogorov's team** | Version 2.2.0
 
 ---
@@ -21,8 +27,8 @@ The data infrastructure supports a **flow-based multi-factor equity strategy** g
 | 3 | EDGAR supplementary fundamentals | SEC EDGAR XBRL | ~137k rows | 436 US symbols |
 | 4 | Company financial ratios | Yahoo Finance + Finnhub | ~93k rows | 637 / 678 symbols |
 | 5 | FX rates (GBP, EUR, CAD, CHF to USD) | Yahoo Finance | ~6.3k rows | 4 / 4 pairs |
-| 6 | CBOE Volatility Index (VIX) | Yahoo Finance | ~1.5k rows | 2020-2026 |
-| 7 | US 3-Month Treasury rate (DGS3MO) | FRED | ~1.6k rows | 2020-2026 |
+| 6 | CBOE Volatility Index (VIX) | Yahoo Finance | ~1.5k rows | 2020--2026 |
+| 7 | US 3-Month Treasury rate (DGS3MO) | FRED | ~1.6k rows | 2020--2026 |
 | 8 | Regional benchmark indices (5) | Yahoo Finance | ~8k rows | S&P 500, FTSE 100, Euro Stoxx 50, TSX, SMI |
 | 9 | ESG sustainability scores | LSEG / yfinance | 234 rows | ~35% (API ceiling) |
 | 10 | News sentiment (VADER + financial boost) | yfinance + NewsAPI + GDELT | ~2k rows | 667 / 678 symbols |
@@ -43,8 +49,8 @@ The data infrastructure supports a **flow-based multi-factor equity strategy** g
           +----------------------------+----------------------------+
           |                            |                            |
    +------v------+            +--------v------+           +--------v------+
-   | Yahoo Finance|            |  SEC EDGAR   |           |    FRED API  |
-   |  yfinance   |            |  XBRL EDGAR  |           |  (DGS3MO)    |
+   | Yahoo Finance|            |  SEC EDGAR   |           |  FRED / GDELT |
+   |  yfinance   |            |  XBRL filings|           | NewsAPI / LSEG|
    +------+------+            +--------+------+           +--------+------+
           |                            |                            |
           +----------------------------+----------------------------+
@@ -85,7 +91,7 @@ The data infrastructure supports a **flow-based multi-factor equity strategy** g
 
 | Dependency | Version | Purpose |
 |------------|---------|---------|
-| Python | 3.11+ | Runtime |
+| Python | 3.10+ | Runtime |
 | PostgreSQL | 14+ | Primary data store (port 5438 in dev) |
 | MongoDB | 6+ | Semi-structured document store |
 | Apache Kafka | 3+ | Event streaming |
@@ -152,6 +158,7 @@ poetry run python Main.py --env_type <dev|docker> [OPTIONS]
 | `--tickers` | all 678 | Override universe with specific tickers |
 | `--init_schema` | false | Create/update PostgreSQL schema before running |
 | `--dry_run` | false | Validate configuration without downloading |
+| `--schedule` | false | Run on recurring schedule via APScheduler |
 
 ---
 
@@ -257,16 +264,30 @@ All tables use `ON CONFLICT DO UPDATE` for idempotent re-runs.
 
 ---
 
+## Design Patterns
+
+| Pattern | Implementation | Reference |
+|---------|---------------|-----------|
+| **Template Method** | `BaseDownloader` defines workflow; subclasses override `_execute_download()` | Gamma et al. (1994) |
+| **Circuit Breaker** | Three-state machine (CLOSED / OPEN / HALF_OPEN) prevents cascading failures | Nygard (2007) |
+| **Token Bucket** | Rate limiter controls API request rate with burst capacity | Turner (1986) |
+| **MapReduce** | `ThreadPoolExecutor` distributes per-ticker downloads; PostgreSQL aggregates via upsert | Dean & Ghemawat (2004) |
+| **EAV (Entity-Attribute-Value)** | `fundamentals` and `company_ratios` tables store flexible metrics without schema migration | |
+| **Upsert Safety** | `INSERT ... ON CONFLICT DO UPDATE` guarantees idempotent re-runs | |
+| **Graceful Degradation** | MinIO, MongoDB, and Kafka failures are logged but do not halt the pipeline | |
+
+---
+
 ## Sentiment Scoring
 
 **3-source news cascade** (per ticker, parallel across 6 workers):
-1. **yfinance `Ticker.news`** — primary (no API key needed)
-2. **NewsAPI `/v2/everything`** — secondary gap-fill (requires `NEWSAPI_KEY`)
-3. **GDELT DOC API** — tertiary gap-fill (free, no key)
+1. **yfinance `Ticker.news`** -- primary (no API key needed)
+2. **NewsAPI `/v2/everything`** -- secondary gap-fill (requires `NEWSAPI_KEY`)
+3. **GDELT DOC API** -- tertiary gap-fill (free, no key)
 
 Each source triggers only when the previous returns zero articles.
 
-**Composite score (0-100):**
+**Composite score (0--100):**
 
 ```
 sentiment_score = vader_component  * 0.45
@@ -299,11 +320,11 @@ sentiment_score = vader_component  * 0.45
 
 The test suite follows a three-tier strategy aligned with the testing pyramid:
 
-**Unit Tests** — Test individual modules in isolation with all external dependencies mocked (APIs, databases, network). Each module has a dedicated test file (e.g., `test_sql_conn.py`, `test_data_cleaning.py`, `test_circuit_breaker.py`). These run without any infrastructure and form the bulk of the suite.
+**Unit Tests** -- Test individual modules in isolation with all external dependencies mocked (APIs, databases, network). Each module has a dedicated test file (e.g., `test_sql_conn.py`, `test_data_cleaning.py`, `test_circuit_breaker.py`). These run without any infrastructure and form the bulk of the suite.
 
-**Integration Tests** — Test database upsert idempotency and schema initialisation against a live PostgreSQL instance. Located in `tests/test_integration.py`. These require Docker infrastructure and are automatically skipped when PostgreSQL is not available (via TCP socket probe), ensuring `poetry run pytest ./tests/` always passes cleanly.
+**Integration Tests** -- Test database upsert idempotency and schema initialisation against a live PostgreSQL instance. Located in `tests/test_integration.py`. These require Docker infrastructure and are automatically skipped when PostgreSQL is not available (via TCP socket probe), ensuring `poetry run pytest ./tests/` always passes cleanly.
 
-**End-to-End Tests** — Test full pipeline workflows from CLI argument parsing through data cleaning to database writes (mocked at the boundary). Located in `tests/test_e2e.py`.
+**End-to-End Tests** -- Test full pipeline workflows from CLI argument parsing through data cleaning to database writes (mocked at the boundary). Located in `tests/test_e2e.py`.
 
 ### Coverage Results
 
@@ -371,8 +392,8 @@ poetry run bandit -r modules/ -c pyproject.toml
 | Severity | Count | Details |
 |----------|-------|---------|
 | **High** | **0** | No high-severity issues |
-| **Medium** | 4 | `B310`: `urllib.urlopen` in EDGAR/Finnhub downloaders — intentional, URLs are hardcoded SEC/Finnhub API endpoints |
-| **Low** | 6 | `B311`: `random.uniform` for jitter backoff — not cryptographic use; `B110`: `try/except/pass` in ESG fallback paths — intentional graceful degradation |
+| **Medium** | 4 | `B310`: `urllib.urlopen` in EDGAR/Finnhub downloaders -- intentional, URLs are hardcoded SEC/Finnhub API endpoints |
+| **Low** | 6 | `B311`: `random.uniform` for jitter backoff -- not cryptographic use; `B110`: `try/except/pass` in ESG fallback paths -- intentional graceful degradation |
 
 **Total lines scanned:** 7,232. **B101** (`assert`) is excluded via `pyproject.toml` as asserts are used only in tests.
 
@@ -384,7 +405,7 @@ All medium/low findings are intentional design decisions documented inline, not 
 poetry run safety check
 ```
 
-**1 low-severity advisory** found in an indirect dependency — no production impact. All direct dependencies are pinned to current stable versions via Poetry's lock file.
+**1 low-severity advisory** found in an indirect dependency -- no production impact. All direct dependencies are pinned to current stable versions via Poetry's lock file.
 
 ---
 
@@ -411,6 +432,9 @@ poetry run python Main.py --env_type dev --start_date 2023-01-01 --end_date 2024
 
 # Subset of sources
 poetry run python Main.py --env_type dev --frequency daily --sources prices fundamentals fx
+
+# Specific tickers only
+poetry run python Main.py --env_type dev --frequency daily --tickers AAPL MSFT VOD.L
 
 # Scheduled recurring execution (APScheduler)
 poetry run python Main.py --env_type dev --frequency daily --schedule
@@ -443,7 +467,20 @@ All dependencies are managed via **Poetry** and defined in `pyproject.toml`:
 | `lseg-data` | ^2.0 | LSEG/Refinitiv ESG data |
 | `ift-global` | git | Shared library (logging, config, MinIO) |
 
-**Development dependencies** (8 packages): `pytest`, `pytest-cov`, `pytest-mock`, `flake8`, `black`, `isort`, `bandit`, `safety`, `sphinx`, `pydata-sphinx-theme`.
+**Development dependencies** (10 packages):
+
+| Package | Purpose |
+|---------|---------|
+| `pytest` | Test framework |
+| `pytest-cov` | Coverage reporting |
+| `pytest-mock` | Mock fixtures |
+| `flake8` | PEP 8 linting |
+| `black` | Code formatting |
+| `isort` | Import sorting |
+| `bandit` | Security static analysis |
+| `safety` | Dependency vulnerability scanning |
+| `sphinx` | Documentation generation |
+| `pydata-sphinx-theme` | Sphinx HTML theme |
 
 ```bash
 # Install all dependencies
@@ -465,10 +502,10 @@ poetry export -f requirements.txt --output requirements.txt
 
 Full project documentation is generated using **Sphinx** with the `pydata-sphinx-theme` and `autodoc` extensions. Documentation covers:
 
-- **Installation guide** — prerequisites, Docker setup, environment variables
-- **Usage guide** — CLI reference, frequency lookback table, common examples
-- **Architecture overview** — system diagram, data flow, module structure, database schema, design patterns
-- **API reference** — auto-generated from docstrings for all 30+ modules
+- **Installation guide** -- prerequisites, Docker setup, environment variables
+- **Usage guide** -- CLI reference, frequency lookback table, common examples
+- **Architecture overview** -- system diagram, data flow, module structure, database schema, design patterns
+- **API reference** -- auto-generated from docstrings for all 30+ modules
 
 ```bash
 # Build HTML documentation
