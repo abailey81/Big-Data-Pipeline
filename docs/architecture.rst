@@ -23,7 +23,7 @@ System Architecture
    +--------------+      +---------------+
    |  Cleaning &  |----->|  PostgreSQL   |  (validated, schema: systematic_equity)
    |  Validation  |      |  db: fift     |
-   |  (Pydantic)  |      |  11 tables    |
+   |  (Pydantic)  |      |  12 tables    |
    +--------------+      +---------------+
 
 Data Flow
@@ -74,7 +74,7 @@ Module Structure
    |   +-- table_models.py     SQLAlchemy ORM: CompanyStatic, DailyPrices, EsgScores, ...
    +-- db_ops/
    |   +-- postgres_config.py  Pydantic config with environment variable fallback
-   |   +-- sql_conn.py         DatabaseMethods: upsert for all 11 tables
+   |   +-- sql_conn.py         DatabaseMethods: upsert for all 12 tables
    |   +-- extract_from_query.py  Read wrapper using context-managed connections
    |   +-- minio_store.py      MinioStore: raw data lake operations
    |   +-- mongo_conn.py       MongoDBStore: document store (ESG, API caches)
@@ -91,18 +91,24 @@ Module Structure
    |   +-- esg_downloader.py      ESG sustainability scores
    |   +-- risk_free_rate_downloader.py  FRED DGS3MO T-bill rate
    |   +-- ratios_downloader.py   Company financial ratios (20 fields)
+   |   +-- news_downloader.py    yfinance news articles (primary)
+   |   +-- newsapi_downloader.py NewsAPI gap-fill (secondary)
+   |   +-- gdelt_downloader.py   GDELT DOC API gap-fill (tertiary)
    +-- processing/
    |   +-- ticker_utils.py     Whitespace, currency inference, Swiss remap
    |   +-- data_cleaner.py     Pydantic validation, NaN coercion, EAV transform
    |   +-- data_quality.py     Post-clean quality checks (fail-open)
+   |   +-- sentiment_scorer.py VADER + financial domain boost scoring
    +-- output/                 (Reserved for CW2)
    +-- utils/
        +-- args_parser.py      CLI argument definitions
        +-- info_logger.py      IFTLogger + run ID generation
+       +-- exceptions.py       Custom exception hierarchy
        +-- scheduler.py        APScheduler cron-based pipeline scheduling
        +-- circuit_breaker.py  Circuit breaker state machine
        +-- rate_limiter.py     Token bucket rate limiter
        +-- retry.py            @retry decorator with backoff strategies
+       +-- concurrent_executor.py  ThreadPoolExecutor wrapper
        +-- health_check.py     Pre-flight dependency checks
        +-- pipeline_metrics.py Timing and metrics (thread-safe)
        +-- progress_tracker.py Rich animated progress bars
@@ -126,7 +132,7 @@ All tables reside in the ``systematic_equity`` schema within the ``fift`` databa
      - ``(symbol, cob_date)``
      - OHLCV + adjusted close in local currency
    * - ``fundamentals``
-     - ``(symbol, report_date, field_name)``
+     - ``(symbol, report_date, field_name, period_type)``
      - EAV pattern for flexible financial metrics
    * - ``fx_rates``
      - ``(currency_pair, cob_date)``
@@ -146,6 +152,9 @@ All tables reside in the ``systematic_equity`` schema within the ``fift`` databa
    * - ``esg_scores``
      - ``(symbol, cob_date)``
      - ESG sustainability scores (total, E, S, G, percentile)
+   * - ``news_sentiment``
+     - ``(symbol, cob_date)``
+     - VADER composite score + dispersion per ticker
    * - ``ingestion_log``
      - ``(log_id)`` auto-increment
      - Audit trail for every download attempt

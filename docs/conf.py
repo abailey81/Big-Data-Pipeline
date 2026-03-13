@@ -16,7 +16,7 @@ sys.path.insert(0, os.path.abspath('..'))
 project = 'Systematic Equity Pipeline'
 copyright = "2026, Kolmogorov's team"
 author = "Kolmogorov's team"
-release = '2.1.0'
+release = '2.2.0'
 
 # -- General configuration ----------------------------------------------------
 extensions = [

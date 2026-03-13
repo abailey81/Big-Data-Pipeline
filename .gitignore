@@ -39,7 +39,7 @@ docs/_build/
 # Jupyter
 .ipynb_checkpoints/
 
-# Claude
+# Local tool config
 .claude/
 
 # Assignment documents (not part of codebase)

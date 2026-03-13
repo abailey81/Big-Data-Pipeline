@@ -160,51 +160,76 @@ poetry run python Main.py --env_type <dev|docker> [OPTIONS]
 ```
 Big-Data-Pipeline/
 ├── Main.py                          # Pipeline entry point and orchestrator
+├── pyproject.toml                   # Poetry dependencies and tool config
+├── poetry.lock                      # Pinned dependency versions
+├── requirements.txt                 # Exported pip requirements
+├── docker-compose.yml               # Infrastructure services (8 containers)
+├── CHANGELOG.md                     # Version history (Keep a Changelog format)
+├── .flake8                          # Flake8 linting configuration
+├── .env.example                     # Environment variable template
 ├── config/
-│   └── conf.yaml                    # Environment configuration
+│   └── conf.yaml                    # Pipeline configuration (dev + docker)
 ├── modules/
 │   ├── input/                       # Downloaders (one per data source)
-│   │   ├── price_downloader.py
-│   │   ├── fundamentals_downloader.py
-│   │   ├── edgar_downloader.py
-│   │   ├── finnhub_downloader.py
-│   │   ├── fx_downloader.py
-│   │   ├── vix_downloader.py
-│   │   ├── risk_free_rate_downloader.py
-│   │   ├── esg_downloader.py
-│   │   ├── news_downloader.py
-│   │   ├── newsapi_downloader.py
-│   │   └── gdelt_downloader.py
+│   │   ├── base_downloader.py       # Abstract base (circuit breaker, rate limiter, retry)
+│   │   ├── price_downloader.py      # Daily OHLCV for 678 equities
+│   │   ├── fundamentals_downloader.py  # Balance sheet + income statement
+│   │   ├── edgar_downloader.py      # SEC EDGAR 10-Q/10-K XBRL filings
+│   │   ├── finnhub_downloader.py    # Finnhub fundamentals (non-US tickers)
+│   │   ├── fx_downloader.py         # FX rate pairs (GBP, EUR, CAD, CHF)
+│   │   ├── vix_downloader.py        # CBOE Volatility Index
+│   │   ├── risk_free_rate_downloader.py  # FRED DGS3MO T-bill rate
+│   │   ├── esg_downloader.py        # ESG sustainability scores
+│   │   ├── ratios_downloader.py     # Company financial ratios (20 fields)
+│   │   ├── news_downloader.py       # yfinance news articles
+│   │   ├── newsapi_downloader.py    # NewsAPI gap-fill
+│   │   ├── gdelt_downloader.py      # GDELT tertiary gap-fill
+│   │   └── get_company_static.py    # 678-company investable universe
 │   ├── processing/                  # Data cleaning and transformation
-│   │   ├── data_cleaner.py
-│   │   ├── data_quality.py
+│   │   ├── data_cleaner.py          # Pydantic validation, NaN coercion
+│   │   ├── data_quality.py          # Post-clean quality checks (fail-open)
 │   │   ├── sentiment_scorer.py      # VADER + financial domain boost
-│   │   └── ticker_utils.py
+│   │   └── ticker_utils.py          # Whitespace, currency, Swiss remap
 │   ├── db_ops/                      # Database clients
 │   │   ├── sql_conn.py              # PostgreSQL (SQLAlchemy + psycopg2)
+│   │   ├── postgres_config.py       # Pydantic config with env var fallback
+│   │   ├── extract_from_query.py    # Read wrapper with context-managed connections
 │   │   ├── mongo_conn.py            # MongoDB (PyMongo)
-│   │   ├── minio_store.py           # MinIO object store
-│   │   └── kafka_ops.py             # Kafka producer
+│   │   ├── minio_store.py           # MinIO S3-compatible object store
+│   │   └── kafka_ops.py             # Kafka producer/consumer
 │   ├── data_models/
 │   │   ├── models.py                # Pydantic validation models
-│   │   └── table_models.py          # SQLAlchemy ORM definitions
-│   └── utils/
-│       ├── circuit_breaker.py       # Resilience pattern
-│       ├── rate_limiter.py          # Token-bucket rate limiting
-│       ├── retry.py                 # Exponential backoff decorator
-│       ├── concurrent_executor.py   # ThreadPoolExecutor wrapper
-│       ├── health_check.py          # Pre-flight dependency checks
-│       ├── pipeline_metrics.py      # Timing and outcome tracking
-│       ├── progress_tracker.py      # Rich terminal progress display
-│       └── scheduler.py             # APScheduler cron integration
-├── static/schema/
-│   ├── create_tables.sql            # PostgreSQL DDL (12 tables)
-│   └── company_static.csv           # Universe of 678 tickers
+│   │   └── table_models.py          # SQLAlchemy ORM definitions (12 tables)
+│   ├── utils/
+│   │   ├── args_parser.py           # CLI argument definitions
+│   │   ├── info_logger.py           # IFTLogger + run ID generation
+│   │   ├── circuit_breaker.py       # Three-state resilience pattern
+│   │   ├── rate_limiter.py          # Token-bucket rate limiting
+│   │   ├── retry.py                 # Exponential backoff decorator
+│   │   ├── exceptions.py            # Custom exception hierarchy
+│   │   ├── concurrent_executor.py   # ThreadPoolExecutor wrapper
+│   │   ├── health_check.py          # Pre-flight dependency checks
+│   │   ├── pipeline_metrics.py      # Timing and outcome tracking
+│   │   ├── progress_tracker.py      # Rich terminal progress display
+│   │   └── scheduler.py             # APScheduler cron integration
+│   └── output/                      # Reserved for CW2
+├── static/
+│   └── schema/
+│       ├── create_tables.sql        # PostgreSQL DDL (12 tables)
+│       ├── company_static.csv       # Universe of 678 tickers
+│       └── seed.sh                  # Database seed script
 ├── tests/                           # 877 tests, 92% coverage
+│   ├── conftest.py                  # Shared fixtures
+│   └── test_*.py                    # 30 test modules
 ├── docs/                            # Sphinx documentation
-├── docker-compose.yml               # Infrastructure (8 services)
-├── pyproject.toml
-└── requirements.txt
+│   ├── conf.py                      # Sphinx configuration
+│   ├── index.rst                    # Documentation index
+│   ├── installation.rst             # Setup guide
+│   ├── usage.rst                    # CLI reference and examples
+│   ├── architecture.rst             # System design and patterns
+│   └── api.rst                      # Auto-generated API reference
+└── reports/
+    └── bandit_security_report.txt   # Security scan results
 ```
 
 ---
