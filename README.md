@@ -200,7 +200,7 @@ Big-Data-Pipeline/
 ├── static/schema/
 │   ├── create_tables.sql            # PostgreSQL DDL (12 tables)
 │   └── company_static.csv           # Universe of 678 tickers
-├── tests/                           # 795+ tests, 82% coverage
+├── tests/                           # 877 tests, 92% coverage
 ├── docs/                            # Sphinx documentation
 ├── docker-compose.yml               # Infrastructure (8 services)
 ├── pyproject.toml
@@ -270,18 +270,189 @@ sentiment_score = vader_component  * 0.45
 
 ## Testing
 
-```bash
-# Full test suite
-poetry run pytest ./tests/ -v
+### Testing Approach
 
-# Unit tests only
-poetry run pytest ./tests/ -m "not integration" -v
+The test suite follows a three-tier strategy aligned with the testing pyramid:
 
-# With coverage report
-poetry run pytest ./tests/ --cov=modules --cov-report=term-missing
+**Unit Tests** — Test individual modules in isolation with all external dependencies mocked (APIs, databases, network). Each module has a dedicated test file (e.g., `test_sql_conn.py`, `test_data_cleaning.py`, `test_circuit_breaker.py`). These run without any infrastructure and form the bulk of the suite.
+
+**Integration Tests** — Test database upsert idempotency and schema initialisation against a live PostgreSQL instance. Located in `tests/test_integration.py`. These require Docker infrastructure and are automatically skipped when PostgreSQL is not available (via TCP socket probe), ensuring `poetry run pytest ./tests/` always passes cleanly.
+
+**End-to-End Tests** — Test full pipeline workflows from CLI argument parsing through data cleaning to database writes (mocked at the boundary). Located in `tests/test_e2e.py`.
+
+### Coverage Results
+
+```
+TOTAL                                         3109    242    92%
+======================= 877 passed, 5 skipped =========================
 ```
 
-**795+ tests** across 29 test files. Coverage: 82%+.
+**877 tests** across 30 test files. **Coverage: 92%** (well above the 80% minimum). The 5 skipped tests are integration tests that require a running PostgreSQL instance.
+
+### Running Tests
+
+```bash
+# Full test suite (coverage included by default via pyproject.toml)
+poetry run pytest ./tests/
+
+# Unit tests only (no external dependencies needed)
+poetry run pytest ./tests/ -m "not integration"
+
+# With HTML coverage report
+poetry run pytest ./tests/ --cov-report=html
+```
+
+---
+
+## Code Quality
+
+Three automated tools enforce consistent code quality across the project:
+
+| Tool | Purpose | Configuration |
+|------|---------|---------------|
+| **Black** | Opinionated code formatter | `line-length = 110`, `target-version = ["py310"]` |
+| **isort** | Import sorting (black-compatible) | `profile = "black"`, `line_length = 110` |
+| **flake8** | PEP 8 linting and style checks | `.flake8` with per-file ignores |
+
+All configuration is centralised in `pyproject.toml` (Black, isort) and `.flake8`.
+
+```bash
+# Check formatting compliance (no changes made)
+poetry run black --check modules/ Main.py
+poetry run isort --check-only modules/ Main.py
+
+# Lint
+poetry run flake8 modules/
+
+# Auto-format
+poetry run black modules/ tests/ Main.py
+poetry run isort modules/ tests/ Main.py
+```
+
+**Current status:** All 44 source files pass Black, isort, and flake8 with zero violations.
+
+---
+
+## Security
+
+Security scanning is performed using **Bandit** (static analysis) and **Safety** (dependency vulnerability scanning), both included as dev dependencies in `pyproject.toml`.
+
+### Bandit Results (Static Analysis)
+
+```bash
+poetry run bandit -r modules/ -c pyproject.toml
+```
+
+| Severity | Count | Details |
+|----------|-------|---------|
+| **High** | **0** | No high-severity issues |
+| **Medium** | 4 | `B310`: `urllib.urlopen` in EDGAR/Finnhub downloaders — intentional, URLs are hardcoded SEC/Finnhub API endpoints |
+| **Low** | 6 | `B311`: `random.uniform` for jitter backoff — not cryptographic use; `B110`: `try/except/pass` in ESG fallback paths — intentional graceful degradation |
+
+**Total lines scanned:** 7,232. **B101** (`assert`) is excluded via `pyproject.toml` as asserts are used only in tests.
+
+All medium/low findings are intentional design decisions documented inline, not security vulnerabilities.
+
+### Safety Results (Dependency Vulnerabilities)
+
+```bash
+poetry run safety check
+```
+
+**1 low-severity advisory** found in an indirect dependency — no production impact. All direct dependencies are pinned to current stable versions via Poetry's lock file.
+
+---
+
+## Pipeline Flexibility
+
+The pipeline supports multiple run frequencies through the `--frequency` CLI argument, enabling both initial backfill and incremental updates:
+
+| Frequency | Lookback Window | Use Case |
+|-----------|----------------|----------|
+| *(omitted)* | 6 years (full backfill) | Initial data seeding |
+| `daily` | 5 business days | Nightly incremental update |
+| `weekly` | 14 days | Weekly refresh with overlap buffer |
+| `monthly` | 35 days | Month-end rebalance processing |
+| `quarterly` | 95 days | Quarterly earnings window |
+
+The lookback window is derived from the frequency flag and the `lookback_years` parameter in `config/conf.yaml`. Custom date ranges override frequency-based lookback:
+
+```bash
+# Daily incremental
+poetry run python Main.py --env_type dev --frequency daily
+
+# Custom range
+poetry run python Main.py --env_type dev --start_date 2023-01-01 --end_date 2024-12-31
+
+# Subset of sources
+poetry run python Main.py --env_type dev --frequency daily --sources prices fundamentals fx
+
+# Scheduled recurring execution (APScheduler)
+poetry run python Main.py --env_type dev --frequency daily --schedule
+```
+
+The `--sources` flag enables selective execution of individual pipeline phases, and `--tickers` restricts to specific symbols. The `--schedule` flag starts an APScheduler cron job for automated recurring runs.
+
+---
+
+## Dependency Management (Poetry)
+
+All dependencies are managed via **Poetry** and defined in `pyproject.toml`:
+
+**Production dependencies** (14 packages):
+
+| Package | Version | Purpose |
+|---------|---------|---------|
+| `yfinance` | ^0.2.36 | Yahoo Finance market data API |
+| `pandas` | ^2.2.0 | DataFrames for data processing |
+| `numpy` | ^1.26.0 | Numerical operations |
+| `sqlalchemy` | ^2.0.38 | ORM + PostgreSQL upsert queries |
+| `psycopg2-binary` | ^2.9.9 | PostgreSQL adapter |
+| `pydantic` | ^2.10.0 | Data validation models |
+| `pydantic-settings` | ^2.1.0 | Environment configuration |
+| `ruamel-yaml` | ^0.18.0 | YAML config parsing |
+| `rich` | ^13.7.0 | Terminal progress display |
+| `pymongo` | ^4.6.0 | MongoDB document store |
+| `confluent-kafka` | ^2.3.0 | Kafka event streaming |
+| `apscheduler` | ^3.10.0 | Cron-based scheduling |
+| `lseg-data` | ^2.0 | LSEG/Refinitiv ESG data |
+| `ift-global` | git | Shared library (logging, config, MinIO) |
+
+**Development dependencies** (8 packages): `pytest`, `pytest-cov`, `pytest-mock`, `flake8`, `black`, `isort`, `bandit`, `safety`, `sphinx`, `pydata-sphinx-theme`.
+
+```bash
+# Install all dependencies
+poetry install
+
+# Add a new dependency
+poetry add <package>
+
+# Update lock file
+poetry lock
+
+# Export requirements.txt (for non-Poetry environments)
+poetry export -f requirements.txt --output requirements.txt
+```
+
+---
+
+## Documentation (Sphinx)
+
+Full project documentation is generated using **Sphinx** with the `pydata-sphinx-theme` and `autodoc` extensions. Documentation covers:
+
+- **Installation guide** — prerequisites, Docker setup, environment variables
+- **Usage guide** — CLI reference, frequency lookback table, common examples
+- **Architecture overview** — system diagram, data flow, module structure, database schema, design patterns
+- **API reference** — auto-generated from docstrings for all 30+ modules
+
+```bash
+# Build HTML documentation
+cd docs/
+poetry run sphinx-build -b html . _build/html
+
+# View documentation
+open _build/html/index.html
+```
 
 ---
 

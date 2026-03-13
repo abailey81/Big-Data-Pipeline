@@ -3,12 +3,31 @@ Integration tests for the Systematic Equity Pipeline.
 
 These tests require a running PostgreSQL and MinIO instance.
 Run with: poetry run pytest -m integration
+
+When PostgreSQL is not available (e.g. CI without Docker), tests
+are automatically skipped to avoid false failures.
 """
+
+import socket
 
 import pytest
 
 
+def _postgres_is_reachable(host: str = "localhost", port: int = 5438, timeout: float = 1.0) -> bool:
+    """Check if PostgreSQL is accepting TCP connections."""
+    try:
+        with socket.create_connection((host, port), timeout=timeout):
+            return True
+    except (OSError, ConnectionRefusedError, socket.timeout):
+        return False
+
+
+_SKIP_REASON = "PostgreSQL not available on localhost:5438 (requires Docker)"
+_pg_available = _postgres_is_reachable()
+
+
 @pytest.mark.integration
+@pytest.mark.skipif(not _pg_available, reason=_SKIP_REASON)
 class TestDatabaseUpsertIdempotency:
     """Tests that upsert logic produces identical results on re-run (Spec §8.1)."""
 
@@ -70,6 +89,7 @@ class TestDatabaseUpsertIdempotency:
 
 
 @pytest.mark.integration
+@pytest.mark.skipif(not _pg_available, reason=_SKIP_REASON)
 class TestEquityStaticRead:
     """Tests that we can read from the seeded equity_static table."""
 
@@ -91,6 +111,7 @@ class TestEquityStaticRead:
 
 
 @pytest.mark.integration
+@pytest.mark.skipif(not _pg_available, reason=_SKIP_REASON)
 class TestSchemaInit:
     """Tests schema initialisation."""
 

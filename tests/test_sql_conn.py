@@ -360,3 +360,99 @@ class TestLoadCompanyStatic:
         with pytest.raises(Exception):
             db_methods.load_company_static([{"symbol": "X"}])
         mock_session.rollback.assert_called_once()
+
+
+# ── ESG scores upsert tests ──────────────────────────────────────────
+
+
+class TestUpsertEsgScores:
+
+    def test_empty_list_returns_zero(self, db_methods):
+        assert db_methods.upsert_esg_scores([]) == 0
+
+    def test_upsert_returns_count(self, db_methods, mock_session):
+        records = [
+            {
+                "symbol": "AAPL",
+                "cob_date": date(2024, 6, 15),
+                "total_esg": 22.5,
+                "environment_score": 15.0,
+                "social_score": 25.0,
+                "governance_score": 27.0,
+                "peer_percentile": 45.0,
+            },
+        ]
+        result = db_methods.upsert_esg_scores(records)
+        assert result == 1
+        mock_session.execute.assert_called_once()
+        mock_session.commit.assert_called_once()
+
+    def test_adds_ingestion_timestamp(self, db_methods, mock_session):
+        records = [{"symbol": "MSFT", "cob_date": date(2024, 6, 15)}]
+        db_methods.upsert_esg_scores(records)
+        assert "ingestion_timestamp" in records[0]
+
+    def test_exception_rolls_back(self, db_methods, mock_session):
+        mock_session.execute.side_effect = Exception("DB error")
+        with pytest.raises(Exception, match="DB error"):
+            db_methods.upsert_esg_scores([{"symbol": "X", "cob_date": date(2024, 1, 1)}])
+        mock_session.rollback.assert_called_once()
+
+    def test_multiple_records(self, db_methods, mock_session):
+        records = [
+            {"symbol": "AAPL", "cob_date": date(2024, 6, 15), "total_esg": 22.5},
+            {"symbol": "MSFT", "cob_date": date(2024, 6, 15), "total_esg": 30.1},
+            {"symbol": "GOOG", "cob_date": date(2024, 6, 15), "total_esg": 18.9},
+        ]
+        result = db_methods.upsert_esg_scores(records)
+        assert result == 3
+
+
+# ── News sentiment upsert tests ──────────────────────────────────────
+
+
+class TestUpsertNewsSentiment:
+
+    def test_empty_list_returns_zero(self, db_methods):
+        assert db_methods.upsert_news_sentiment([]) == 0
+
+    def test_upsert_returns_count(self, db_methods, mock_session):
+        records = [
+            {
+                "symbol": "AAPL",
+                "cob_date": date(2024, 6, 15),
+                "article_count": 12,
+                "avg_sentiment": 0.35,
+                "positive_count": 8,
+                "negative_count": 2,
+                "neutral_count": 2,
+                "max_sentiment": 0.85,
+                "min_sentiment": -0.20,
+                "positive_ratio": 0.6667,
+                "sentiment_score": 72.5,
+                "score_dispersion": 0.15,
+            },
+        ]
+        result = db_methods.upsert_news_sentiment(records)
+        assert result == 1
+        mock_session.execute.assert_called_once()
+        mock_session.commit.assert_called_once()
+
+    def test_adds_ingestion_timestamp(self, db_methods, mock_session):
+        records = [{"symbol": "TSLA", "cob_date": date(2024, 6, 15), "article_count": 5}]
+        db_methods.upsert_news_sentiment(records)
+        assert "ingestion_timestamp" in records[0]
+
+    def test_exception_rolls_back(self, db_methods, mock_session):
+        mock_session.execute.side_effect = Exception("DB error")
+        with pytest.raises(Exception, match="DB error"):
+            db_methods.upsert_news_sentiment([{"symbol": "X", "cob_date": date(2024, 1, 1)}])
+        mock_session.rollback.assert_called_once()
+
+    def test_multiple_records(self, db_methods, mock_session):
+        records = [
+            {"symbol": "AAPL", "cob_date": date(2024, 6, 15), "article_count": 10},
+            {"symbol": "MSFT", "cob_date": date(2024, 6, 15), "article_count": 8},
+        ]
+        result = db_methods.upsert_news_sentiment(records)
+        assert result == 2

@@ -62,14 +62,15 @@ def load_company_static_csv(csv_path: str) -> list[dict]:
     with open(csv_path, "r", encoding="utf-8") as f:
         reader = csv.DictReader(f)
         for row in reader:
+            # Support both capitalised headers (spec) and lowercase (actual CSV)
             records.append(
                 {
-                    "symbol": row.get("Symbol", "").strip(),
-                    "security": row.get("Security", "").strip(),
-                    "gics_sector": row.get("GICS Sector", "").strip(),
-                    "gics_industry": row.get("GICS Industry", "").strip(),
-                    "country": row.get("Country", "").strip()[:3],
-                    "region": row.get("Region", "").strip(),
+                    "symbol": (row.get("Symbol") or row.get("symbol", "")).strip(),
+                    "security": (row.get("Security") or row.get("security", "")).strip(),
+                    "gics_sector": (row.get("GICS Sector") or row.get("gics_sector", "")).strip(),
+                    "gics_industry": (row.get("GICS Industry") or row.get("gics_industry", "")).strip(),
+                    "country": (row.get("Country") or row.get("country", "")).strip()[:3],
+                    "region": (row.get("Region") or row.get("region", "")).strip(),
                 }
             )
     pipeline_logger.info(f"Parsed {len(records)} companies from {csv_path}")

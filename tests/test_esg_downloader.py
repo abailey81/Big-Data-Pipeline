@@ -431,3 +431,204 @@ class TestCleanEsgRecord:
         assert result is not None
         assert result["total_esg"] == 55.3
         assert "source" not in result
+
+
+# ---------------------------------------------------------------------------
+# EsgDownloader — download_batch (LSEG batch path)
+# ---------------------------------------------------------------------------
+
+
+class TestEsgDownloaderBatch:
+    """Tests for the LSEG batch download path (download_batch)."""
+
+    def setup_method(self):
+        _reset_lseg_state()
+        esg_mod._LSEG_INIT_DONE = True
+        esg_mod._LSEG_AVAILABLE = True
+
+    def test_batch_disabled_returns_empty(self):
+        dl = EsgDownloader()
+        dl._use_lseg = False
+        result = dl.download_batch([("AAPL", "AAPL", "USD")])
+        assert result == {}
+
+    def test_batch_success(self):
+        mock_ld = _make_mock_ld(_lseg_df(total=22.5, env=15.0, soc=25.0, gov=27.0, grade="B+"))
+        with patch.dict("sys.modules", {"lseg.data": mock_ld, "lseg": MagicMock(data=mock_ld)}):
+            dl = EsgDownloader()
+            dl._use_lseg = True
+            result = dl.download_batch([("AAPL", "AAPL", "USD")])
+
+        assert "AAPL" in result
+        assert result["AAPL"]["total_esg"] == 22.5
+
+    def test_batch_empty_df_returns_empty(self):
+        mock_ld = _make_mock_ld(pd.DataFrame())
+        with patch.dict("sys.modules", {"lseg.data": mock_ld, "lseg": MagicMock(data=mock_ld)}):
+            dl = EsgDownloader()
+            dl._use_lseg = True
+            result = dl.download_batch([("AAPL", "AAPL", "USD")])
+
+        assert result == {}
+
+    def test_batch_none_df_returns_empty(self):
+        mock_ld = _make_mock_ld(None)
+        mock_ld.get_data.return_value = None
+        with patch.dict("sys.modules", {"lseg.data": mock_ld, "lseg": MagicMock(data=mock_ld)}):
+            dl = EsgDownloader()
+            dl._use_lseg = True
+            result = dl.download_batch([("AAPL", "AAPL", "USD")])
+
+        assert result == {}
+
+    def test_batch_all_null_scores(self):
+        df = _lseg_df(total=None, env=None, soc=None, gov=None, grade=None)
+        mock_ld = _make_mock_ld(df)
+        with patch.dict("sys.modules", {"lseg.data": mock_ld, "lseg": MagicMock(data=mock_ld)}):
+            dl = EsgDownloader()
+            dl._use_lseg = True
+            result = dl.download_batch([("AAPL", "AAPL", "USD")])
+
+        assert "AAPL" in result
+        assert result["AAPL"] is None
+
+    def test_batch_session_dead_marks_unavailable(self):
+        mock_ld = _make_mock_ld()
+        mock_ld.get_data.side_effect = Exception("Session is not opened")
+        with patch.dict("sys.modules", {"lseg.data": mock_ld, "lseg": MagicMock(data=mock_ld)}):
+            dl = EsgDownloader()
+            dl._use_lseg = True
+            result = dl.download_batch([("AAPL", "AAPL", "USD")])
+
+        assert result == {}
+        assert dl._use_lseg is False
+
+    def test_batch_generic_error_returns_empty(self):
+        mock_ld = _make_mock_ld()
+        mock_ld.get_data.side_effect = Exception("Network timeout")
+        with patch.dict("sys.modules", {"lseg.data": mock_ld, "lseg": MagicMock(data=mock_ld)}):
+            dl = EsgDownloader()
+            dl._use_lseg = True
+            result = dl.download_batch([("AAPL", "AAPL", "USD")])
+
+        assert result == {}
+
+
+# ---------------------------------------------------------------------------
+# EsgDownloader — _download_yfinance fallback
+# ---------------------------------------------------------------------------
+
+
+class TestEsgDownloaderYFinanceFallback:
+    """Tests for the yfinance fallback download path."""
+
+    def setup_method(self):
+        _reset_lseg_state()
+        esg_mod._LSEG_INIT_DONE = True
+        esg_mod._LSEG_AVAILABLE = False
+
+    @patch("modules.input.esg_downloader.yf.Ticker")
+    def test_yfinance_info_esg_path(self, mock_ticker_cls):
+        """Test the .info-based ESG path (when sustainability is None)."""
+        mock_ticker = MagicMock()
+        mock_ticker.sustainability = None
+        mock_ticker.info = {
+            "esgPopulated": True,
+            "totalEsg": 18.5,
+            "environmentScore": 5.0,
+            "socialScore": 6.5,
+            "governanceScore": 7.0,
+            "peerEsgScorePerformance": 42.0,
+            "peerGroup": "Technology",
+        }
+        mock_ticker_cls.return_value = mock_ticker
+
+        dl = EsgDownloader()
+        result = dl._download_yfinance("AAPL")
+
+        assert result is not None
+        assert result["total_esg"] == 18.5
+        assert result["source"] == "yfinance_info"
+
+    @patch("modules.input.esg_downloader.yf.Ticker")
+    def test_yfinance_info_all_none_returns_none(self, mock_ticker_cls):
+        mock_ticker = MagicMock()
+        mock_ticker.sustainability = None
+        mock_ticker.info = {"esgPopulated": True}
+        mock_ticker_cls.return_value = mock_ticker
+
+        dl = EsgDownloader()
+        result = dl._download_yfinance("AAPL")
+
+        assert result is None
+
+    @patch("modules.input.esg_downloader.yf.Ticker")
+    def test_yfinance_sustainability_exception(self, mock_ticker_cls):
+        """If sustainability raises, falls through to .info."""
+        mock_ticker = MagicMock()
+        type(mock_ticker).sustainability = property(lambda self: (_ for _ in ()).throw(Exception("API error")))
+        mock_ticker.info = {}
+        mock_ticker_cls.return_value = mock_ticker
+
+        dl = EsgDownloader()
+        result = dl._download_yfinance("AAPL")
+        assert result is None
+
+    @patch("modules.input.esg_downloader.yf.Ticker")
+    def test_yfinance_deprecation_logged_once(self, mock_ticker_cls):
+        """Deprecation message only logged on first None result."""
+        mock_ticker = MagicMock()
+        mock_ticker.sustainability = None
+        mock_ticker.info = {}
+        mock_ticker_cls.return_value = mock_ticker
+
+        esg_mod._YF_DEPRECATION_LOGGED = False
+        dl = EsgDownloader()
+        dl._download_yfinance("AAPL")
+        assert esg_mod._YF_DEPRECATION_LOGGED is True
+
+        # Second call should not re-log (flag stays True)
+        dl._download_yfinance("MSFT")
+        assert esg_mod._YF_DEPRECATION_LOGGED is True
+
+
+# ---------------------------------------------------------------------------
+# _parse_info_esg
+# ---------------------------------------------------------------------------
+
+
+class TestParseInfoEsg:
+
+    def test_valid_info_returns_record(self):
+        info = {
+            "totalEsg": 20.5,
+            "environmentScore": 8.0,
+            "socialScore": 6.0,
+            "governanceScore": 6.5,
+            "peerEsgScorePerformance": 55.0,
+            "peerGroup": "Financials",
+        }
+        result = EsgDownloader._parse_info_esg(info, "JPM")
+        assert result is not None
+        assert result["total_esg"] == 20.5
+        assert result["peer_group"] == "Financials"
+        assert result["source"] == "yfinance_info"
+
+    def test_all_none_returns_none(self):
+        info = {}
+        result = EsgDownloader._parse_info_esg(info, "AAPL")
+        assert result is None
+
+    def test_partial_scores(self):
+        info = {"totalEsg": 15.0}
+        result = EsgDownloader._parse_info_esg(info, "AAPL")
+        assert result is not None
+        assert result["total_esg"] == 15.0
+        assert result["environment_score"] is None
+
+    def test_invalid_float_values(self):
+        info = {"totalEsg": "not-a-number", "environmentScore": 5.0}
+        result = EsgDownloader._parse_info_esg(info, "AAPL")
+        assert result is not None
+        assert result["total_esg"] is None
+        assert result["environment_score"] == 5.0

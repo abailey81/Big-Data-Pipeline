@@ -45,7 +45,7 @@ line_length = 110
 
 [tool.pytest.ini_options]
 testpaths = ["tests"]
-addopts = "-v"
+addopts = "-v --cov=modules --cov-report=term-missing"
 markers = [
     "unit: Unit tests (no external dependencies)",
     "integration: Integration tests requiring PostgreSQL/MinIO",

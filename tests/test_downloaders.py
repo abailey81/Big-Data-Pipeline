@@ -643,3 +643,267 @@ class TestIsUsTicker:
         from modules.input.edgar_downloader import is_us_ticker
 
         assert is_us_ticker("NESN.SW") is False
+
+
+# ── FundamentalsDownloader — exception paths ──────────────────────────
+
+
+class TestFundamentalsDownloaderExceptions:
+    """Test individual statement download exception handling paths."""
+
+    @patch("modules.input.fundamentals_downloader.time.sleep")
+    @patch("modules.input.fundamentals_downloader.yf.Ticker")
+    def test_balance_sheet_exception_continues(self, mock_ticker_cls, mock_sleep):
+        from modules.input.fundamentals_downloader import FundamentalsDownloader
+
+        mock_obj = MagicMock()
+        mock_obj.get_balance_sheet.side_effect = Exception("API error")
+        mock_obj.get_income_stmt.return_value = pd.DataFrame()
+        mock_obj.get_cash_flow.return_value = pd.DataFrame()
+        mock_obj.info = {"bookValue": 10.0}
+        mock_ticker_cls.return_value = mock_obj
+
+        dl = FundamentalsDownloader(api_delay=0)
+        result = dl.download("AAPL")
+        assert result is not None  # info still populated
+        assert result["annual_balance_sheet"].empty
+
+    @patch("modules.input.fundamentals_downloader.time.sleep")
+    @patch("modules.input.fundamentals_downloader.yf.Ticker")
+    def test_income_stmt_exception_continues(self, mock_ticker_cls, mock_sleep):
+        from modules.input.fundamentals_downloader import FundamentalsDownloader
+
+        mock_obj = MagicMock()
+        mock_obj.get_balance_sheet.return_value = pd.DataFrame()
+        mock_obj.get_income_stmt.side_effect = Exception("API error")
+        mock_obj.get_cash_flow.return_value = pd.DataFrame()
+        mock_obj.info = {"bookValue": 10.0}
+        mock_ticker_cls.return_value = mock_obj
+
+        dl = FundamentalsDownloader(api_delay=0)
+        result = dl.download("AAPL")
+        assert result is not None
+        assert result["annual_income_stmt"].empty
+
+    @patch("modules.input.fundamentals_downloader.time.sleep")
+    @patch("modules.input.fundamentals_downloader.yf.Ticker")
+    def test_cash_flow_exception_continues(self, mock_ticker_cls, mock_sleep):
+        from modules.input.fundamentals_downloader import FundamentalsDownloader
+
+        mock_obj = MagicMock()
+        mock_obj.get_balance_sheet.return_value = pd.DataFrame()
+        mock_obj.get_income_stmt.return_value = pd.DataFrame()
+        mock_obj.get_cash_flow.side_effect = Exception("API error")
+        mock_obj.info = {"bookValue": 10.0}
+        mock_ticker_cls.return_value = mock_obj
+
+        dl = FundamentalsDownloader(api_delay=0)
+        result = dl.download("AAPL")
+        assert result is not None
+
+    @patch("modules.input.fundamentals_downloader.time.sleep")
+    @patch("modules.input.fundamentals_downloader.yf.Ticker")
+    def test_info_exception_continues(self, mock_ticker_cls, mock_sleep, sample_balance_sheet):
+        from modules.input.fundamentals_downloader import FundamentalsDownloader
+
+        mock_obj = MagicMock()
+        mock_obj.get_balance_sheet.return_value = sample_balance_sheet
+        mock_obj.get_income_stmt.return_value = pd.DataFrame()
+        mock_obj.get_cash_flow.return_value = pd.DataFrame()
+        type(mock_obj).info = property(lambda self: (_ for _ in ()).throw(Exception("info error")))
+        mock_ticker_cls.return_value = mock_obj
+
+        dl = FundamentalsDownloader(api_delay=0)
+        result = dl.download("AAPL")
+        assert result is not None  # balance sheet still valid
+
+    @patch("modules.input.fundamentals_downloader.time.sleep")
+    @patch("modules.input.fundamentals_downloader.yf.Ticker")
+    def test_all_empty_returns_none(self, mock_ticker_cls, mock_sleep):
+        from modules.input.fundamentals_downloader import FundamentalsDownloader
+
+        mock_obj = MagicMock()
+        mock_obj.get_balance_sheet.return_value = pd.DataFrame()
+        mock_obj.get_income_stmt.return_value = pd.DataFrame()
+        mock_obj.get_cash_flow.return_value = pd.DataFrame()
+        mock_obj.info = {}
+        mock_ticker_cls.return_value = mock_obj
+
+        dl = FundamentalsDownloader(api_delay=0)
+        result = dl.download("AAPL")
+        assert result is None
+
+    @patch("modules.input.fundamentals_downloader.time.sleep")
+    @patch("modules.input.fundamentals_downloader.yf.Ticker")
+    def test_empty_data_retries_with_backoff(self, mock_ticker_cls, mock_sleep):
+        from modules.input.fundamentals_downloader import FundamentalsDownloader
+
+        mock_obj = MagicMock()
+        mock_obj.get_balance_sheet.return_value = pd.DataFrame()
+        mock_obj.get_income_stmt.return_value = pd.DataFrame()
+        mock_obj.get_cash_flow.return_value = pd.DataFrame()
+        mock_obj.info = {}
+        mock_ticker_cls.return_value = mock_obj
+
+        dl = FundamentalsDownloader(api_delay=0, max_retries=2, backoff_base=1.0)
+        result = dl.download("EMPTY")
+        assert result is None
+        assert dl._failure_count == 1
+
+    @patch("modules.input.fundamentals_downloader.time.sleep")
+    @patch("modules.input.fundamentals_downloader.yf.Ticker")
+    def test_circuit_opens_during_retries(self, mock_ticker_cls, mock_sleep):
+        from modules.input.fundamentals_downloader import FundamentalsDownloader
+
+        mock_ticker_cls.side_effect = Exception("persistent failure")
+
+        cb = CircuitBreaker("test", failure_threshold=1)
+        dl = FundamentalsDownloader(api_delay=0, max_retries=3, backoff_base=1.0, circuit_breaker=cb)
+        result = dl.download("FAIL")
+        assert result is None
+        assert dl._failure_count == 1
+
+
+# ── EdgarFundamentalsDownloader — retry / error paths ────────────────
+
+
+class TestEdgarDownloaderRetry:
+
+    @patch("modules.input.edgar_downloader.time.sleep")
+    @patch("modules.input.edgar_downloader.urllib.request.urlopen")
+    def test_http_404_returns_none(self, mock_urlopen, mock_sleep):
+        import urllib.error
+
+        from modules.input.edgar_downloader import EdgarFundamentalsDownloader
+
+        # Mock ticker map (success)
+        ticker_resp = MagicMock()
+        ticker_resp.read.return_value = json.dumps({"0": {"ticker": "AAPL", "cik_str": 320193}}).encode()
+        ticker_resp.__enter__ = lambda s: s
+        ticker_resp.__exit__ = MagicMock(return_value=False)
+
+        mock_urlopen.side_effect = [
+            ticker_resp,
+            urllib.error.HTTPError(url="", code=404, msg="Not Found", hdrs=None, fp=None),
+        ]
+
+        dl = EdgarFundamentalsDownloader(api_delay=0)
+        result = dl.download("AAPL")
+        assert result is None
+        assert dl._success_count == 1  # 404 counted as success
+
+    @patch("modules.input.edgar_downloader.time.sleep")
+    @patch("modules.input.edgar_downloader.urllib.request.urlopen")
+    def test_http_500_retries(self, mock_urlopen, mock_sleep):
+        import urllib.error
+
+        from modules.input.edgar_downloader import EdgarFundamentalsDownloader
+
+        ticker_resp = MagicMock()
+        ticker_resp.read.return_value = json.dumps({"0": {"ticker": "TEST", "cik_str": 1}}).encode()
+        ticker_resp.__enter__ = lambda s: s
+        ticker_resp.__exit__ = MagicMock(return_value=False)
+
+        facts_resp = MagicMock()
+        facts_resp.read.return_value = json.dumps({"facts": {}}).encode()
+        facts_resp.__enter__ = lambda s: s
+        facts_resp.__exit__ = MagicMock(return_value=False)
+
+        mock_urlopen.side_effect = [
+            ticker_resp,
+            urllib.error.HTTPError(url="", code=500, msg="Server Error", hdrs=None, fp=None),
+            facts_resp,
+        ]
+
+        dl = EdgarFundamentalsDownloader(api_delay=0, max_retries=3, backoff_base=1.0)
+        result = dl.download("TEST")
+        assert result is not None
+
+    @patch("modules.input.edgar_downloader.time.sleep")
+    @patch("modules.input.edgar_downloader.urllib.request.urlopen")
+    def test_generic_exception_retries(self, mock_urlopen, mock_sleep):
+        from modules.input.edgar_downloader import EdgarFundamentalsDownloader
+
+        ticker_resp = MagicMock()
+        ticker_resp.read.return_value = json.dumps({"0": {"ticker": "TEST", "cik_str": 1}}).encode()
+        ticker_resp.__enter__ = lambda s: s
+        ticker_resp.__exit__ = MagicMock(return_value=False)
+
+        mock_urlopen.side_effect = [ticker_resp] + [Exception("Network timeout")] * 3
+
+        dl = EdgarFundamentalsDownloader(api_delay=0, max_retries=2, backoff_base=1.0)
+        result = dl.download("TEST")
+        assert result is None
+        assert dl._failure_count == 1
+
+    def test_ticker_not_in_sec_returns_none(self):
+        from modules.input.edgar_downloader import EdgarFundamentalsDownloader
+
+        dl = EdgarFundamentalsDownloader(api_delay=0)
+        dl._ticker_to_cik = {"AAPL": 320193}
+        result = dl._execute_download("UNKNOWN_TICKER")
+        assert result is None
+
+
+# ── EDGAR extract_edgar_fundamentals — computed fields ────────────────
+
+
+class TestEdgarComputedFields:
+
+    def test_computed_ebitda(self):
+        """When EBITDA is missing but operating_income + depreciation exist, compute it."""
+        from modules.input.edgar_downloader import extract_edgar_fundamentals
+
+        facts_with_depreciation = {
+            "facts": {
+                "us-gaap": {
+                    "OperatingIncomeLoss": {
+                        "units": {
+                            "USD": [
+                                {"end": "2022-01-01", "val": 100000, "form": "10-Q", "fp": "Q1"},
+                            ]
+                        }
+                    },
+                    "DepreciationDepletionAndAmortization": {
+                        "units": {
+                            "USD": [
+                                {"end": "2022-01-01", "val": 20000, "form": "10-Q", "fp": "Q1"},
+                            ]
+                        }
+                    },
+                }
+            }
+        }
+        records = extract_edgar_fundamentals(facts_with_depreciation, "TEST")
+        ebitda = [r for r in records if r["field_name"] == "ebitda"]
+        assert len(ebitda) == 1
+        assert ebitda[0]["field_value"] == 120000  # 100000 + abs(20000)
+
+    def test_computed_free_cash_flow(self):
+        """When FCF missing but operating_cash_flow + capex exist, compute it."""
+        from modules.input.edgar_downloader import extract_edgar_fundamentals
+
+        facts_with_capex = {
+            "facts": {
+                "us-gaap": {
+                    "NetCashProvidedByUsedInOperatingActivities": {
+                        "units": {
+                            "USD": [
+                                {"end": "2022-01-01", "val": 150000, "form": "10-Q", "fp": "Q1"},
+                            ]
+                        }
+                    },
+                    "PaymentsToAcquirePropertyPlantAndEquipment": {
+                        "units": {
+                            "USD": [
+                                {"end": "2022-01-01", "val": -30000, "form": "10-Q", "fp": "Q1"},
+                            ]
+                        }
+                    },
+                }
+            }
+        }
+        records = extract_edgar_fundamentals(facts_with_capex, "TEST")
+        fcf = [r for r in records if r["field_name"] == "free_cash_flow"]
+        assert len(fcf) == 1
+        assert fcf[0]["field_value"] == 120000  # 150000 - abs(-30000)

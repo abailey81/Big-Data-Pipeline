@@ -185,12 +185,120 @@ Data Quality Solutions (Spec 7.2)
 Key Design Patterns
 ---------------------
 
+* **Template Method** (GoF 1994) -- ``BaseDownloader`` defines the download workflow
+  (validate → pre-download → execute → post-download), with concrete subclasses
+  overriding only ``_execute_download()``. Shared infrastructure (circuit breaker,
+  rate limiter, retry) is inherited, not re-implemented.
+* **Circuit Breaker** -- Three-state machine (CLOSED → OPEN → HALF_OPEN) prevents
+  cascading failures when an API goes down. After N consecutive failures the circuit
+  opens and all requests are immediately rejected until the recovery timeout expires.
+* **Token Bucket Rate Limiter** -- Controls API request rate with configurable burst
+  capacity. Prevents Yahoo Finance / SEC EDGAR rate limit breaches.
 * **Upsert Safety** -- all tables use ``INSERT ... ON CONFLICT DO UPDATE``
   to guarantee idempotent re-runs.
 * **EAV Pattern** -- fundamentals table stores arbitrary financial metrics
   without schema migration.
-* **Graceful Degradation** -- MinIO failures are logged but do not halt the pipeline.
+* **MapReduce Pattern** -- ``ThreadPoolExecutor`` distributes per-ticker downloads
+  across worker threads (map phase), while PostgreSQL ``ON CONFLICT DO UPDATE``
+  aggregates results into normalised tables (reduce phase).
+* **Graceful Degradation** -- MinIO, MongoDB, and Kafka failures are logged but do
+  not halt the pipeline; PostgreSQL is the only hard dependency.
 * **Pydantic Validation** -- all incoming data passes through typed models
   before database insertion.
 * **ift_global Integration** -- leverages ReadConfig, IFTLogger, MinioFileSystemRepo,
   and trim_string from the shared Kolmogorov's team library.
+
+Testing Strategy
+-----------------
+
+The test suite follows a three-tier strategy aligned with the testing pyramid:
+
+**Unit Tests** (877 tests) -- Test individual modules in isolation with all external
+dependencies mocked. Each source module has a dedicated test file. No infrastructure
+required.
+
+**Integration Tests** (5 tests) -- Test database upsert idempotency and schema
+initialisation against a live PostgreSQL instance. Automatically skipped when
+PostgreSQL is not available via TCP socket probe.
+
+**End-to-End Tests** -- Test full pipeline workflows from CLI argument parsing
+through data cleaning to database writes.
+
+**Coverage:** 92% across 3,109 statements (well above the 80% minimum requirement).
+
+Code Quality Tools
+-------------------
+
+.. list-table::
+   :header-rows: 1
+
+   * - Tool
+     - Purpose
+     - Configuration
+   * - **Black**
+     - Opinionated code formatter
+     - ``line-length = 110``, ``target-version = ["py310"]`` (pyproject.toml)
+   * - **isort**
+     - Import sorting
+     - ``profile = "black"``, ``line_length = 110`` (pyproject.toml)
+   * - **flake8**
+     - PEP 8 linting
+     - ``.flake8`` with per-file ignores for Main.py and tests
+   * - **Bandit**
+     - Security static analysis
+     - ``pyproject.toml``: exclude tests, skip B101
+
+All 44 source files pass Black, isort, and flake8 with zero violations.
+
+Security Audit
+---------------
+
+**Bandit** (static analysis): 0 high-severity issues across 7,232 lines.
+4 medium findings are intentional ``urllib.urlopen`` calls to hardcoded SEC/Finnhub
+API endpoints. 6 low findings are ``random.uniform`` for jitter backoff (not
+cryptographic) and ``try/except/pass`` in ESG fallback paths (graceful degradation).
+
+**Safety** (dependency scanning): 1 low-severity advisory in an indirect dependency
+with no production impact. All direct dependencies are pinned to current stable
+versions via Poetry's lock file.
+
+Pipeline Flexibility
+---------------------
+
+The pipeline supports multiple run frequencies through the ``--frequency`` CLI
+argument, enabling both full historical backfill and incremental daily updates:
+
+.. list-table::
+   :header-rows: 1
+
+   * - Frequency
+     - Lookback
+     - Use Case
+   * - *(omitted)*
+     - 6 years
+     - Initial data seeding (full backfill)
+   * - ``daily``
+     - 5 business days
+     - Nightly incremental update
+   * - ``weekly``
+     - 14 days
+     - Weekly refresh with overlap buffer
+   * - ``monthly``
+     - 35 days
+     - Month-end rebalance processing
+   * - ``quarterly``
+     - 95 days
+     - Quarterly earnings window
+
+Custom date ranges override frequency-based lookback via ``--start_date`` and
+``--end_date``. The ``--sources`` flag enables selective execution of individual
+phases, and ``--tickers`` restricts to specific symbols. The ``--schedule`` flag
+starts an APScheduler cron job for automated recurring runs.
+
+Dependency Management
+----------------------
+
+All dependencies are managed via **Poetry** with ``pyproject.toml`` as the single
+source of truth. Production dependencies (14 packages) and development dependencies
+(8 packages) are separated into distinct groups. The ``poetry.lock`` file ensures
+reproducible builds across environments.
