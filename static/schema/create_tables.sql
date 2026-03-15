@@ -245,5 +245,6 @@ CREATE TABLE IF NOT EXISTS fift.systematic_equity.pipeline_metadata (
     "symbol"              VARCHAR(12)   NOT NULL DEFAULT '__ALL__',
     "last_success_date"   DATE,
     "last_run_timestamp"  TIMESTAMPTZ,
+    "ingestion_timestamp" TIMESTAMPTZ   DEFAULT NOW(),
     PRIMARY KEY ("data_source", "symbol")
 );

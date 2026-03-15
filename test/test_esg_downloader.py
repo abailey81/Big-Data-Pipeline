@@ -566,7 +566,9 @@ class TestEsgDownloaderYFinanceFallback:
     def test_yfinance_sustainability_exception(self, mock_ticker_cls):
         """If sustainability raises, falls through to .info."""
         mock_ticker = MagicMock()
-        type(mock_ticker).sustainability = property(lambda self: (_ for _ in ()).throw(Exception("API error")))
+        type(mock_ticker).sustainability = property(
+            lambda self: (_ for _ in ()).throw(Exception("API error"))
+        )
         mock_ticker.info = {}
         mock_ticker_cls.return_value = mock_ticker
 

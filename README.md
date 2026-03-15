@@ -1,8 +1,8 @@
 # Systematic Equity Data Pipeline
 
 [![Python 3.10+](https://img.shields.io/badge/python-3.10%2B-blue.svg)](https://www.python.org/downloads/)
-[![Tests](https://img.shields.io/badge/tests-877%20passed-brightgreen.svg)](#testing)
-[![Coverage](https://img.shields.io/badge/coverage-92%25-brightgreen.svg)](#coverage-results)
+[![Tests](https://img.shields.io/badge/tests-966%20passed-brightgreen.svg)](#testing)
+[![Coverage](https://img.shields.io/badge/coverage-93%25-brightgreen.svg)](#coverage-results)
 [![Code Style](https://img.shields.io/badge/code%20style-black-000000.svg)](https://github.com/psf/black)
 [![Security](https://img.shields.io/badge/security-bandit%20passed-brightgreen.svg)](#security)
 

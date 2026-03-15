@@ -13,7 +13,6 @@ import pytest
 
 from modules.input.gdelt_downloader import GdeltDownloader, parse_gdelt_articles
 
-
 # ---------------------------------------------------------------------------
 # GdeltDownloader init
 # ---------------------------------------------------------------------------

@@ -105,17 +105,23 @@ class DatabaseMethods:
             conn.commit()
         pipeline_logger.info("Database schema initialised successfully")
 
-    def read_query(self, sql_query: str) -> list:
+    def read_query(self, sql_query: str, params: dict = None) -> list:
         """Execute a read query and return results.
 
-        :param sql_query: SQL SELECT statement
+        Supports parameterised queries via SQLAlchemy bound parameters
+        to prevent SQL injection when accepting user-supplied values.
+
+        :param sql_query: SQL SELECT statement (may contain ``:param`` placeholders)
         :type sql_query: str
+        :param params: Optional dict of bound parameters for the query
+        :type params: dict, optional
         :return: List of result rows
         :rtype: list
         """
         s = self.session
         try:
-            result = s.execute(text(sql_query))
+            stmt = text(sql_query)
+            result = s.execute(stmt, params or {})
             return result.all()
         finally:
             s.close()

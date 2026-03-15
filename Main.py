@@ -63,7 +63,7 @@ from modules.input.finnhub_downloader import (
 from modules.input.fundamentals_downloader import FundamentalsDownloader
 from modules.input.fx_downloader import FX_PAIRS, FxDownloader
 from modules.input.gdelt_downloader import GdeltDownloader, parse_gdelt_articles
-from modules.input.get_company_static import get_equity_static, get_ticker_list  # noqa: F401
+from modules.input.get_company_static import get_ticker_list
 from modules.input.news_downloader import NewsDownloader, parse_news_articles
 from modules.input.newsapi_downloader import NewsApiDownloader, parse_newsapi_articles
 from modules.input.price_downloader import PriceDownloader
@@ -1477,6 +1477,8 @@ def _run_benchmark(
     total_loaded = 0
 
     for symbol in BENCHMARK_SYMBOLS:
+        if _check_shutdown("benchmark"):
+            break
         try:
             df = yf.download(
                 symbol, start=start_date, end=end_date, progress=False, timeout=30, auto_adjust=False

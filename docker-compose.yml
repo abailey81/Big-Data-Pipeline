@@ -67,6 +67,9 @@ services:
         db.createCollection('raw_macro');
         db.createCollection('raw_benchmark');
         db.createCollection('raw_ratios');
+        db.createCollection('raw_edgar');
+        db.createCollection('raw_finnhub');
+        db.createCollection('raw_newsapi');
         db.createCollection('esg_reports');
         db.createCollection('news_sentiment');
         db.raw_prices.createIndex({symbol: 1, ingested_at: -1});
@@ -75,6 +78,9 @@ services:
         db.raw_macro.createIndex({symbol: 1, ingested_at: -1});
         db.raw_benchmark.createIndex({symbol: 1, ingested_at: -1});
         db.raw_ratios.createIndex({symbol: 1, ingested_at: -1});
+        db.raw_edgar.createIndex({symbol: 1, ingested_at: -1});
+        db.raw_finnhub.createIndex({symbol: 1, ingested_at: -1});
+        db.raw_newsapi.createIndex({symbol: 1, ingested_at: -1});
         db.esg_reports.createIndex({symbol: 1, ingested_at: -1});
         db.news_sentiment.createIndex({symbol: 1, ingested_at: -1});
         print('MongoDB collections and indexes ready.');

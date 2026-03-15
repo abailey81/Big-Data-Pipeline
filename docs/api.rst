@@ -57,32 +57,17 @@ Input / Downloaders
    :undoc-members:
    :show-inheritance:
 
+.. automodule:: modules.input.base_downloader
+   :members:
+   :undoc-members:
+   :show-inheritance:
+
 .. automodule:: modules.input.price_downloader
    :members:
    :undoc-members:
    :show-inheritance:
 
 .. automodule:: modules.input.fundamentals_downloader
-   :members:
-   :undoc-members:
-   :show-inheritance:
-
-.. automodule:: modules.input.fx_downloader
-   :members:
-   :undoc-members:
-   :show-inheritance:
-
-.. automodule:: modules.input.vix_downloader
-   :members:
-   :undoc-members:
-   :show-inheritance:
-
-.. automodule:: modules.input.esg_downloader
-   :members:
-   :undoc-members:
-   :show-inheritance:
-
-.. automodule:: modules.input.base_downloader
    :members:
    :undoc-members:
    :show-inheritance:
@@ -97,12 +82,37 @@ Input / Downloaders
    :undoc-members:
    :show-inheritance:
 
+.. automodule:: modules.input.fx_downloader
+   :members:
+   :undoc-members:
+   :show-inheritance:
+
+.. automodule:: modules.input.vix_downloader
+   :members:
+   :undoc-members:
+   :show-inheritance:
+
 .. automodule:: modules.input.risk_free_rate_downloader
    :members:
    :undoc-members:
    :show-inheritance:
 
-.. automodule:: modules.input.ratios_downloader
+.. automodule:: modules.input.esg_downloader
+   :members:
+   :undoc-members:
+   :show-inheritance:
+
+.. automodule:: modules.input.news_downloader
+   :members:
+   :undoc-members:
+   :show-inheritance:
+
+.. automodule:: modules.input.newsapi_downloader
+   :members:
+   :undoc-members:
+   :show-inheritance:
+
+.. automodule:: modules.input.gdelt_downloader
    :members:
    :undoc-members:
    :show-inheritance:
@@ -116,6 +126,24 @@ Processing
    :show-inheritance:
 
 .. automodule:: modules.processing.data_cleaner
+   :members:
+   :undoc-members:
+   :show-inheritance:
+
+.. automodule:: modules.processing.data_quality
+   :members:
+   :undoc-members:
+   :show-inheritance:
+
+.. automodule:: modules.processing.sentiment_scorer
+   :members:
+   :undoc-members:
+   :show-inheritance:
+
+Output
+-------
+
+.. automodule:: modules.output.data_exporter
    :members:
    :undoc-members:
    :show-inheritance:
@@ -159,6 +187,16 @@ Utilities
    :show-inheritance:
 
 .. automodule:: modules.utils.pipeline_metrics
+   :members:
+   :undoc-members:
+   :show-inheritance:
+
+.. automodule:: modules.utils.concurrent_executor
+   :members:
+   :undoc-members:
+   :show-inheritance:
+
+.. automodule:: modules.utils.progress_tracker
    :members:
    :undoc-members:
    :show-inheritance:

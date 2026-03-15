@@ -10,17 +10,11 @@ Covers:
 import csv
 import os
 import tempfile
-
 from unittest.mock import MagicMock, patch
 
 import pytest
 
-from modules.input.get_company_static import (
-    get_equity_static,
-    get_ticker_list,
-    load_company_static_csv,
-)
-
+from modules.input.get_company_static import get_equity_static, get_ticker_list, load_company_static_csv
 
 # ---------------------------------------------------------------------------
 # load_company_static_csv
@@ -129,9 +123,7 @@ class TestLoadCompanyStaticCsv:
 
     def test_real_csv_file(self):
         """Integration test: parse the actual company_static.csv shipped with the project."""
-        csv_path = os.path.join(
-            os.path.dirname(__file__), "..", "static", "schema", "company_static.csv"
-        )
+        csv_path = os.path.join(os.path.dirname(__file__), "..", "static", "schema", "company_static.csv")
         if os.path.exists(csv_path):
             records = load_company_static_csv(csv_path)
             assert len(records) > 400  # ~505 tickers expected
