@@ -1,20 +1,70 @@
+<div align="center">
+
 # Systematic Equity Data Pipeline
 
-[![Python 3.10+](https://img.shields.io/badge/python-3.10%2B-blue.svg)](https://www.python.org/downloads/)
-[![Tests](https://img.shields.io/badge/tests-966%20passed-brightgreen.svg)](#testing)
-[![Coverage](https://img.shields.io/badge/coverage-93%25-brightgreen.svg)](#coverage-results)
-[![Code Style](https://img.shields.io/badge/code%20style-black-000000.svg)](https://github.com/psf/black)
-[![Security](https://img.shields.io/badge/security-bandit%20passed-brightgreen.svg)](#security)
+### Production-Grade ETL for Multi-Factor Quantitative Research
 
-**Kolmogorov's team** | Version 2.2.0
+*678 equities &middot; 11 data streams &middot; 8 APIs &middot; triple-database architecture &middot; 877 tests*
+
+<br>
+
+[![Python](https://img.shields.io/badge/Python-3.10+-3776AB?style=for-the-badge&logo=python&logoColor=white)](https://www.python.org/)
+[![PostgreSQL](https://img.shields.io/badge/PostgreSQL-16-4169E1?style=for-the-badge&logo=postgresql&logoColor=white)](https://www.postgresql.org/)
+[![Docker](https://img.shields.io/badge/Docker-Compose-2496ED?style=for-the-badge&logo=docker&logoColor=white)](https://docs.docker.com/compose/)
+[![Kafka](https://img.shields.io/badge/Kafka-3.0-231F20?style=for-the-badge&logo=apachekafka&logoColor=white)](https://kafka.apache.org/)
+[![Tests](https://img.shields.io/badge/Tests-877_passed-brightgreen?style=for-the-badge)](tests/)
+[![Coverage](https://img.shields.io/badge/Coverage-92%25-brightgreen?style=for-the-badge)](tests/)
+[![License](https://img.shields.io/badge/License-MIT-green?style=for-the-badge)](LICENSE)
+
+[![GitHub stars](https://img.shields.io/github/stars/abailey81/Big-Data-Pipeline?style=social)](https://github.com/abailey81/Big-Data-Pipeline/stargazers)
+[![GitHub forks](https://img.shields.io/github/forks/abailey81/Big-Data-Pipeline?style=social)](https://github.com/abailey81/Big-Data-Pipeline/network/members)
 
 ---
 
-## Overview
+**Production-grade ETL pipeline** ingesting 6+ years of financial market data for 678 publicly listed companies across US, UK, European, Canadian, and Swiss exchanges. Triple-database storage (PostgreSQL + MongoDB + MinIO) with Apache Kafka event streaming.
 
-A production-grade ETL pipeline that ingests six years of financial market data for **678 publicly listed companies** across US, UK, European, Canadian, and Swiss exchanges. Data is stored in a triple-database architecture (PostgreSQL, MongoDB, MinIO) with event streaming to Apache Kafka.
+<br>
 
-The data infrastructure supports a **flow-based multi-factor equity strategy** grounded in Vayanos and Woolley (2012), targeting momentum, value, and quality signals arising from institutional fund flows.
+[Data Sources](#data-sources) &middot; [Architecture](#architecture) &middot; [Quick Start](#quick-start) &middot; [Database Schema](#database-schema) &middot; [Testing](#testing)
+
+</div>
+
+<br>
+
+## Highlights
+
+<table>
+<tr>
+<td align="center" width="25%">
+<br>
+<strong>11 Data Streams</strong>
+<br><br>
+Prices, fundamentals, EDGAR filings, FX, VIX, risk-free rate, ESG, sentiment, and computed ratios
+<br><br>
+</td>
+<td align="center" width="25%">
+<br>
+<strong>Triple Database</strong>
+<br><br>
+PostgreSQL (12 tables) + MongoDB (documents) + MinIO (data lake) with Kafka streaming
+<br><br>
+</td>
+<td align="center" width="25%">
+<br>
+<strong>Resilience Engineering</strong>
+<br><br>
+Circuit breaker, token-bucket rate limiter, exponential backoff, and graceful degradation
+<br><br>
+</td>
+<td align="center" width="25%">
+<br>
+<strong>92% Test Coverage</strong>
+<br><br>
+877 tests across unit, integration, and end-to-end tiers with Bandit security scanning
+<br><br>
+</td>
+</tr>
+</table>
 
 ---
 
@@ -32,7 +82,7 @@ The data infrastructure supports a **flow-based multi-factor equity strategy** g
 | 8 | Regional benchmark indices (5) | Yahoo Finance | ~8k rows | S&P 500, FTSE 100, Euro Stoxx 50, TSX, SMI |
 | 9 | ESG sustainability scores | LSEG / yfinance | 234 rows | ~35% (API ceiling) |
 | 10 | News sentiment (VADER + financial boost) | yfinance + NewsAPI + GDELT | ~2k rows | 667 / 678 symbols |
-| 11 | Computed ratios (B/P, E/P, CF/P, ROE, D/E, Earnings Stability) | Derived from sources 2 + 4 | per-ticker | 602 / 678 symbols |
+| 11 | Computed ratios (B/P, E/P, CF/P, ROE, D/E) | Derived from sources 2 + 4 | per-ticker | 602 / 678 symbols |
 
 **Date range:** 2020-02-27 to present (6-year backfill by default)
 
@@ -83,21 +133,6 @@ The data infrastructure supports a **flow-based multi-factor equity strategy** g
 | B | VIX + Benchmark | Sequential (yfinance thread-safety) |
 | C | Company Ratios | 3-source waterfall; 8 parallel workers |
 
-**Pre-flight delisted detection:** After the prices phase, a multi-signal analysis identifies inactive tickers (stale prices, ingestion-log failures, ratio gaps) and confirms each via live yfinance verification. Confirmed inactive tickers are skipped in all subsequent phases.
-
----
-
-## Prerequisites
-
-| Dependency | Version | Purpose |
-|------------|---------|---------|
-| Python | 3.10+ | Runtime |
-| PostgreSQL | 14+ | Primary data store (port 5438 in dev) |
-| MongoDB | 6+ | Semi-structured document store |
-| Apache Kafka | 3+ | Event streaming |
-| MinIO | Latest | S3-compatible object store |
-| Docker + Compose | 24+ | Infrastructure (all services containerised) |
-
 ---
 
 ## Quick Start
@@ -128,16 +163,20 @@ cp .env.example .env.dev
 #   NEWSAPI_KEY      (free at newsapi.org/register, optional)
 ```
 
-**4. Run the full 6-year backfill**
+**4. Run the pipeline**
 
 ```bash
+# Full 6-year backfill
 poetry run python Main.py --env_type dev
-```
 
-**5. Run daily incremental update**
-
-```bash
+# Daily incremental update
 poetry run python Main.py --env_type dev --frequency daily
+
+# Custom date range
+poetry run python Main.py --env_type dev --start_date 2023-01-01 --end_date 2024-12-31
+
+# Subset of sources
+poetry run python Main.py --env_type dev --sources prices fundamentals fx
 ```
 
 ---
@@ -159,85 +198,6 @@ poetry run python Main.py --env_type <dev|docker> [OPTIONS]
 | `--init_schema` | false | Create/update PostgreSQL schema before running |
 | `--dry_run` | false | Validate configuration without downloading |
 | `--schedule` | false | Run on recurring schedule via APScheduler |
-
----
-
-## Project Structure
-
-```
-Big-Data-Pipeline/
-├── Main.py                          # Pipeline entry point and orchestrator
-├── pyproject.toml                   # Poetry dependencies and tool config
-├── poetry.lock                      # Pinned dependency versions
-├── requirements.txt                 # Exported pip requirements
-├── docker-compose.yml               # Infrastructure services (8 containers)
-├── CHANGELOG.md                     # Version history (Keep a Changelog format)
-├── .flake8                          # Flake8 linting configuration
-├── .env.example                     # Environment variable template
-├── config/
-│   └── conf.yaml                    # Pipeline configuration (dev + docker)
-├── modules/
-│   ├── input/                       # Downloaders (one per data source)
-│   │   ├── base_downloader.py       # Abstract base (circuit breaker, rate limiter, retry)
-│   │   ├── price_downloader.py      # Daily OHLCV for 678 equities
-│   │   ├── fundamentals_downloader.py  # Balance sheet + income statement
-│   │   ├── edgar_downloader.py      # SEC EDGAR 10-Q/10-K XBRL filings
-│   │   ├── finnhub_downloader.py    # Finnhub fundamentals (non-US tickers)
-│   │   ├── fx_downloader.py         # FX rate pairs (GBP, EUR, CAD, CHF)
-│   │   ├── vix_downloader.py        # CBOE Volatility Index
-│   │   ├── risk_free_rate_downloader.py  # FRED DGS3MO T-bill rate
-│   │   ├── esg_downloader.py        # ESG sustainability scores
-│   │   ├── ratios_downloader.py     # Company financial ratios (20 fields)
-│   │   ├── news_downloader.py       # yfinance news articles
-│   │   ├── newsapi_downloader.py    # NewsAPI gap-fill
-│   │   ├── gdelt_downloader.py      # GDELT tertiary gap-fill
-│   │   └── get_company_static.py    # 678-company investable universe
-│   ├── processing/                  # Data cleaning and transformation
-│   │   ├── data_cleaner.py          # Pydantic validation, NaN coercion
-│   │   ├── data_quality.py          # Post-clean quality checks (fail-open)
-│   │   ├── sentiment_scorer.py      # VADER + financial domain boost
-│   │   └── ticker_utils.py          # Whitespace, currency, Swiss remap
-│   ├── db_ops/                      # Database clients
-│   │   ├── sql_conn.py              # PostgreSQL (SQLAlchemy + psycopg2)
-│   │   ├── postgres_config.py       # Pydantic config with env var fallback
-│   │   ├── extract_from_query.py    # Read wrapper with context-managed connections
-│   │   ├── mongo_conn.py            # MongoDB (PyMongo)
-│   │   ├── minio_store.py           # MinIO S3-compatible object store
-│   │   └── kafka_ops.py             # Kafka producer/consumer
-│   ├── data_models/
-│   │   ├── models.py                # Pydantic validation models
-│   │   └── table_models.py          # SQLAlchemy ORM definitions (12 tables)
-│   ├── utils/
-│   │   ├── args_parser.py           # CLI argument definitions
-│   │   ├── info_logger.py           # IFTLogger + run ID generation
-│   │   ├── circuit_breaker.py       # Three-state resilience pattern
-│   │   ├── rate_limiter.py          # Token-bucket rate limiting
-│   │   ├── retry.py                 # Exponential backoff decorator
-│   │   ├── exceptions.py            # Custom exception hierarchy
-│   │   ├── concurrent_executor.py   # ThreadPoolExecutor wrapper
-│   │   ├── health_check.py          # Pre-flight dependency checks
-│   │   ├── pipeline_metrics.py      # Timing and outcome tracking
-│   │   ├── progress_tracker.py      # Rich terminal progress display
-│   │   └── scheduler.py             # APScheduler cron integration
-│   └── output/                      # Reserved for CW2
-├── static/
-│   └── schema/
-│       ├── create_tables.sql        # PostgreSQL DDL (12 tables)
-│       ├── company_static.csv       # Universe of 678 tickers
-│       └── seed.sh                  # Database seed script
-├── tests/                           # 877 tests, 92% coverage
-│   ├── conftest.py                  # Shared fixtures
-│   └── test_*.py                    # 30 test modules
-├── docs/                            # Sphinx documentation
-│   ├── conf.py                      # Sphinx configuration
-│   ├── index.rst                    # Documentation index
-│   ├── installation.rst             # Setup guide
-│   ├── usage.rst                    # CLI reference and examples
-│   ├── architecture.rst             # System design and patterns
-│   └── api.rst                      # Auto-generated API reference
-└── reports/
-    └── bandit_security_report.txt   # Security scan results
-```
 
 ---
 
@@ -272,8 +232,7 @@ All tables use `ON CONFLICT DO UPDATE` for idempotent re-runs.
 | **Circuit Breaker** | Three-state machine (CLOSED / OPEN / HALF_OPEN) prevents cascading failures | Nygard (2007) |
 | **Token Bucket** | Rate limiter controls API request rate with burst capacity | Turner (1986) |
 | **MapReduce** | `ThreadPoolExecutor` distributes per-ticker downloads; PostgreSQL aggregates via upsert | Dean & Ghemawat (2004) |
-| **EAV (Entity-Attribute-Value)** | `fundamentals` and `company_ratios` tables store flexible metrics without schema migration | |
-| **Upsert Safety** | `INSERT ... ON CONFLICT DO UPDATE` guarantees idempotent re-runs | |
+| **EAV** | `fundamentals` and `company_ratios` tables store flexible metrics without schema migration | |
 | **Graceful Degradation** | MinIO, MongoDB, and Kafka failures are logged but do not halt the pipeline | |
 
 ---
@@ -284,8 +243,6 @@ All tables use `ON CONFLICT DO UPDATE` for idempotent re-runs.
 1. **yfinance `Ticker.news`** -- primary (no API key needed)
 2. **NewsAPI `/v2/everything`** -- secondary gap-fill (requires `NEWSAPI_KEY`)
 3. **GDELT DOC API** -- tertiary gap-fill (free, no key)
-
-Each source triggers only when the previous returns zero articles.
 
 **Composite score (0--100):**
 
@@ -316,32 +273,26 @@ sentiment_score = vader_component  * 0.45
 
 ## Testing
 
-### Testing Approach
-
-The test suite follows a three-tier strategy aligned with the testing pyramid:
-
-**Unit Tests** -- Test individual modules in isolation with all external dependencies mocked (APIs, databases, network). Each module has a dedicated test file (e.g., `test_sql_conn.py`, `test_data_cleaning.py`, `test_circuit_breaker.py`). These run without any infrastructure and form the bulk of the suite.
-
-**Integration Tests** -- Test database upsert idempotency and schema initialisation against a live PostgreSQL instance. Located in `tests/test_integration.py`. These require Docker infrastructure and are automatically skipped when PostgreSQL is not available (via TCP socket probe), ensuring `poetry run pytest ./tests/` always passes cleanly.
-
-**End-to-End Tests** -- Test full pipeline workflows from CLI argument parsing through data cleaning to database writes (mocked at the boundary). Located in `tests/test_e2e.py`.
-
-### Coverage Results
+**877 tests** across 30 test files | **92% coverage**
 
 ```
 TOTAL                                         3109    242    92%
 ======================= 877 passed, 5 skipped =========================
 ```
 
-**877 tests** across 30 test files. **Coverage: 92%** (well above the 80% minimum). The 5 skipped tests are integration tests that require a running PostgreSQL instance.
+Three-tier testing strategy:
 
-### Running Tests
+| Tier | Description | Infrastructure |
+|------|-------------|----------------|
+| **Unit** | Individual modules with mocked external dependencies | None required |
+| **Integration** | PostgreSQL upsert idempotency and schema checks | Docker (auto-skipped if unavailable) |
+| **End-to-End** | Full pipeline workflows from CLI to database | Mocked at boundaries |
 
 ```bash
-# Full test suite (coverage included by default via pyproject.toml)
+# Full test suite
 poetry run pytest ./tests/
 
-# Unit tests only (no external dependencies needed)
+# Unit tests only
 poetry run pytest ./tests/ -m "not integration"
 
 # With HTML coverage report
@@ -350,170 +301,49 @@ poetry run pytest ./tests/ --cov-report=html
 
 ---
 
-## Code Quality
+## Project Structure
 
-Three automated tools enforce consistent code quality across the project:
-
-| Tool | Purpose | Configuration |
-|------|---------|---------------|
-| **Black** | Opinionated code formatter | `line-length = 110`, `target-version = ["py310"]` |
-| **isort** | Import sorting (black-compatible) | `profile = "black"`, `line_length = 110` |
-| **flake8** | PEP 8 linting and style checks | `.flake8` with per-file ignores |
-
-All configuration is centralised in `pyproject.toml` (Black, isort) and `.flake8`.
-
-```bash
-# Check formatting compliance (no changes made)
-poetry run black --check modules/ Main.py
-poetry run isort --check-only modules/ Main.py
-
-# Lint
-poetry run flake8 modules/
-
-# Auto-format
-poetry run black modules/ tests/ Main.py
-poetry run isort modules/ tests/ Main.py
 ```
-
-**Current status:** All 44 source files pass Black, isort, and flake8 with zero violations.
-
----
-
-## Security
-
-Security scanning is performed using **Bandit** (static analysis) and **Safety** (dependency vulnerability scanning), both included as dev dependencies in `pyproject.toml`.
-
-### Bandit Results (Static Analysis)
-
-```bash
-poetry run bandit -r modules/ -c pyproject.toml
-```
-
-| Severity | Count | Details |
-|----------|-------|---------|
-| **High** | **0** | No high-severity issues |
-| **Medium** | 4 | `B310`: `urllib.urlopen` in EDGAR/Finnhub downloaders -- intentional, URLs are hardcoded SEC/Finnhub API endpoints |
-| **Low** | 6 | `B311`: `random.uniform` for jitter backoff -- not cryptographic use; `B110`: `try/except/pass` in ESG fallback paths -- intentional graceful degradation |
-
-**Total lines scanned:** 7,232. **B101** (`assert`) is excluded via `pyproject.toml` as asserts are used only in tests.
-
-All medium/low findings are intentional design decisions documented inline, not security vulnerabilities.
-
-### Safety Results (Dependency Vulnerabilities)
-
-```bash
-poetry run safety check
-```
-
-**1 low-severity advisory** found in an indirect dependency -- no production impact. All direct dependencies are pinned to current stable versions via Poetry's lock file.
-
----
-
-## Pipeline Flexibility
-
-The pipeline supports multiple run frequencies through the `--frequency` CLI argument, enabling both initial backfill and incremental updates:
-
-| Frequency | Lookback Window | Use Case |
-|-----------|----------------|----------|
-| *(omitted)* | 6 years (full backfill) | Initial data seeding |
-| `daily` | 5 business days | Nightly incremental update |
-| `weekly` | 14 days | Weekly refresh with overlap buffer |
-| `monthly` | 35 days | Month-end rebalance processing |
-| `quarterly` | 95 days | Quarterly earnings window |
-
-The lookback window is derived from the frequency flag and the `lookback_years` parameter in `config/conf.yaml`. Custom date ranges override frequency-based lookback:
-
-```bash
-# Daily incremental
-poetry run python Main.py --env_type dev --frequency daily
-
-# Custom range
-poetry run python Main.py --env_type dev --start_date 2023-01-01 --end_date 2024-12-31
-
-# Subset of sources
-poetry run python Main.py --env_type dev --frequency daily --sources prices fundamentals fx
-
-# Specific tickers only
-poetry run python Main.py --env_type dev --frequency daily --tickers AAPL MSFT VOD.L
-
-# Scheduled recurring execution (APScheduler)
-poetry run python Main.py --env_type dev --frequency daily --schedule
-```
-
-The `--sources` flag enables selective execution of individual pipeline phases, and `--tickers` restricts to specific symbols. The `--schedule` flag starts an APScheduler cron job for automated recurring runs.
-
----
-
-## Dependency Management (Poetry)
-
-All dependencies are managed via **Poetry** and defined in `pyproject.toml`:
-
-**Production dependencies** (14 packages):
-
-| Package | Version | Purpose |
-|---------|---------|---------|
-| `yfinance` | ^0.2.36 | Yahoo Finance market data API |
-| `pandas` | ^2.2.0 | DataFrames for data processing |
-| `numpy` | ^1.26.0 | Numerical operations |
-| `sqlalchemy` | ^2.0.38 | ORM + PostgreSQL upsert queries |
-| `psycopg2-binary` | ^2.9.9 | PostgreSQL adapter |
-| `pydantic` | ^2.10.0 | Data validation models |
-| `pydantic-settings` | ^2.1.0 | Environment configuration |
-| `ruamel-yaml` | ^0.18.0 | YAML config parsing |
-| `rich` | ^13.7.0 | Terminal progress display |
-| `pymongo` | ^4.6.0 | MongoDB document store |
-| `confluent-kafka` | ^2.3.0 | Kafka event streaming |
-| `apscheduler` | ^3.10.0 | Cron-based scheduling |
-| `lseg-data` | ^2.0 | LSEG/Refinitiv ESG data |
-| `ift-global` | git | Shared library (logging, config, MinIO) |
-
-**Development dependencies** (10 packages):
-
-| Package | Purpose |
-|---------|---------|
-| `pytest` | Test framework |
-| `pytest-cov` | Coverage reporting |
-| `pytest-mock` | Mock fixtures |
-| `flake8` | PEP 8 linting |
-| `black` | Code formatting |
-| `isort` | Import sorting |
-| `bandit` | Security static analysis |
-| `safety` | Dependency vulnerability scanning |
-| `sphinx` | Documentation generation |
-| `pydata-sphinx-theme` | Sphinx HTML theme |
-
-```bash
-# Install all dependencies
-poetry install
-
-# Add a new dependency
-poetry add <package>
-
-# Update lock file
-poetry lock
-
-# Export requirements.txt (for non-Poetry environments)
-poetry export -f requirements.txt --output requirements.txt
-```
-
----
-
-## Documentation (Sphinx)
-
-Full project documentation is generated using **Sphinx** with the `pydata-sphinx-theme` and `autodoc` extensions. Documentation covers:
-
-- **Installation guide** -- prerequisites, Docker setup, environment variables
-- **Usage guide** -- CLI reference, frequency lookback table, common examples
-- **Architecture overview** -- system diagram, data flow, module structure, database schema, design patterns
-- **API reference** -- auto-generated from docstrings for all 30+ modules
-
-```bash
-# Build HTML documentation
-cd docs/
-poetry run sphinx-build -b html . _build/html
-
-# View documentation
-open _build/html/index.html
+Big-Data-Pipeline/
+├── Main.py                          # Pipeline entry point and orchestrator
+├── pyproject.toml                   # Poetry dependencies and tool config
+├── docker-compose.yml               # Infrastructure services (8 containers)
+├── config/
+│   └── conf.yaml                    # Pipeline configuration (dev + docker)
+├── modules/
+│   ├── input/                       # 10 downloaders (one per data source)
+│   │   ├── base_downloader.py       # Abstract base (circuit breaker, retry)
+│   │   ├── price_downloader.py      # Daily OHLCV for 678 equities
+│   │   ├── fundamentals_downloader.py
+│   │   ├── edgar_downloader.py      # SEC EDGAR XBRL filings
+│   │   ├── finnhub_downloader.py    # Non-US fundamentals
+│   │   ├── fx_downloader.py         # FX rate pairs
+│   │   ├── vix_downloader.py        # CBOE Volatility Index
+│   │   ├── risk_free_rate_downloader.py
+│   │   ├── esg_downloader.py        # ESG sustainability scores
+│   │   ├── ratios_downloader.py     # Financial ratios (3-source)
+│   │   ├── news_downloader.py       # News articles (3-source cascade)
+│   │   └── get_company_static.py    # 678-company universe
+│   ├── processing/                  # Data cleaning and transformation
+│   │   ├── data_cleaner.py          # Pydantic validation
+│   │   ├── sentiment_scorer.py      # VADER + financial domain boost
+│   │   └── ticker_utils.py          # Currency mapping, Swiss remap
+│   ├── db_ops/                      # Database clients
+│   │   ├── sql_conn.py              # PostgreSQL (SQLAlchemy)
+│   │   ├── mongo_conn.py            # MongoDB (PyMongo)
+│   │   ├── minio_store.py           # MinIO S3-compatible store
+│   │   └── kafka_ops.py             # Kafka producer/consumer
+│   ├── data_models/                 # Pydantic + SQLAlchemy ORM
+│   └── utils/                       # Infrastructure utilities
+│       ├── circuit_breaker.py       # Three-state resilience pattern
+│       ├── rate_limiter.py          # Token-bucket rate limiting
+│       └── retry.py                 # Exponential backoff decorator
+├── static/schema/
+│   ├── create_tables.sql            # PostgreSQL DDL (12 tables)
+│   └── company_static.csv           # Universe of 678 tickers
+├── tests/                           # 877 tests, 92% coverage
+├── docs/                            # Sphinx documentation
+└── reports/                         # Security scan results
 ```
 
 ---
@@ -522,15 +352,25 @@ open _build/html/index.html
 
 | Service | Image | Port | Purpose |
 |---------|-------|------|---------|
-| `postgres_db` | `postgres:14` | 5438 | Primary relational store |
-| `minio` | `minio/minio` | 9000 / 9001 | Object store + console |
-| `mongo` | `mongo:7.0` | 27017 | Document store |
-| `zookeeper` | `confluentinc/cp-zookeeper:7.6.0` | 2181 | Kafka coordination |
-| `kafka` | `confluentinc/cp-kafka:7.6.0` | 9092 | Event streaming |
-| `pgadmin` | `dpage/pgadmin4` | 5050 | PostgreSQL GUI |
+| `postgres_db` | postgres:16 | 5438 | Primary relational store |
+| `mongodb` | mongo:7.0 | 27017 | Document store |
+| `minio` | minio/minio | 9000 / 9001 | Object store + console |
+| `zookeeper` | confluentinc/cp-zookeeper:7.6.0 | 2181 | Kafka coordination |
+| `kafka` | confluentinc/cp-kafka:7.6.0 | 9092 | Event streaming |
+| `pgadmin` | dpage/pgadmin4 | 5050 | PostgreSQL GUI |
 
 ```bash
 docker compose up --build -d    # Start all
 docker compose down             # Stop all
 docker compose down -v          # Stop and reset data
 ```
+
+---
+
+<div align="center">
+
+**[MIT License](LICENSE)**
+
+Built with SQLAlchemy, Pydantic, yfinance, confluent-kafka, and Poetry
+
+</div>
