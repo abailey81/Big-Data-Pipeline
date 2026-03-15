@@ -64,10 +64,10 @@ class DatabaseMethods:
         self._engine = self._open_client_connection(self.db_type)
         self._session_factory = sessionmaker(bind=self._engine, autocommit=False, autoflush=False)
 
-    def __enter__(self):
+    def __enter__(self) -> "DatabaseMethods":
         return self
 
-    def __exit__(self, exc_type, exc_val, exc_tb):
+    def __exit__(self, exc_type, exc_val, exc_tb) -> None:
         self.close()
 
     @property
@@ -80,7 +80,7 @@ class DatabaseMethods:
         """Returns a new scoped database session."""
         return scoped_session(self._session_factory)()
 
-    def close(self, commit: bool = True):
+    def close(self, commit: bool = True) -> None:
         """Disposes the database engine and connection pool."""
         self._engine.dispose()
 
@@ -483,7 +483,7 @@ class DatabaseMethods:
         finally:
             s.close()
 
-    def insert_log(self, log_entry: dict):
+    def insert_log(self, log_entry: dict) -> None:
         """Insert an ingestion log entry for audit trail.
 
         :param log_entry: Log entry dictionary with run_id, data_source,
@@ -503,7 +503,7 @@ class DatabaseMethods:
         finally:
             s.close()
 
-    def update_pipeline_metadata(self, data_source: str, symbol: str = "__ALL__", last_date=None):
+    def update_pipeline_metadata(self, data_source: str, symbol: str = "__ALL__", last_date=None) -> None:
         """Update pipeline metadata for incremental loading.
 
         :param data_source: Data source identifier

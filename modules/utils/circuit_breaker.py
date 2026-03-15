@@ -104,7 +104,7 @@ class CircuitBreaker:
         # OPEN — short-circuit
         return False
 
-    def record_success(self):
+    def record_success(self) -> None:
         """Record a successful API call.
 
         In HALF_OPEN state, increments the success counter.
@@ -121,7 +121,7 @@ class CircuitBreaker:
         else:
             self._failure_count = 0
 
-    def record_failure(self):
+    def record_failure(self) -> None:
         """Record a failed API call.
 
         Increments the failure counter. If the threshold is reached,
@@ -146,7 +146,7 @@ class CircuitBreaker:
                 f"failures (trip #{self._total_trips})"
             )
 
-    def reset(self):
+    def reset(self) -> None:
         """Manually reset the circuit breaker to closed state."""
         self._state = CircuitState.CLOSED
         self._failure_count = 0

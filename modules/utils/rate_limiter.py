@@ -99,7 +99,7 @@ class TokenBucketRateLimiter:
 
         return wait_time
 
-    def _refill(self):
+    def _refill(self) -> None:
         """Refill tokens based on elapsed time since last refill.
 
         Called internally while holding the lock.
