@@ -12,9 +12,9 @@
 --   4. ingestion_timestamp on every table for full audit traceability.
 --   5. Flexible to company additions/removals without schema changes.
 --
--- Tables (11): company_static, daily_prices, fundamentals, fx_rates,
+-- Tables (12): company_static, daily_prices, fundamentals, fx_rates,
 --              vix_data, risk_free_rate, benchmark_index, company_ratios,
---              esg_scores, ingestion_log, pipeline_metadata
+--              esg_scores, news_sentiment, ingestion_log, pipeline_metadata
 -- =============================================================================
 
 CREATE SCHEMA IF NOT EXISTS systematic_equity AUTHORIZATION postgres;

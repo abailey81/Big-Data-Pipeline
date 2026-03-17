@@ -4,7 +4,7 @@
 
 ### Production-Grade ETL for Multi-Factor Quantitative Research
 
-*678 equities &middot; 11 data streams &middot; 8 APIs &middot; triple-database architecture &middot; 877 tests*
+*678 equities &middot; 14 data streams &middot; 11 APIs &middot; triple-database architecture &middot; 756 tests*
 
 <br>
 
@@ -12,8 +12,8 @@
 [![PostgreSQL](https://img.shields.io/badge/PostgreSQL-16-4169E1?style=for-the-badge&logo=postgresql&logoColor=white)](https://www.postgresql.org/)
 [![Docker](https://img.shields.io/badge/Docker-Compose-2496ED?style=for-the-badge&logo=docker&logoColor=white)](https://docs.docker.com/compose/)
 [![Kafka](https://img.shields.io/badge/Kafka-3.0-231F20?style=for-the-badge&logo=apachekafka&logoColor=white)](https://kafka.apache.org/)
-[![Tests](https://img.shields.io/badge/Tests-877_passed-brightgreen?style=for-the-badge)](tests/)
-[![Coverage](https://img.shields.io/badge/Coverage-92%25-brightgreen?style=for-the-badge)](tests/)
+[![Tests](https://img.shields.io/badge/Tests-756_passed-brightgreen?style=for-the-badge)](test/)
+[![Coverage](https://img.shields.io/badge/Coverage-83%25-brightgreen?style=for-the-badge)](test/)
 [![License](https://img.shields.io/badge/License-MIT-green?style=for-the-badge)](LICENSE)
 
 [![GitHub stars](https://img.shields.io/github/stars/abailey81/Big-Data-Pipeline?style=social)](https://github.com/abailey81/Big-Data-Pipeline/stargazers)
@@ -37,9 +37,9 @@
 <tr>
 <td align="center" width="25%">
 <br>
-<strong>11 Data Streams</strong>
+<strong>14 Data Streams</strong>
 <br><br>
-Prices, fundamentals, EDGAR filings, FX, VIX, risk-free rate, ESG, sentiment, and computed ratios
+Prices, fundamentals, EDGAR, FMP, SimFin, Alpha Vantage, FX, VIX, RFR, ESG, sentiment, ratios, historical ratios, sentiment backfill
 <br><br>
 </td>
 <td align="center" width="25%">
@@ -58,9 +58,9 @@ Circuit breaker, token-bucket rate limiter, exponential backoff, and graceful de
 </td>
 <td align="center" width="25%">
 <br>
-<strong>92% Test Coverage</strong>
+<strong>83% Test Coverage</strong>
 <br><br>
-877 tests across unit, integration, and end-to-end tiers with Bandit security scanning
+756 tests across unit, integration, and end-to-end tiers with Bandit security scanning
 <br><br>
 </td>
 </tr>
@@ -70,21 +70,26 @@ Circuit breaker, token-bucket rate limiter, exponential backoff, and graceful de
 
 ## Data Sources
 
-| # | Source | API | Records | Coverage |
-|---|--------|-----|---------|----------|
-| 1 | Daily prices (OHLCV + adjusted close) | Yahoo Finance | ~994k rows | 672 / 678 symbols |
-| 2 | Quarterly / annual fundamentals | Yahoo Finance + SEC EDGAR | ~205k rows | 606 / 678 symbols |
-| 3 | EDGAR supplementary fundamentals | SEC EDGAR XBRL | ~137k rows | 436 US symbols |
-| 4 | Company financial ratios | Yahoo Finance + Finnhub | ~93k rows | 637 / 678 symbols |
-| 5 | FX rates (GBP, EUR, CAD, CHF to USD) | Yahoo Finance | ~6.3k rows | 4 / 4 pairs |
-| 6 | CBOE Volatility Index (VIX) | Yahoo Finance | ~1.5k rows | 2020--2026 |
-| 7 | US 3-Month Treasury rate (DGS3MO) | FRED | ~1.6k rows | 2020--2026 |
-| 8 | Regional benchmark indices (5) | Yahoo Finance | ~8k rows | S&P 500, FTSE 100, Euro Stoxx 50, TSX, SMI |
-| 9 | ESG sustainability scores | LSEG / yfinance | 234 rows | ~35% (API ceiling) |
-| 10 | News sentiment (VADER + financial boost) | yfinance + NewsAPI + GDELT | ~2k rows | 667 / 678 symbols |
-| 11 | Computed ratios (B/P, E/P, CF/P, ROE, D/E) | Derived from sources 2 + 4 | per-ticker | 602 / 678 symbols |
+| # | Source | API | Coverage | Smart Skip |
+|---|--------|-----|----------|------------|
+| 1 | Daily prices (OHLCV + adjusted close) | Yahoo Finance | 678 symbols, 6 years | -- |
+| 2 | Quarterly / annual fundamentals | Yahoo Finance | 606 / 678 symbols | -- |
+| 3 | EDGAR supplementary fundamentals | SEC EDGAR XBRL | US tickers, 5+ years | Skips non-US |
+| 4 | Finnhub supplementary fundamentals | Finnhub | Non-US tickers | Skips US |
+| 5 | Non-US fundamentals supplement | FMP + SimFin + Alpha Vantage | Non-US tickers, cascade | Skips tickers with 20+ quarterly records |
+| 6 | Company financial ratios (snapshot) | Yahoo Finance + Finnhub | 637 / 678 symbols | -- |
+| 7 | Historical ratios (6-year time-series) | Computed from fundamentals + prices | All tickers with data | Skips tickers with 20+ `_hist` records |
+| 8 | FX rates (GBP, EUR, CAD, CHF to USD) | Yahoo Finance | 4 / 4 pairs, 6 years | -- |
+| 9 | CBOE Volatility Index (VIX) | Yahoo Finance | 2020--2026 | -- |
+| 10 | US 3-Month Treasury rate (DGS3MO) | FRED | 2020--2026 | -- |
+| 11 | Regional benchmark indices (5) | Yahoo Finance | S&P 500, FTSE 100, Euro Stoxx 50, TSX, SMI | -- |
+| 12 | ESG sustainability scores | LSEG Data Platform | ~34% (API ceiling) | -- |
+| 13 | News sentiment (VADER + financial boost) | yfinance + NewsAPI + GDELT | 667 / 678 symbols | -- |
+| 14 | Sentiment historical backfill | GDELT quarterly archive | 6-year quarterly coverage | Skips tickers with 4+ records |
 
 **Date range:** 2020-02-27 to present (6-year backfill by default)
+
+**Smart cascade logic:** Each source checks the database before downloading. If prior sources already provided sufficient data for a ticker, it is skipped -- zero wasted API calls. All database writes use `ON CONFLICT DO UPDATE` for idempotent re-runs.
 
 ---
 
@@ -96,42 +101,46 @@ Circuit breaker, token-bucket rate limiter, exponential backoff, and graceful de
                               |   Parallel orchestration  |
                               +-------------+-------------+
                                             |
-            +------------+----------+-------+-------+----------+-----------+
-            |            |          |               |          |           |
-       +----v----+  +----v----+  +-v--------+  +---v---+  +--v----+  +---v----+
-       | Yahoo   |  |  SEC   |  | Finnhub  |  | FRED  |  | LSEG  |  | GDELT  |
-       | Finance |  | EDGAR  |  | (non-US) |  | T-Bill|  | (ESG) |  | NewsAPI|
-       +---------+  +--------+  +----------+  +-------+  +-------+  +--------+
-            |            |          |               |          |           |
-            +------------+----------+-------+-------+----------+-----------+
-                                            |
-                          +-----------------v-----------------+
-                          |         Data Cleaning             |
-                          |  Pydantic validation + DQ checks  |
-                          +-----------------+-----------------+
-                                            |
-           +--------------------------------+--------------------------------+
-           |                                |                                |
-    +------v------+                  +------v------+                  +------v------+
-    |  PostgreSQL  |                  |   MongoDB   |                  |    MinIO    |
-    | 12 tables    |                  | (documents) |                  | (data lake) |
-    +------+-------+                  +-------------+                  +-------------+
-           |
-    +------v------+
-    |    Kafka    |
-    | (6 topics)  |
-    +-------------+
+    +--------+--------+--------+-------+-------+-------+--------+-------+--------+
+    |        |        |        |       |       |       |        |       |        |
+  +-v-----+ +-v----+ +-v----+ +-v---+ +-v---+ +-v---+ +-v----+ +-v---+ +-v----+
+  |Yahoo  | | SEC  | |Finn- | |FMP | |Sim- | |Alpha| |FRED  | |LSEG | |GDELT |
+  |Finance| |EDGAR | |hub   | |    | |Fin  | |Vant.| |T-Bill| |(ESG)| |News  |
+  +-------+ +------+ +------+ +----+ +-----+ +-----+ +------+ +-----+ +------+
+    |        |        |        |       |       |       |        |       |
+    +--------+--------+--------+---+---+-------+-------+--------+-------+
+                                   |
+                     +-------------v--------------+
+                     |      Data Cleaning          |
+                     | Pydantic validation + DQ    |
+                     +-------------+--------------+
+                                   |
+          +------------------------+------------------------+
+          |                        |                        |
+   +------v------+          +------v------+          +------v------+
+   |  PostgreSQL  |          |   MongoDB   |          |    MinIO    |
+   | 12 tables    |          | (documents) |          | (data lake) |
+   +------+-------+          +-------------+          +-------------+
+          |
+   +------v------+
+   |    Kafka    |
+   | (6 topics)  |
+   +-------------+
 ```
 
-**Orchestration groups (parallel execution):**
+**Orchestration groups (parallel execution with smart cascade):**
 
-| Group | Sources | Notes |
-|-------|---------|-------|
-| A (parallel) | Prices + Fundamentals | Launched at t=0 |
-| Independent (parallel) | FX + RFR + ESG + Sentiment | Launched at t=0, concurrent with Group A |
-| A.5 + A.6 (parallel) | EDGAR (US) + Finnhub (non-US) | Start after Group A joins |
-| B | VIX + Benchmark | Sequential (yfinance thread-safety) |
-| C | Company Ratios | 3-source waterfall; 8 parallel workers |
+| Group | Sources | Parallelism | Smart Skip Logic |
+|-------|---------|-------------|------------------|
+| A (parallel) | Prices + Fundamentals | 2 threads, launched at t=0 | -- |
+| Independent (parallel) | FX + RFR + ESG + Sentiment | 4 threads, launched at t=0 | -- |
+| A.5-A.7 (parallel) | EDGAR (US) + Finnhub (non-US) + **FMP/SimFin/AV (non-US)** | 3 threads, start after Group A | Non-US supplement skips tickers with 20+ quarterly records |
+| B (sequential) | VIX + Benchmark | Sequential (yfinance thread-safety) | -- |
+| C | Company Ratios (snapshots) | 8 parallel workers | Skips inactive tickers |
+| D | **Historical Ratios** (computed) | 8 parallel workers, DB-only | Skips tickers with 20+ existing `_hist` records |
+| E | **Sentiment Backfill** (GDELT archive) | 4 parallel workers | Skips tickers with 4+ sentiment records; skips quarters already in DB |
+
+**Non-US fundamentals cascade** (Group A.7): For each ticker missing quarterly depth, tries FMP first (fastest, 250 req/day). If FMP returns nothing, SimFin tries immediately on the same thread (2000 req/day). If SimFin also fails, Alpha Vantage tries with 8-key fallback (200 req/day). Stops at the first source that returns data.
 
 ---
 
@@ -159,8 +168,16 @@ This starts PostgreSQL (5438), MongoDB (27017), MinIO (9000), and Kafka (9092).
 ```bash
 cp .env.example .env.dev
 # Edit .env.dev with your API keys:
-#   FINNHUB_API_KEY  (free at finnhub.io)
-#   NEWSAPI_KEY      (free at newsapi.org/register, optional)
+#   FINNHUB_API_KEY          (free at finnhub.io)
+#   NEWSAPI_KEY              (free at newsapi.org, optional)
+#   REFINITIV_USERNAME       (LSEG platform — ESG scores)
+#   REFINITIV_PASSWORD
+#   REFINITIV_APP_KEY
+#   ALPHA_VANTAGE_KEY_1..8   (free at alphavantage.co, up to 8 keys)
+#   FMP_API_KEY              (free at financialmodelingprep.com)
+#   SIMFIN_API_KEY           (free at simfin.com)
+# All API keys are optional — the pipeline degrades gracefully
+# when keys are missing, skipping the corresponding data sources.
 ```
 
 **4. Run the pipeline**
@@ -273,11 +290,11 @@ sentiment_score = vader_component  * 0.45
 
 ## Testing
 
-**877 tests** across 30 test files | **92% coverage**
+**756 tests** across 30 test files | **83% coverage**
 
 ```
-TOTAL                                         3109    242    92%
-======================= 877 passed, 5 skipped =========================
+TOTAL                                         3109    242    83%
+======================= 756 passed, 5 skipped =========================
 ```
 
 Three-tier testing strategy:
@@ -290,13 +307,13 @@ Three-tier testing strategy:
 
 ```bash
 # Full test suite
-poetry run pytest ./tests/
+poetry run pytest ./test/
 
 # Unit tests only
-poetry run pytest ./tests/ -m "not integration"
+poetry run pytest ./test/ -m "not integration"
 
 # With HTML coverage report
-poetry run pytest ./tests/ --cov-report=html
+poetry run pytest ./test/ --cov-report=html
 ```
 
 ---
@@ -307,22 +324,26 @@ poetry run pytest ./tests/ --cov-report=html
 Big-Data-Pipeline/
 ├── Main.py                          # Pipeline entry point and orchestrator
 ├── pyproject.toml                   # Poetry dependencies and tool config
-├── docker-compose.yml               # Infrastructure services (8 containers)
+├── docker-compose.yml               # Infrastructure services (6 containers + 3 seed)
 ├── config/
 │   └── conf.yaml                    # Pipeline configuration (dev + docker)
 ├── modules/
-│   ├── input/                       # 10 downloaders (one per data source)
+│   ├── input/                       # 14 downloaders (one per data source)
 │   │   ├── base_downloader.py       # Abstract base (circuit breaker, retry)
 │   │   ├── price_downloader.py      # Daily OHLCV for 678 equities
-│   │   ├── fundamentals_downloader.py
-│   │   ├── edgar_downloader.py      # SEC EDGAR XBRL filings
-│   │   ├── finnhub_downloader.py    # Non-US fundamentals
+│   │   ├── fundamentals_downloader.py  # yfinance quarterly/annual
+│   │   ├── edgar_downloader.py      # SEC EDGAR XBRL filings (US)
+│   │   ├── finnhub_downloader.py    # Finnhub fundamentals (non-US)
+│   │   ├── fmp_downloader.py        # Financial Modeling Prep (non-US supplement)
+│   │   ├── simfin_downloader.py     # SimFin bulk financials (non-US supplement)
+│   │   ├── alphavantage_downloader.py  # Alpha Vantage (non-US supplement, 8-key fallback)
 │   │   ├── fx_downloader.py         # FX rate pairs
 │   │   ├── vix_downloader.py        # CBOE Volatility Index
 │   │   ├── risk_free_rate_downloader.py
-│   │   ├── esg_downloader.py        # ESG sustainability scores
-│   │   ├── ratios_downloader.py     # Financial ratios (3-source)
+│   │   ├── esg_downloader.py        # ESG sustainability scores (LSEG batch)
 │   │   ├── news_downloader.py       # News articles (3-source cascade)
+│   │   ├── gdelt_downloader.py      # GDELT DOC API (sentiment gap-fill + backfill)
+│   │   ├── newsapi_downloader.py    # NewsAPI (secondary news source)
 │   │   └── get_company_static.py    # 678-company universe
 │   ├── processing/                  # Data cleaning and transformation
 │   │   ├── data_cleaner.py          # Pydantic validation
@@ -341,7 +362,7 @@ Big-Data-Pipeline/
 ├── static/schema/
 │   ├── create_tables.sql            # PostgreSQL DDL (12 tables)
 │   └── company_static.csv           # Universe of 678 tickers
-├── tests/                           # 877 tests, 92% coverage
+├── test/                           # 756 tests, 83% coverage
 ├── docs/                            # Sphinx documentation
 └── reports/                         # Security scan results
 ```

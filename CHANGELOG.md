@@ -6,6 +6,92 @@ Format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
 ---
 
+## [3.0.0] - 2026-03-17
+
+### Added
+
+- **Historical ratios computation engine** — derives 20+ time-series financial
+  ratios (P/E, D/E, ROE, margins, EV/EBITDA, FCF yield, growth rates) from
+  the `fundamentals` + `daily_prices` tables. Produces 6-year ratio history
+  that cannot be obtained from yfinance snapshot data. Runs as Group D after
+  snapshot ratios, with 8 parallel workers (DB-only, no API calls).
+  New fields: `pe_ratio_hist`, `debt_to_equity_hist`, `roe_hist`,
+  `profit_margin_hist`, `gross_margin_hist`, `operating_margin_hist`,
+  `ev_to_ebitda_hist`, `roa_hist`, `assets_to_liab_hist`, `fcf_yield_hist`,
+  `earnings_to_price_hist`, `book_to_price_hist`, `price_to_book_hist`,
+  `debt_to_assets_hist`, `equity_ratio_hist`, `fcf_margin_hist`,
+  `ocf_to_debt_hist`, `cashflow_to_price_hist`, `revenue_to_mcap_hist`,
+  `ebitda_margin_hist`, `earnings_growth_hist`, `revenue_growth_hist`,
+  `net_income_growth_hist`, `ocf_growth_hist`.
+- **GDELT historical sentiment backfill** — queries GDELT DOC 2.0 API
+  quarter-by-quarter from 2020 to present for tickers with fewer than 4
+  years of sentiment coverage. Uses company names (not ticker symbols) for
+  higher article match rates. Falls back to neutral sentiment (50.0) when
+  no articles found. 12 parallel workers.
+- **Non-US fundamentals supplement** — 3-source cascade for international
+  tickers: FMP → SimFin → Alpha Vantage. Skips tickers already having 20+
+  distinct quarterly report dates. Alpha Vantage uses fallback key ordering
+  (up to 9 keys, each used until rate-limited, then next key takes over).
+- **Alpha Vantage downloader** (`modules/input/alphavantage_downloader.py`)
+  — multi-key fallback system with thread-safe key management.
+- **FMP downloader** (`modules/input/fmp_downloader.py`) — Financial
+  Modeling Prep fundamentals (note: v3 API deprecated Aug 2025).
+- **SimFin downloader** (`modules/input/simfin_downloader.py`) — SimFin
+  bulk financial statement data.
+- **Fundamentals post-processing derivation** — automatically fills
+  `book_value` from `stockholders_equity` and `book_value_per_share` from
+  `equity / shares_outstanding` after all fundamentals sources complete.
+- **Dividend yield default** — non-dividend payers now get `dividend_yield = 0.0`
+  instead of NULL (factually correct).
+- **Orphan price purge** — `purge_orphan_prices()` deletes `daily_prices`
+  rows for symbols not in `company_static` at pipeline startup.
+- **LSEG session management** — `ld.close_session()` called after ESG phase;
+  session open and batch call retry up to 5 times with exponential backoff.
+
+### Changed
+
+- **`_detect_inactive_tickers` Signal 2** — now only checks `prices` source
+  with `FAILED` status (was checking all sources with `SKIPPED + FAILED`,
+  causing a negative feedback loop that degraded coverage each run).
+- **Signal 3 (ratio gaps) removed** — missing ratios does not indicate delisting.
+- **company_ratios** — expanded from 33 to 57 fields with historical time-series.
+  Total rows: 128k → 408k+. Entity coverage: 637/678 (94%).
+- **news_sentiment** — expanded from 2026-only to 2020-2026 via GDELT backfill.
+  Entity coverage: 674/678 (99.4%).
+- **ESG `signon_control`** — kept at `True` with 5-retry session open +
+  5-retry batch call for reliable LSEG connectivity. ESG time: 33 min → 41 sec.
+- **fundamentals_workers** — increased from 2 to 4 in `conf.yaml`.
+- **README.md** — updated to reflect 14 data streams, 57 ratio fields,
+  corrected test count (756), coverage (83%), directory path (test/ not tests/).
+
+### Fixed
+
+- **Non-US quarterly fundamentals depth** — `well_covered` check now counts
+  `COUNT(DISTINCT report_date)` instead of `COUNT(*)`. Previously, 15 quarters
+  × 12 fields = 180 records passed the >= 20 threshold despite having only
+  3.7 years of data. All 171 non-US tickers were incorrectly skipped.
+- **Sentiment backfill threshold** — now checks distinct YEARS of coverage,
+  not total record count. Tickers with 6 records all from 2026 were incorrectly
+  marked as well-covered.
+- **book_value** — starts from 2020 (was 2021) via derivation from
+  `stockholders_equity`.
+- **book_value_per_share** — now 6-year coverage (was 3-week snapshot only)
+  via derivation from `equity / shares_outstanding`.
+
+### Coverage (Run — 2026-03-17, ~26 min wall-clock)
+
+| Source | Records | Coverage |
+|---|---|---|
+| `daily_prices` | 1,001,726 (2020 → 2026) | 678 entities |
+| `fundamentals` | 218,535 (16 fields, 6 years) | 606 / 678 = **89%** |
+| `company_ratios` | 408,158 (57 fields, 6 years) | 637 / 678 = **94%** |
+| `news_sentiment` | 4,096 (2020 → 2026) | 674 / 678 = **99.4%** |
+| `esg_scores` | 935 | 234 / 678 = **35%** (LSEG ceiling) |
+| `fx_rates` | 6,294 | 4 / 4 = **100%** |
+| `benchmark_index` | 7,580 | 5 / 5 = **100%** |
+
+---
+
 ## [2.2.0] - 2026-03-04
 
 ### Added

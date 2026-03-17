@@ -19,6 +19,22 @@ dev:
       - MONGO_USERNAME
       - MONGO_PASSWORD
       - KAFKA_BOOTSTRAP_SERVERS
+      - FINNHUB_API_KEY
+      - REFINITIV_USERNAME
+      - REFINITIV_PASSWORD
+      - REFINITIV_APP_KEY
+      - NEWSAPI_KEY
+      - ALPHA_VANTAGE_KEY_1
+      - ALPHA_VANTAGE_KEY_2
+      - ALPHA_VANTAGE_KEY_3
+      - ALPHA_VANTAGE_KEY_4
+      - ALPHA_VANTAGE_KEY_5
+      - ALPHA_VANTAGE_KEY_6
+      - ALPHA_VANTAGE_KEY_7
+      - ALPHA_VANTAGE_KEY_8
+      - ALPHA_VANTAGE_KEY_9
+      - FMP_API_KEY
+      - SIMFIN_API_KEY
     Database:
       Postgres:
         Host: localhost
@@ -45,6 +61,7 @@ dev:
       max_retries: 3
       backoff_base: 2.0
       batch_size: 50
+      fundamentals_workers: 4
     DataSources:
       prices:
         enabled: true
@@ -109,6 +126,22 @@ docker:
       - MONGO_USERNAME
       - MONGO_PASSWORD
       - KAFKA_BOOTSTRAP_SERVERS
+      - FINNHUB_API_KEY
+      - REFINITIV_USERNAME
+      - REFINITIV_PASSWORD
+      - REFINITIV_APP_KEY
+      - NEWSAPI_KEY
+      - ALPHA_VANTAGE_KEY_1
+      - ALPHA_VANTAGE_KEY_2
+      - ALPHA_VANTAGE_KEY_3
+      - ALPHA_VANTAGE_KEY_4
+      - ALPHA_VANTAGE_KEY_5
+      - ALPHA_VANTAGE_KEY_6
+      - ALPHA_VANTAGE_KEY_7
+      - ALPHA_VANTAGE_KEY_8
+      - ALPHA_VANTAGE_KEY_9
+      - FMP_API_KEY
+      - SIMFIN_API_KEY
     Database:
       Postgres:
         Host: postgres_db
@@ -135,6 +168,7 @@ docker:
       max_retries: 3
       backoff_base: 2.0
       batch_size: 50
+      fundamentals_workers: 4
     DataSources:
       prices:
         enabled: true

@@ -109,7 +109,30 @@ def _init_lseg() -> bool:
         cfg.set_param("sessions.platform.default.password", password, auto_create=True)
         cfg.set_param("sessions.platform.default.signon_control", True)
 
-        session = ld.open_session()
+        # Retry session open up to 5 times with increasing backoff.
+        # LSEG signon_control=True takes over stale sessions, which can
+        # take several seconds on the server side. Aggressive retries
+        # ensure the pipeline almost always gets an LSEG session.
+        session = None
+        import time as _t
+        for _sess_attempt in range(5):
+            try:
+                session = ld.open_session()
+                break
+            except Exception as sess_exc:
+                pipeline_logger.warning(
+                    f"LSEG session attempt {_sess_attempt + 1}/5 failed: {sess_exc}"
+                )
+                if _sess_attempt < 4:
+                    wait = 2 ** _sess_attempt  # 1s, 2s, 4s, 8s
+                    pipeline_logger.info(f"Retrying LSEG session in {wait}s...")
+                    _t.sleep(wait)
+
+        if session is None:
+            pipeline_logger.warning("LSEG session failed after 5 attempts. Falling back to yfinance.")
+            _LSEG_AVAILABLE = False
+            return False
+
         _LSEG_SESSION = session
         _LSEG_AVAILABLE = True
         pipeline_logger.info(
@@ -345,11 +368,30 @@ class EsgDownloader(BaseDownloader):
                 f"ESG: batch-fetching {len(all_rics)} tickers via LSEG "
                 f"(single API call — no per-ticker delay)..."
             )
-            df = ld.get_data(universe=all_rics, fields=_LSEG_ESG_FIELDS)
+
+            # Retry the batch call up to 5 times with increasing backoff.
+            # LSEG batch can fail intermittently due to server load or
+            # session takeover propagation delay.
+            df = None
+            for _attempt in range(5):
+                try:
+                    df = ld.get_data(universe=all_rics, fields=_LSEG_ESG_FIELDS)
+                    if df is not None and not df.empty:
+                        break
+                    pipeline_logger.warning(
+                        f"ESG batch attempt {_attempt + 1}/5: empty response — retrying..."
+                    )
+                except Exception as retry_exc:
+                    pipeline_logger.warning(
+                        f"ESG batch attempt {_attempt + 1}/5 failed: {retry_exc} — retrying..."
+                    )
+                if _attempt < 4:
+                    wait = 2 ** _attempt  # 1s, 2s, 4s, 8s
+                    time.sleep(wait)
 
             if df is None or df.empty:
                 pipeline_logger.warning(
-                    "ESG batch: LSEG returned empty DataFrame — " "falling back to per-ticker path."
+                    "ESG batch: LSEG returned empty after 5 attempts — falling back to per-ticker path."
                 )
                 return {}
 

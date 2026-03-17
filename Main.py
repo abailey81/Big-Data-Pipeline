@@ -41,6 +41,7 @@ socket.setdefaulttimeout(60)
 from datetime import datetime, timedelta
 
 import pandas as pd
+import requests
 from ift_global import ReadConfig
 from ift_global.utils.set_env_var import set_env_variables
 
@@ -69,6 +70,9 @@ from modules.input.newsapi_downloader import NewsApiDownloader, parse_newsapi_ar
 from modules.input.price_downloader import PriceDownloader
 from modules.input.risk_free_rate_downloader import RiskFreeRateDownloader
 from modules.input.vix_downloader import VixDownloader
+from modules.input.fmp_downloader import FmpFundamentalsDownloader
+from modules.input.simfin_downloader import SimFinFundamentalsDownloader
+from modules.input.alphavantage_downloader import AlphaVantageFundamentalsDownloader
 from modules.processing.data_cleaner import (
     clean_fundamentals_data,
     clean_fx_dataframe,
@@ -93,6 +97,7 @@ _shutdown_requested = False
 # Populated once by _detect_inactive_tickers() after prices phase completes.
 # Tickers with zero rows in daily_prices are definitively inactive.
 _inactive_tickers: set[str] = set()
+
 
 
 def _signal_handler(signum, frame):
@@ -175,16 +180,18 @@ def _detect_inactive_tickers(db_client, ticker_map=None) -> set[str]:
     except Exception as exc:
         pipeline_logger.warning(f"Stale-price signal query failed: {exc}")
 
-    # ── Signal 2: Recent ingestion-log SKIPPED/FAILED across ALL sources ──
-    # After any run, tickers that failed in ratios/fundamentals/ESG are
-    # strong candidates for being delisted.  The live check (Signal 3)
-    # then confirms/rejects each candidate, avoiding false positives.
+    # ── Signal 2: Recent ingestion-log FAILED in prices ──
+    # Only prices FAILURES are a reliable indicator of a delisted ticker.
+    # SKIPPED means "we deliberately didn't try" (e.g. ticker was already
+    # in _inactive_tickers from a previous run) — including SKIPPED creates
+    # a feedback loop where skipping compounds across runs.
+    # FAILED means "we tried and it broke" — a genuine signal.
     try:
         log_rows = db_client.read_query(
             "SELECT DISTINCT TRIM(symbol) "
             "FROM systematic_equity.ingestion_log "
-            "WHERE data_source IN ('prices', 'ratios', 'fundamentals', 'esg') "
-            "  AND status IN ('SKIPPED', 'FAILED') "
+            "WHERE data_source = 'prices' "
+            "  AND status = 'FAILED' "
             "  AND run_timestamp > NOW() - INTERVAL '7 days' "
             "  AND symbol IS NOT NULL"
         )
@@ -197,32 +204,9 @@ def _detect_inactive_tickers(db_client, ticker_map=None) -> set[str]:
     except Exception as exc:
         pipeline_logger.warning(f"Ingestion-log signal query failed: {exc}")
 
-    # ── Signal 3: Tickers with 0 company_ratios records ──
-    # If a previous ratios run completed but produced 0 rows for a ticker,
-    # it's likely delisted (yf.Ticker.info fails).  Cross-check: only
-    # flag tickers that appear in company_static but NOT in company_ratios.
-    try:
-        ratio_gap_rows = db_client.read_query(
-            "SELECT TRIM(cs.symbol) "
-            "FROM systematic_equity.company_static cs "
-            "WHERE NOT EXISTS ("
-            "  SELECT 1 FROM systematic_equity.company_ratios cr "
-            "  WHERE TRIM(cr.symbol) = TRIM(cs.symbol)"
-            ") "
-            "AND EXISTS ("
-            "  SELECT 1 FROM systematic_equity.ingestion_log il "
-            "  WHERE il.data_source = 'ratios' AND il.run_timestamp > NOW() - INTERVAL '30 days'"
-            ")"
-        )
-        ratio_gap_symbols = {r[0] for r in ratio_gap_rows} if ratio_gap_rows else set()
-        if ratio_gap_symbols:
-            pipeline_logger.info(
-                f"Signal 3 (ratio gaps): {len(ratio_gap_symbols)} tickers "
-                f"have 0 ratio records despite previous ratios runs"
-            )
-        candidates |= ratio_gap_symbols
-    except Exception as exc:
-        pipeline_logger.warning(f"Ratio-gap signal query failed: {exc}")
+    # Signal 3 (ratio gaps) removed — missing ratio data does not indicate
+    # delisting; many international tickers legitimately have no yfinance
+    # ratio coverage.  Including this signal inflated the inactive set.
 
     if not candidates:
         pipeline_logger.info("Pre-flight delisted detection: 0 candidates — all tickers look active")
@@ -1116,6 +1100,881 @@ def _run_finnhub_fundamentals(
     return downloader
 
 
+def _run_nonus_fundamentals_supplement(
+    db_client,
+    minio_store,
+    ticker_map,
+    pipeline_params,
+    start_date,
+    run_id,
+    frequency,
+    conf,
+    metrics=None,
+    progress_update=None,
+    kafka_producer=None,
+    mongo_store=None,
+):
+    """Supplement non-US fundamentals with FMP, SimFin, and Alpha Vantage data.
+
+    Runs a 3-source cascade for each non-US ticker:
+      1. Financial Modeling Prep (fastest, 250 req/day)
+      2. SimFin (2000 req/day, good international coverage)
+      3. Alpha Vantage (4 keys rotated, 100 req/day total — last resort)
+
+    Only processes non-US tickers. For each ticker, stops at the first
+    source that returns data (no redundant downloads).
+    """
+    import os
+
+    non_us = [(db, yf, cur) for db, yf, cur in ticker_map if is_non_us_ticker(db)]
+    if not non_us:
+        pipeline_logger.info("Non-US supplement: no non-US tickers to process")
+        return None
+
+    fmp_key = os.environ.get("FMP_API_KEY", "")
+    simfin_key = os.environ.get("SIMFIN_API_KEY", "")
+    av_keys = [os.environ.get(f"ALPHA_VANTAGE_KEY_{i}", "") for i in range(1, 5)]
+    av_keys = [k for k in av_keys if k]
+
+    if not fmp_key and not simfin_key and not av_keys:
+        pipeline_logger.warning(
+            "No FMP/SimFin/Alpha Vantage API keys set — skipping non-US fundamentals supplement"
+        )
+        if progress_update:
+            for db_symbol, _, _ in non_us:
+                progress_update(db_symbol, "SKIPPED")
+        return None
+
+    fmp_dl = FmpFundamentalsDownloader(api_delay=0.2) if fmp_key else None
+    simfin_dl = SimFinFundamentalsDownloader(api_delay=0.5) if simfin_key else None
+    av_dl = AlphaVantageFundamentalsDownloader(api_delay=3.1) if av_keys else None
+
+    # ── Skip tickers already well-covered by yfinance/Finnhub ──
+    # Skip tickers with ≥ 20 DISTINCT quarterly report dates (5+ years).
+    # Previous bug: counted total records (fields × quarters), which inflated
+    # the count — a ticker with 15 quarters × 12 fields = 180 records passed
+    # the old >= 20 threshold despite having only 3.7 years of quarterly data.
+    try:
+        depth_rows = db_client.read_query(
+            "SELECT TRIM(symbol), COUNT(DISTINCT report_date) AS quarters "
+            "FROM systematic_equity.fundamentals "
+            "WHERE period_type = 'quarterly' "
+            "GROUP BY TRIM(symbol) "
+            "HAVING COUNT(DISTINCT report_date) >= 20"
+        )
+        well_covered = {r[0] for r in depth_rows} if depth_rows else set()
+    except Exception:
+        well_covered = set()
+
+    need_supplement = [t for t in non_us if t[0] not in well_covered and t[0] not in _inactive_tickers]
+
+    pipeline_logger.info(
+        f"Starting non-US fundamentals supplement for {len(need_supplement)}/{len(non_us)} tickers "
+        f"({len(well_covered)} already well-covered, skipped) "
+        f"(FMP={'✓' if fmp_dl else '✗'}, SimFin={'✓' if simfin_dl else '✗'}, "
+        f"AV={'✓ ×' + str(len(av_keys)) if av_dl else '✗'})..."
+    )
+
+    # Mark well-covered tickers as SKIPPED in progress
+    if progress_update:
+        for db_symbol, _, _ in non_us:
+            if db_symbol in well_covered:
+                progress_update(db_symbol, "SKIPPED")
+
+    total_loaded = 0
+    _total_lock = threading.Lock()
+    supplement_workers = pipeline_params.get("nonus_supplement_workers", 4)
+
+    def _process_ticker(item):
+        nonlocal total_loaded
+        db_symbol, yf_ticker, currency = item
+        if _check_shutdown("nonus_supplement"):
+            return
+        if db_symbol in _inactive_tickers:
+            if metrics:
+                metrics.record_outcome("nonus_supplement", db_symbol, "SKIPPED")
+            if progress_update:
+                progress_update(db_symbol, "SKIPPED")
+            db_client.insert_log(
+                _make_log_entry(run_id, "nonus_supplement", db_symbol, "SKIPPED", 0, "inactive", frequency)
+            )
+            return
+
+        records = []
+        source_used = None
+
+        # Cascade: FMP → SimFin → Alpha Vantage
+        if fmp_dl and not records:
+            try:
+                records = fmp_dl.download(db_symbol, yf_ticker) or []
+                if records:
+                    source_used = "fmp"
+            except Exception as e:
+                pipeline_logger.debug(f"FMP failed for {db_symbol}: {e}")
+
+        if simfin_dl and not records:
+            try:
+                records = simfin_dl.download(db_symbol, yf_ticker) or []
+                if records:
+                    source_used = "simfin"
+            except Exception as e:
+                pipeline_logger.debug(f"SimFin failed for {db_symbol}: {e}")
+
+        if av_dl and not records:
+            try:
+                records = av_dl.download(db_symbol, yf_ticker) or []
+                if records:
+                    source_used = "alphavantage"
+            except Exception as e:
+                pipeline_logger.debug(f"Alpha Vantage failed for {db_symbol}: {e}")
+
+        if records:
+            try:
+                n = db_client.upsert_fundamentals(records)
+                with _total_lock:
+                    total_loaded += n
+                if mongo_store:
+                    mongo_store.store_document(
+                        "raw_fundamentals",
+                        {
+                            "symbol": db_symbol,
+                            "source": source_used,
+                            "records_produced": len(records),
+                            "fields": list({r["field_name"] for r in records}),
+                            "run_id": run_id,
+                        },
+                    )
+                if metrics:
+                    metrics.record_outcome("nonus_supplement", db_symbol, "SUCCESS", n)
+                if progress_update:
+                    progress_update(db_symbol, "SUCCESS")
+                db_client.insert_log(
+                    _make_log_entry(
+                        run_id, "nonus_supplement", db_symbol, "SUCCESS", n,
+                        frequency=frequency,
+                    )
+                )
+            except Exception as e:
+                if metrics:
+                    metrics.record_outcome("nonus_supplement", db_symbol, "FAILED")
+                if progress_update:
+                    progress_update(db_symbol, "FAILED")
+                db_client.insert_log(
+                    _make_log_entry(
+                        run_id, "nonus_supplement", db_symbol, "FAILED", 0,
+                        str(e), frequency,
+                    )
+                )
+                pipeline_logger.debug(f"Non-US supplement upsert failed for {db_symbol}: {e}")
+        else:
+            if metrics:
+                metrics.record_outcome("nonus_supplement", db_symbol, "SKIPPED")
+            if progress_update:
+                progress_update(db_symbol, "SKIPPED")
+            db_client.insert_log(
+                _make_log_entry(
+                    run_id, "nonus_supplement", db_symbol, "SKIPPED", 0,
+                    frequency=frequency,
+                )
+            )
+
+    pool = ThreadPoolExecutor(max_workers=supplement_workers)
+    try:
+        futures = [pool.submit(_process_ticker, item) for item in need_supplement]
+        done, pending = futures_wait(futures, timeout=600)
+        for future in done:
+            try:
+                future.result()
+            except Exception as e:
+                pipeline_logger.error(f"Non-US supplement thread error: {e}")
+        if pending:
+            pipeline_logger.warning(
+                f"Non-US supplement: {len(pending)} tickers exceeded timeout"
+            )
+    finally:
+        pool.shutdown(wait=False)
+
+    pipeline_logger.info(f"Non-US supplement: loaded {total_loaded} records total")
+    db_client.update_pipeline_metadata("nonus_supplement")
+    all_dls = [d for d in [fmp_dl, simfin_dl, av_dl] if d]
+    return all_dls
+
+
+def _compute_historical_ratios(
+    db_client,
+    ticker_map,
+    run_id,
+    frequency,
+    metrics=None,
+    progress_update=None,
+):
+    """Compute historical financial ratios from fundamentals + daily_prices.
+
+    Derives 6-year time-series ratios by joining the fundamentals EAV table
+    with daily price data. This produces historical P/E, D/E, ROE, margins,
+    and other ratios that cannot be obtained from yfinance snapshots.
+
+    Inserts into the company_ratios table (same EAV schema as yfinance
+    snapshot ratios) with snapshot_date set to the fundamentals report_date.
+    """
+    from datetime import date as _date
+    import bisect
+
+    # No skip-if-done check: this phase is DB-only (no API calls, ~35s total).
+    # Always recompute to ensure new ratio formulas are applied to all tickers.
+    # upsert_company_ratios uses ON CONFLICT DO UPDATE — safe for re-runs.
+    need_compute = [t for t in ticker_map if t[0] not in _inactive_tickers]
+    pipeline_logger.info(
+        f"Computing historical ratios from fundamentals + prices "
+        f"({len(need_compute)}/{len(ticker_map)} tickers)..."
+    )
+
+    total_loaded = 0
+    _total_lock = threading.Lock()
+    hist_workers = 8
+
+    def _process_ticker(item):
+        nonlocal total_loaded
+        db_symbol, yf_ticker, currency = item
+        if _check_shutdown("historical_ratios"):
+            return
+        if db_symbol in _inactive_tickers:
+            if metrics:
+                metrics.record_outcome("historical_ratios", db_symbol, "SKIPPED")
+            if progress_update:
+                progress_update(db_symbol, "SKIPPED")
+            db_client.insert_log(
+                _make_log_entry(run_id, "historical_ratios", db_symbol, "SKIPPED", 0, "inactive", frequency)
+            )
+            return
+
+        try:
+            # Fetch all fundamentals for this ticker
+            fund_rows = db_client.read_query(
+                "SELECT field_name, field_value, report_date, period_type "
+                "FROM systematic_equity.fundamentals "
+                "WHERE TRIM(symbol) = :sym "
+                "ORDER BY report_date",
+                {"sym": db_symbol},
+            )
+            if not fund_rows:
+                if metrics:
+                    metrics.record_outcome("historical_ratios", db_symbol, "SKIPPED")
+                if progress_update:
+                    progress_update(db_symbol, "SKIPPED")
+                return
+
+            # Build lookup: (field_name, report_date, period_type) -> value
+            fund_lookup = {}
+            report_dates = set()
+            for fname, fval, rdate, ptype in fund_rows:
+                fund_lookup[(fname, rdate, ptype)] = float(fval) if fval is not None else None
+                report_dates.add((rdate, ptype))
+
+            # Fetch closest price for each report date
+            price_rows = db_client.read_query(
+                "SELECT cob_date, close_price "
+                "FROM systematic_equity.daily_prices "
+                "WHERE TRIM(symbol) = :sym AND close_price IS NOT NULL "
+                "ORDER BY cob_date",
+                {"sym": db_symbol},
+            )
+            price_lookup = {}
+            if price_rows:
+                for cob, close in price_rows:
+                    price_lookup[cob] = float(close)
+
+            # Fetch shares_outstanding from ratios table as fallback
+            # (more reliable than deriving from equity / book_value)
+            shares_fallback = None
+            try:
+                shares_rows = db_client.read_query(
+                    "SELECT field_value FROM systematic_equity.company_ratios "
+                    "WHERE TRIM(symbol) = :sym AND field_name = 'shares_outstanding' "
+                    "ORDER BY snapshot_date DESC LIMIT 1",
+                    {"sym": db_symbol},
+                )
+                if shares_rows and shares_rows[0][0]:
+                    shares_fallback = float(shares_rows[0][0])
+            except Exception:
+                pass
+
+            # For each report period, compute ratios
+            records = []
+            seen = set()
+            sorted_prices = sorted(price_lookup.keys()) if price_lookup else []
+
+            for report_date, period_type in sorted(report_dates):
+                # Find closest price on or after report_date
+                close_price = None
+                if sorted_prices:
+                    idx = bisect.bisect_left(sorted_prices, report_date)
+                    if idx < len(sorted_prices):
+                        close_price = price_lookup[sorted_prices[idx]]
+                    elif idx > 0:
+                        close_price = price_lookup[sorted_prices[idx - 1]]
+
+                def _get(field):
+                    return fund_lookup.get((field, report_date, period_type))
+
+                def _add(field_name, value):
+                    if value is not None and not (isinstance(value, float) and (abs(value) > 1e15 or value != value)):
+                        key = (field_name, report_date)
+                        if key not in seen:
+                            seen.add(key)
+                            records.append({
+                                "symbol": db_symbol,
+                                "snapshot_date": report_date,
+                                "field_name": field_name,
+                                "field_value": round(value, 6),
+                            })
+
+                net_income = _get("net_income")
+                equity = _get("stockholders_equity")
+                total_debt = _get("total_debt")
+                total_rev = _get("total_revenue")
+                operating_inc = _get("operating_income")
+                ebitda_val = _get("ebitda")
+                total_assets = _get("total_assets")
+                total_liab = _get("total_liabilities")
+                ocf = _get("operating_cash_flow")
+                capex = _get("capital_expenditure")
+                fcf = _get("free_cash_flow")
+                diluted_eps = _get("diluted_eps")
+                basic_eps = _get("basic_eps")
+                gross_profit = _get("gross_profit")
+                book_val = _get("book_value")
+
+                # ── Derive missing fields from available data ──
+                # equity fallback: total_assets - total_liabilities
+                if equity is None and total_assets and total_liab:
+                    equity = total_assets - total_liab
+
+                # EPS fallback: use basic_eps when diluted_eps missing
+                eps = diluted_eps if diluted_eps is not None else basic_eps
+
+                # FCF fallback: operating_cash_flow - |capital_expenditure|
+                if fcf is None and ocf is not None and capex is not None:
+                    fcf = ocf - abs(capex)
+
+                # Derive shares: prefer equity/book_value, fallback to shares_outstanding
+                shares = None
+                if book_val and book_val != 0 and equity:
+                    shares = equity / book_val
+                if (shares is None or shares <= 0) and shares_fallback:
+                    shares = shares_fallback
+
+                # Market cap (reused across multiple ratios)
+                mcap = None
+                if close_price and shares and shares > 0:
+                    mcap = close_price * shares
+
+                # ── P/E ratio ──
+                # Primary: price / diluted_eps
+                # Fallback: price / basic_eps
+                if close_price and eps and eps != 0:
+                    _add("pe_ratio_hist", close_price / eps)
+
+                # ── D/E ratio ──
+                # Primary: total_debt / stockholders_equity
+                # Fallback: total_debt / (total_assets - total_liabilities)
+                if total_debt is not None and equity and equity != 0:
+                    _add("debt_to_equity_hist", total_debt / equity)
+
+                # ── ROE ──
+                # Primary: net_income / stockholders_equity
+                # Fallback: net_income / (total_assets - total_liabilities)
+                if net_income is not None and equity and equity != 0:
+                    _add("roe_hist", net_income / equity)
+
+                # ── Profit margin ──
+                if net_income is not None and total_rev and total_rev != 0:
+                    _add("profit_margin_hist", net_income / total_rev)
+
+                # ── Gross margin ──
+                # Primary: gross_profit / total_revenue
+                # Fallback: (total_revenue - (total_revenue - gross_profit)) — circular
+                # No valid fallback without cost_of_revenue
+                if gross_profit is not None and total_rev and total_rev != 0:
+                    _add("gross_margin_hist", gross_profit / total_rev)
+
+                # ── Operating margin ──
+                # Primary: operating_income / total_revenue
+                # Fallback 1: ebitda / total_revenue (EBITDA margin)
+                # Fallback 2: (net_income + interest + tax) / total_revenue — no interest/tax fields
+                if operating_inc is not None and total_rev and total_rev != 0:
+                    _add("operating_margin_hist", operating_inc / total_rev)
+                elif ebitda_val is not None and total_rev and total_rev != 0:
+                    _add("operating_margin_hist", ebitda_val / total_rev)
+
+                # ── EV/EBITDA ──
+                # EV = market_cap + total_debt
+                if ebitda_val and ebitda_val != 0 and mcap and total_debt is not None:
+                    ev = mcap + total_debt
+                    _add("ev_to_ebitda_hist", ev / ebitda_val)
+
+                # ── ROA ──
+                if net_income is not None and total_assets and total_assets != 0:
+                    _add("roa_hist", net_income / total_assets)
+
+                # ── Assets to liabilities ──
+                if total_assets and total_liab and total_liab != 0:
+                    _add("assets_to_liab_hist", total_assets / total_liab)
+
+                # ── Debt to assets ──
+                if total_debt is not None and total_assets and total_assets != 0:
+                    _add("debt_to_assets_hist", total_debt / total_assets)
+
+                # ── Equity ratio (equity / total_assets) ──
+                if equity and total_assets and total_assets != 0:
+                    _add("equity_ratio_hist", equity / total_assets)
+
+                # ── FCF yield ──
+                # Primary: free_cash_flow / market_cap
+                # Fallback: (operating_cash_flow - |capex|) / market_cap
+                if fcf is not None and mcap and mcap > 0:
+                    _add("fcf_yield_hist", fcf / mcap)
+
+                # ── FCF margin ──
+                if fcf is not None and total_rev and total_rev != 0:
+                    _add("fcf_margin_hist", fcf / total_rev)
+
+                # ── OCF to debt (cash flow coverage) ──
+                if ocf is not None and total_debt and total_debt != 0:
+                    _add("ocf_to_debt_hist", ocf / total_debt)
+
+                # ── Earnings yield (E/P) ──
+                # Primary: diluted_eps / price
+                # Fallback: basic_eps / price
+                if close_price and close_price != 0 and eps is not None:
+                    _add("earnings_to_price_hist", eps / close_price)
+
+                # ── Cashflow to price (OCF/P) ──
+                if ocf is not None and mcap and mcap > 0:
+                    _add("cashflow_to_price_hist", ocf / mcap)
+
+                # ── Revenue to market cap (sales yield) ──
+                if total_rev and mcap and mcap > 0:
+                    _add("revenue_to_mcap_hist", total_rev / mcap)
+
+                # ── EBITDA margin ──
+                if ebitda_val is not None and total_rev and total_rev != 0:
+                    _add("ebitda_margin_hist", ebitda_val / total_rev)
+
+                # ── Interest coverage proxy (EBITDA / interest) ──
+                # interest ≈ operating_income - net_income (very rough, includes tax)
+                # Better: EBITDA / (total_debt * assumed_rate) — too speculative
+                # Skip: no clean derivation without explicit interest expense
+
+                # ── Book to price ──
+                # Primary: book_value_per_share / price
+                # Fallback: (equity / shares) / price
+                bvps = book_val
+                if bvps is None and equity and shares and shares > 0:
+                    bvps = equity / shares
+                if close_price and close_price != 0 and bvps and bvps > 0:
+                    _add("book_to_price_hist", bvps / close_price)
+
+                # ── Price to book (inverse of book_to_price) ──
+                if close_price and bvps and bvps > 0:
+                    _add("price_to_book_hist", close_price / bvps)
+
+                # ── Revenue growth (sequential QoQ/YoY) ──
+                # Handled in the sequential loop below
+
+            # ── Sequential growth metrics: QoQ comparison ──
+            quarterly_dates = sorted(
+                [rd for rd, pt in report_dates if pt == "quarterly"]
+            )
+            for i in range(1, len(quarterly_dates)):
+                prev_date = quarterly_dates[i - 1]
+                curr_date = quarterly_dates[i]
+
+                # Earnings growth (EPS QoQ)
+                prev_eps = fund_lookup.get(("diluted_eps", prev_date, "quarterly"))
+                curr_eps = fund_lookup.get(("diluted_eps", curr_date, "quarterly"))
+                if prev_eps is None:
+                    prev_eps = fund_lookup.get(("basic_eps", prev_date, "quarterly"))
+                if curr_eps is None:
+                    curr_eps = fund_lookup.get(("basic_eps", curr_date, "quarterly"))
+                if prev_eps is not None and curr_eps is not None and prev_eps != 0:
+                    growth = (curr_eps - prev_eps) / abs(prev_eps)
+                    if abs(growth) < 100:
+                        _add_seq = lambda fn, val, dt=curr_date: (
+                            records.append({"symbol": db_symbol, "snapshot_date": dt,
+                                            "field_name": fn, "field_value": round(val, 6)})
+                            if (fn, dt) not in seen and seen.add((fn, dt)) is None else None
+                        )
+                        key = ("earnings_growth_hist", curr_date)
+                        if key not in seen:
+                            seen.add(key)
+                            records.append({
+                                "symbol": db_symbol,
+                                "snapshot_date": curr_date,
+                                "field_name": "earnings_growth_hist",
+                                "field_value": round(growth, 6),
+                            })
+
+                # Revenue growth (QoQ)
+                prev_rev = fund_lookup.get(("total_revenue", prev_date, "quarterly"))
+                curr_rev = fund_lookup.get(("total_revenue", curr_date, "quarterly"))
+                if prev_rev is not None and curr_rev is not None and prev_rev != 0:
+                    rev_growth = (curr_rev - prev_rev) / abs(prev_rev)
+                    if abs(rev_growth) < 100:
+                        key = ("revenue_growth_hist", curr_date)
+                        if key not in seen:
+                            seen.add(key)
+                            records.append({
+                                "symbol": db_symbol,
+                                "snapshot_date": curr_date,
+                                "field_name": "revenue_growth_hist",
+                                "field_value": round(rev_growth, 6),
+                            })
+
+                # Net income growth (QoQ)
+                prev_ni = fund_lookup.get(("net_income", prev_date, "quarterly"))
+                curr_ni = fund_lookup.get(("net_income", curr_date, "quarterly"))
+                if prev_ni is not None and curr_ni is not None and prev_ni != 0:
+                    ni_growth = (curr_ni - prev_ni) / abs(prev_ni)
+                    if abs(ni_growth) < 100:
+                        key = ("net_income_growth_hist", curr_date)
+                        if key not in seen:
+                            seen.add(key)
+                            records.append({
+                                "symbol": db_symbol,
+                                "snapshot_date": curr_date,
+                                "field_name": "net_income_growth_hist",
+                                "field_value": round(ni_growth, 6),
+                            })
+
+                # OCF growth (QoQ)
+                prev_ocf = fund_lookup.get(("operating_cash_flow", prev_date, "quarterly"))
+                curr_ocf = fund_lookup.get(("operating_cash_flow", curr_date, "quarterly"))
+                if prev_ocf is not None and curr_ocf is not None and prev_ocf != 0:
+                    ocf_growth = (curr_ocf - prev_ocf) / abs(prev_ocf)
+                    if abs(ocf_growth) < 100:
+                        key = ("ocf_growth_hist", curr_date)
+                        if key not in seen:
+                            seen.add(key)
+                            records.append({
+                                "symbol": db_symbol,
+                                "snapshot_date": curr_date,
+                                "field_name": "ocf_growth_hist",
+                                "field_value": round(ocf_growth, 6),
+                            })
+
+            if records:
+                n = db_client.upsert_company_ratios(records)
+                with _total_lock:
+                    total_loaded += n
+                if metrics:
+                    metrics.record_outcome("historical_ratios", db_symbol, "SUCCESS", n)
+                if progress_update:
+                    progress_update(db_symbol, "SUCCESS")
+                db_client.insert_log(
+                    _make_log_entry(
+                        run_id, "historical_ratios", db_symbol, "SUCCESS", n,
+                        frequency=frequency,
+                    )
+                )
+            else:
+                if metrics:
+                    metrics.record_outcome("historical_ratios", db_symbol, "SKIPPED")
+                if progress_update:
+                    progress_update(db_symbol, "SKIPPED")
+        except Exception as e:
+            if metrics:
+                metrics.record_outcome("historical_ratios", db_symbol, "FAILED")
+            if progress_update:
+                progress_update(db_symbol, "FAILED")
+            db_client.insert_log(
+                _make_log_entry(
+                    run_id, "historical_ratios", db_symbol, "FAILED", 0,
+                    str(e), frequency,
+                )
+            )
+            pipeline_logger.debug(f"Historical ratios failed for {db_symbol}: {e}")
+
+    pool = ThreadPoolExecutor(max_workers=hist_workers)
+    try:
+        futures = [pool.submit(_process_ticker, item) for item in need_compute]
+        done, pending = futures_wait(futures, timeout=300)
+        for future in done:
+            try:
+                future.result()
+            except Exception as e:
+                pipeline_logger.error(f"Historical ratios thread error: {e}")
+    finally:
+        pool.shutdown(wait=False)
+
+    pipeline_logger.info(f"Historical ratios: computed {total_loaded} records total")
+    db_client.update_pipeline_metadata("historical_ratios")
+
+
+def _backfill_historical_sentiment(
+    db_client,
+    mongo_store,
+    ticker_map,
+    pipeline_params,
+    start_date,
+    run_id,
+    frequency,
+    metrics=None,
+    progress_update=None,
+):
+    """Backfill historical sentiment from GDELT for tickers with no history.
+
+    Checks the news_sentiment table for each ticker. If a ticker has fewer
+    than 4 historical records, queries GDELT for quarterly sentiment data
+    going back to start_date (6 years).
+
+    GDELT DOC 2.0 API supports historical queries via the timespan parameter.
+    We query one quarter at a time per ticker to get representative coverage.
+    """
+    from datetime import date as _date
+    from dateutil.relativedelta import relativedelta
+
+    pipeline_logger.info("Checking for sentiment backfill candidates...")
+
+    # Find tickers needing backfill — check DISTINCT YEARS, not total records.
+    # A ticker with 6 records all in 2026 needs backfill for 2020-2025.
+    # A ticker with records in 4+ distinct years is well-covered.
+    try:
+        existing = db_client.read_query(
+            "SELECT TRIM(symbol), COUNT(DISTINCT EXTRACT(YEAR FROM cob_date)) AS yr_cnt "
+            "FROM systematic_equity.news_sentiment "
+            "GROUP BY TRIM(symbol)"
+        )
+        existing_years = {row[0]: int(row[1]) for row in existing} if existing else {}
+    except Exception:
+        existing_years = {}
+
+    backfill_tickers = []
+    for db_symbol, yf_ticker, currency in ticker_map:
+        if db_symbol in _inactive_tickers:
+            if metrics:
+                metrics.record_outcome("sentiment_backfill", db_symbol, "SKIPPED")
+            if progress_update:
+                progress_update(db_symbol, "SKIPPED")
+            continue
+        yr_cnt = existing_years.get(db_symbol, 0)
+        if yr_cnt >= 4:
+            if metrics:
+                metrics.record_outcome("sentiment_backfill", db_symbol, "SKIPPED")
+            if progress_update:
+                progress_update(db_symbol, "SKIPPED")
+            continue
+        backfill_tickers.append((db_symbol, yf_ticker, currency))
+
+    if not backfill_tickers:
+        pipeline_logger.info("Sentiment backfill: all tickers have sufficient history")
+        if progress_update:
+            for db_symbol, _, _ in ticker_map:
+                progress_update(db_symbol, "SKIPPED")
+        return
+
+    pipeline_logger.info(
+        f"Sentiment backfill: {len(backfill_tickers)} tickers need historical data "
+        f"(querying GDELT quarterly from {start_date})..."
+    )
+
+    # Generate quarterly date ranges from start_date to now
+    try:
+        start_dt = _date.fromisoformat(start_date) if isinstance(start_date, str) else start_date
+    except (ValueError, TypeError):
+        start_dt = _date(2020, 3, 1)
+
+    quarters = []
+    q_start = _date(start_dt.year, ((start_dt.month - 1) // 3) * 3 + 1, 1)
+    now = _date.today()
+    while q_start < now:
+        q_end = q_start + relativedelta(months=3) - timedelta(days=1)
+        if q_end > now:
+            q_end = now
+        quarters.append((q_start, q_end))
+        q_start = q_start + relativedelta(months=3)
+
+    gdelt = GdeltDownloader(
+        api_delay=0.1,   # GDELT has no rate limit — free, open API
+        max_retries=2,
+        backoff_base=2.0,
+        max_articles=15,
+        timeout=15,
+    )
+
+    # Load company names for better GDELT search queries.
+    # Searching "Iron Mountain" finds far more articles than "IRM".
+    try:
+        name_rows = db_client.read_query(
+            "SELECT TRIM(symbol), security FROM systematic_equity.company_static"
+        )
+        company_names = {r[0]: r[1] for r in name_rows} if name_rows else {}
+    except Exception:
+        company_names = {}
+
+    total_loaded = 0
+    _total_lock = threading.Lock()
+    backfill_workers = pipeline_params.get("backfill_workers", 12)
+
+    def _backfill_ticker(item):
+        nonlocal total_loaded
+        db_symbol, yf_ticker, currency = item
+        if _check_shutdown("sentiment_backfill"):
+            return
+
+        # Check which quarters already have sentiment data for this ticker
+        try:
+            existing_dates = db_client.read_query(
+                "SELECT cob_date FROM systematic_equity.news_sentiment "
+                "WHERE TRIM(symbol) = :sym",
+                {"sym": db_symbol},
+            )
+            existing_cob = {r[0] for r in existing_dates} if existing_dates else set()
+        except Exception:
+            existing_cob = set()
+
+        ticker_records = 0
+        for q_start_dt, q_end_dt in quarters:
+            # Skip quarters that already have a sentiment record
+            mid = q_start_dt + (q_end_dt - q_start_dt) / 2
+            if mid in existing_cob:
+                continue
+            if _check_shutdown("sentiment_backfill"):
+                break
+
+            try:
+                # Multi-strategy GDELT search cascade:
+                # 1. "Company Name" (exact match — best precision)
+                # 2. Company Name (unquoted — broader match)
+                # 3. Ticker symbol (catches financial news)
+                company_name = company_names.get(db_symbol, "")
+                clean_name = ""
+                if company_name:
+                    clean_name = company_name.split(",")[0].split(" Inc")[0]
+                    clean_name = clean_name.split(" Corp")[0].split(" Ltd")[0]
+                    clean_name = clean_name.split(" plc")[0].split(" PLC")[0]
+                    clean_name = clean_name.split(" SE")[0].split(" SA")[0]
+                    clean_name = clean_name.split(" AG")[0].split(" NV")[0]
+                    clean_name = clean_name.strip()
+
+                base_symbol = db_symbol.split(".")[0]
+                queries = []
+                if clean_name and len(clean_name) > 2:
+                    queries.append(f'"{clean_name}"')    # exact match
+                    queries.append(clean_name)            # broad match
+                queries.append(base_symbol)               # ticker symbol
+
+                articles = None
+                for query in queries:
+                    gdelt.rate_limiter.acquire()
+                    resp = requests.get(
+                        "https://api.gdeltproject.org/api/v2/doc/doc",
+                        params={
+                            "query": query,
+                            "mode": "ArtList",
+                            "maxrecords": 15,
+                            "format": "json",
+                            "sourcelang": "english",
+                            "startdatetime": q_start_dt.strftime("%Y%m%d%H%M%S"),
+                            "enddatetime": q_end_dt.strftime("%Y%m%d%H%M%S"),
+                        },
+                        headers={"User-Agent": "KolmogorovTeam/1.0"},
+                        timeout=15,
+                    )
+                    if resp.status_code == 200:
+                        data = resp.json()
+                        found = data.get("articles", [])
+                        if found:
+                            articles = found
+                            break
+
+                # If all queries returned nothing, record neutral sentiment
+                # (no news = no signal = neutral score of 50.0)
+                if not articles:
+                    agg = {
+                        "symbol": db_symbol,
+                        "cob_date": mid.isoformat(),
+                        "article_count": 0,
+                        "avg_sentiment": 0.0,
+                        "positive_count": 0,
+                        "negative_count": 0,
+                        "neutral_count": 0,
+                        "max_sentiment": 0.0,
+                        "min_sentiment": 0.0,
+                        "positive_ratio": 0.0,
+                        "sentiment_score": 50.0,
+                        "score_dispersion": 0.0,
+                    }
+                    n = db_client.upsert_news_sentiment([agg])
+                    with _total_lock:
+                        total_loaded += n
+                    ticker_records += n
+                    continue
+
+                # Process found articles through the standard scoring pipeline
+                parsed = parse_gdelt_articles(articles, db_symbol)
+                if not parsed:
+                    continue
+
+                parsed = deduplicate_articles(parsed)
+                scored = score_articles(parsed)
+                agg = aggregate_sentiment(scored, db_symbol)
+                if agg:
+                    agg["cob_date"] = mid.isoformat()
+                    n = db_client.upsert_news_sentiment([agg])
+                    with _total_lock:
+                        total_loaded += n
+                    ticker_records += n
+
+            except Exception as e:
+                pipeline_logger.debug(
+                    f"GDELT backfill {db_symbol} Q{q_start_dt}: {e}"
+                )
+                continue
+
+        if ticker_records > 0:
+            if metrics:
+                metrics.record_outcome("sentiment_backfill", db_symbol, "SUCCESS", ticker_records)
+            if progress_update:
+                progress_update(db_symbol, "SUCCESS")
+            db_client.insert_log(
+                _make_log_entry(
+                    run_id, "sentiment_backfill", db_symbol, "SUCCESS",
+                    ticker_records, frequency=frequency,
+                )
+            )
+        else:
+            if metrics:
+                metrics.record_outcome("sentiment_backfill", db_symbol, "SKIPPED")
+            if progress_update:
+                progress_update(db_symbol, "SKIPPED")
+            db_client.insert_log(
+                _make_log_entry(
+                    run_id, "sentiment_backfill", db_symbol, "SKIPPED",
+                    0, "no GDELT articles found", frequency,
+                )
+            )
+
+    pool = ThreadPoolExecutor(max_workers=backfill_workers)
+    try:
+        futures = [pool.submit(_backfill_ticker, item) for item in backfill_tickers]
+        done, pending = futures_wait(futures, timeout=1800)
+        for future in done:
+            try:
+                future.result()
+            except Exception as e:
+                pipeline_logger.error(f"Sentiment backfill thread error: {e}")
+        if pending:
+            pipeline_logger.warning(
+                f"Sentiment backfill: {len(pending)} tickers exceeded 30min timeout"
+            )
+    finally:
+        pool.shutdown(wait=False)
+
+    pipeline_logger.info(f"Sentiment backfill: loaded {total_loaded} records total")
+    db_client.update_pipeline_metadata("sentiment_backfill")
+
+
 def _run_fx(
     db_client,
     minio_store,
@@ -1660,6 +2519,17 @@ def _extract_ratios_from_info(info: dict, db_symbol: str) -> list[dict]:
             )
         except (ValueError, TypeError):
             continue
+
+    # ── Default dividend_yield to 0.0 if not present ──
+    # Non-dividend payers have no dividendYield in yfinance info.
+    # A yield of 0.0 is factually correct (not NULL).
+    if not any(r["field_name"] == "dividend_yield" for r in records):
+        records.append({
+            "symbol": db_symbol,
+            "snapshot_date": today,
+            "field_name": "dividend_yield",
+            "field_value": 0.0,
+        })
 
     # ── Derived ratios computed from raw fields ──
     _derived = _compute_derived_ratios(info, db_symbol, today)
@@ -2343,6 +3213,17 @@ def _run_esg(
 
     pipeline_logger.info(f"ESG: loaded {total_loaded} records total")
     db_client.update_pipeline_metadata("esg")
+
+    # Close the LSEG session to release the server-side signon slot.
+    # signon_control=True allows only 1 session per user — if the session
+    # is not closed, the next pipeline run may fail to open a new one.
+    try:
+        import lseg.data as ld
+        ld.close_session()
+        pipeline_logger.info("LSEG session closed")
+    except Exception:
+        pass  # May not have been opened (ImportError, credentials missing, etc.)
+
     return downloader
 
 
@@ -2676,6 +3557,9 @@ def main():
     currency_map = conf["params"].get("CurrencyMapping", {})
     ticker_map = [prepare_yfinance_ticker(t, currency_map) for t in raw_tickers]
     pipeline_logger.info(f"Ticker preparation complete ({len(ticker_map)} tickers)")
+
+    # ── 9b. Purge orphan prices from previous runs ──
+    db_client.purge_orphan_prices()
 
     # ── 10. Pipeline parameters ──
     pipeline_params = conf["params"]["Pipeline"]
@@ -3033,7 +3917,36 @@ def main():
             t = threading.Thread(target=_run_finnhub_phase, name="source-finnhub")
             supplement_threads.append(t)
 
-    # Launch EDGAR + Finnhub concurrently (disjoint US/non-US ticker sets)
+    # ── Group A.7: Non-US fundamentals supplement (FMP + SimFin + AV) ──
+    non_us_count_supp = sum(1 for db, yf, cur in ticker_map if is_non_us_ticker(db))
+    if "fundamentals" in sources and non_us_count_supp > 0 and not _check_shutdown("nonus_supplement"):
+
+        def _run_nonus_supp_phase():
+            pipeline_logger.info(
+                f"Running non-US fundamentals supplement (FMP/SimFin/AV) "
+                f"for {non_us_count_supp} tickers..."
+            )
+            tracker.print_phase_start("nonus_supplement")
+            with metrics.track("nonus_supplement"):
+                with tracker.source_progress("nonus_supplement", non_us_count_supp) as update:
+                    supp_dls = _run_nonus_fundamentals_supplement(
+                        db_client, minio_store, ticker_map, pipeline_params,
+                        start_date, run_id, freq, conf, metrics, update,
+                        kafka_producer=kafka_producer, mongo_store=mongo_store,
+                    )
+            if supp_dls:
+                for d in supp_dls:
+                    _append_results(d)
+                tracker.print_phase_complete(
+                    "nonus_supplement",
+                    metrics._timings.get("nonus_supplement", 0),
+                    metrics._counts.get("nonus_supplement", {}).get("total_rows", 0),
+                )
+
+        t = threading.Thread(target=_run_nonus_supp_phase, name="source-nonus-supp")
+        supplement_threads.append(t)
+
+    # Launch EDGAR + Finnhub + Non-US supplement concurrently (disjoint ticker sets)
     if supplement_threads:
         _active_supp = [t.name.replace("source-", "") for t in supplement_threads]
         tracker.print_parallel_group_start(
@@ -3048,6 +3961,81 @@ def main():
                 pipeline_logger.warning(
                     f"Supplement thread {t.name} still alive after 10min — " f"proceeding anyway"
                 )
+
+    # ── Fundamentals post-processing: derive missing fields ──
+    # Runs after ALL fundamentals sources complete (yfinance, EDGAR, Finnhub, FMP/SimFin/AV).
+    # Fills gaps that exist because yfinance doesn't report certain fields historically.
+    if not _check_shutdown("fundamentals_derive"):
+        try:
+            from sqlalchemy import text
+
+            # 1. book_value: fill from stockholders_equity where missing
+            #    (they are the same metric — total equity attributable to shareholders)
+            derived_bv = db_client.read_query(
+                "SELECT COUNT(*) FROM systematic_equity.fundamentals WHERE field_name = 'book_value'"
+            )
+            bv_before = derived_bv[0][0] if derived_bv else 0
+
+            with db_client._engine.connect() as conn:
+                conn.execute(
+                    text(
+                        "INSERT INTO systematic_equity.fundamentals "
+                        "  (symbol, report_date, field_name, field_value, period_type, currency, ingestion_timestamp) "
+                        "SELECT symbol, report_date, 'book_value', field_value, period_type, currency, NOW() "
+                        "FROM systematic_equity.fundamentals "
+                        "WHERE field_name = 'stockholders_equity' "
+                        "  AND field_value IS NOT NULL "
+                        "ON CONFLICT (symbol, report_date, field_name, period_type) DO NOTHING"
+                    )
+                )
+                conn.commit()
+
+            derived_bv_after = db_client.read_query(
+                "SELECT COUNT(*) FROM systematic_equity.fundamentals WHERE field_name = 'book_value'"
+            )
+            bv_after = derived_bv_after[0][0] if derived_bv_after else 0
+            if bv_after > bv_before:
+                pipeline_logger.info(
+                    f"Derived book_value from stockholders_equity: "
+                    f"{bv_after - bv_before} new records ({bv_before} → {bv_after})"
+                )
+
+            # 2. book_value_per_share: derive from stockholders_equity / shares_outstanding
+            #    for historical periods where it's missing (currently snapshot-only)
+            bvps_before_q = db_client.read_query(
+                "SELECT COUNT(*) FROM systematic_equity.fundamentals WHERE field_name = 'book_value_per_share'"
+            )
+            bvps_before = bvps_before_q[0][0] if bvps_before_q else 0
+
+            with db_client._engine.connect() as conn:
+                conn.execute(
+                    text(
+                        "INSERT INTO systematic_equity.fundamentals "
+                        "  (symbol, report_date, field_name, field_value, period_type, currency, ingestion_timestamp) "
+                        "SELECT f.symbol, f.report_date, 'book_value_per_share', "
+                        "       f.field_value / cr.field_value, f.period_type, f.currency, NOW() "
+                        "FROM systematic_equity.fundamentals f "
+                        "JOIN systematic_equity.company_ratios cr "
+                        "  ON TRIM(cr.symbol) = TRIM(f.symbol) AND cr.field_name = 'shares_outstanding' "
+                        "WHERE f.field_name = 'stockholders_equity' "
+                        "  AND f.field_value IS NOT NULL "
+                        "  AND cr.field_value IS NOT NULL AND cr.field_value > 0 "
+                        "ON CONFLICT (symbol, report_date, field_name, period_type) DO NOTHING"
+                    )
+                )
+                conn.commit()
+
+            bvps_after_q = db_client.read_query(
+                "SELECT COUNT(*) FROM systematic_equity.fundamentals WHERE field_name = 'book_value_per_share'"
+            )
+            bvps_after = bvps_after_q[0][0] if bvps_after_q else 0
+            if bvps_after > bvps_before:
+                pipeline_logger.info(
+                    f"Derived book_value_per_share from equity/shares: "
+                    f"{bvps_after - bvps_before} new records ({bvps_before} → {bvps_after})"
+                )
+        except Exception as e:
+            pipeline_logger.warning(f"Fundamentals derivation failed: {e}")
 
     # ── Group B.2: VIX (sequential — yfinance not thread-safe) ──
     # FX + RFR were already started in group_independent_threads above.
@@ -3142,6 +4130,36 @@ def main():
             "ratios",
             metrics._timings.get("ratios", 0),
             metrics._counts.get("ratios", {}).get("total_rows", 0),
+        )
+
+    # ── Group D: Historical ratios (computed from fundamentals + prices) ──
+    if "ratios" in sources and not _check_shutdown("historical_ratios"):
+        tracker.print_phase_start("historical_ratios")
+        with metrics.track("historical_ratios"):
+            with tracker.source_progress("historical_ratios", len(ticker_map)) as update:
+                _compute_historical_ratios(
+                    db_client, ticker_map, run_id, freq, metrics, update,
+                )
+        tracker.print_phase_complete(
+            "historical_ratios",
+            metrics._timings.get("historical_ratios", 0),
+            metrics._counts.get("historical_ratios", {}).get("total_rows", 0),
+        )
+
+    # ── Group E: GDELT historical sentiment backfill ──
+    if "sentiment" in sources and not _check_shutdown("sentiment_backfill"):
+        tracker.print_phase_start("sentiment_backfill")
+        with metrics.track("sentiment_backfill"):
+            backfill_count = len(ticker_map)
+            with tracker.source_progress("sentiment_backfill", backfill_count) as update:
+                _backfill_historical_sentiment(
+                    db_client, mongo_store, ticker_map, pipeline_params,
+                    start_date, run_id, freq, metrics, update,
+                )
+        tracker.print_phase_complete(
+            "sentiment_backfill",
+            metrics._timings.get("sentiment_backfill", 0),
+            metrics._counts.get("sentiment_backfill", {}).get("total_rows", 0),
         )
 
     # ── Independent sources already joined before ratios (above) ──

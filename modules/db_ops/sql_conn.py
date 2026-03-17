@@ -161,6 +161,40 @@ class DatabaseMethods:
         finally:
             s.close()
 
+    def purge_orphan_prices(self) -> int:
+        """Remove daily_prices rows whose symbol is not in company_static.
+
+        Prevents stale tickers from inflating the entity count when the
+        investable universe changes between runs.
+
+        :return: Number of orphan rows deleted
+        :rtype: int
+        """
+        s = self.session
+        try:
+            result = s.execute(
+                text(
+                    "DELETE FROM systematic_equity.daily_prices "
+                    "WHERE symbol NOT IN ("
+                    "  SELECT TRIM(symbol) FROM systematic_equity.company_static"
+                    ")"
+                )
+            )
+            deleted = result.rowcount
+            s.commit()
+            if deleted:
+                pipeline_logger.info(
+                    f"Purged {deleted} orphan rows from daily_prices "
+                    f"(symbols not in company_static)"
+                )
+            return deleted
+        except Exception as e:
+            s.rollback()
+            pipeline_logger.warning(f"Orphan price purge failed: {e}")
+            return 0
+        finally:
+            s.close()
+
     def upsert_daily_prices(self, data_load: list[dict]) -> int:
         """Upsert daily price records (INSERT ... ON CONFLICT DO UPDATE).
 
