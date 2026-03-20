@@ -34,6 +34,13 @@ Format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 - **README.md** updated: data source table, architecture diagram, orchestration
   groups, API keys section, and project structure all reflect the streamlined
   pipeline.
+- **Sentiment coverage** — now uses recent articles only (yfinance + NewsAPI +
+  GDELT gap-fill). Historical backfill removed; sentiment reflects current
+  market conditions rather than stale historical data.
+- **`.env.example`** — removed Finnhub, Alpha Vantage, FMP, and SimFin API key
+  entries. Only infrastructure credentials, LSEG (ESG), and NewsAPI remain.
+- **Sphinx docs** — updated `architecture.rst` and `installation.rst` to remove
+  references to disabled data sources.
 
 ---
 

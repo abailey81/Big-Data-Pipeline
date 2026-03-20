@@ -110,6 +110,6 @@ The pipeline reads environment variables from ``.env.dev``. Key variables:
    * - ``KAFKA_BOOTSTRAP_SERVERS``
      - Kafka bootstrap servers
      - ``localhost:9092``
-   * - ``FINNHUB_API_KEY``
-     - Finnhub API key (for non-US fundamentals)
+   * - ``NEWSAPI_KEY``
+     - NewsAPI key (optional, secondary news source)
      - (none)

@@ -82,11 +82,15 @@ Circuit breaker, token-bucket rate limiter, exponential backoff, and graceful de
 | 8 | US 3-Month Treasury rate (DGS3MO) | FRED | 2020--2026 | -- |
 | 9 | Regional benchmark indices (5) | Yahoo Finance | S&P 500, FTSE 100, Euro Stoxx 50, TSX, SMI | -- |
 | 10 | ESG sustainability scores | LSEG Data Platform | 234 / 678 symbols (API ceiling) | -- |
-| 11 | News sentiment (VADER + financial boost) | yfinance + NewsAPI + GDELT | 674 / 678 symbols | -- |
+| 11 | News sentiment (VADER + financial boost) | yfinance + NewsAPI + GDELT | 674 / 678 symbols | Recent articles only |
 
-**Date range:** 2020-02-27 to present (6-year backfill by default)
+**Date range:** 2020-02-27 to present (6-year lookback by default, configurable via `conf.yaml`)
 
-**Smart cascade logic:** Each source checks the database before downloading. If prior sources already provided sufficient data for a ticker, it is skipped -- zero wasted API calls. All database writes use `ON CONFLICT DO UPDATE` for idempotent re-runs.
+**Key design choices:**
+- All database writes use `ON CONFLICT DO UPDATE` for idempotent re-runs
+- ESG provides current-day snapshot only (LSEG API limitation — no historical data available)
+- Sentiment covers recent articles (~30 days) via the 3-source cascade; historical depth is not backfilled
+- Company additions/removals are handled automatically by re-querying `company_static` at each run
 
 ---
 
@@ -100,12 +104,12 @@ Circuit breaker, token-bucket rate limiter, exponential backoff, and graceful de
                                        |
           +----------+---------+-------+-------+---------+
           |          |         |       |       |         |
-     +----v---+ +---v----+ +-v----+ +-v----+ +-v-----+ |
-     | Yahoo  | |  SEC   | | FRED | | LSEG | | GDELT | |
-     |Finance | | EDGAR  | |T-Bill| |(ESG) | | News  | |
-     +----+---+ +---+----+ +--+---+ +--+---+ +--+----+ |
-          |          |         |        |        |      |
-          +----------+---------+---+----+--------+------+
+     +----v---+ +---v----+ +-v----+ +-v----+ +-v-----+
+     | Yahoo  | |  SEC   | | FRED | | LSEG | | GDELT |
+     |Finance | | EDGAR  | |T-Bill| |(ESG) | | News  |
+     +----+---+ +---+----+ +--+---+ +--+---+ +--+----+
+          |          |         |        |        |
+          +----------+---------+---+----+--------+
                                    |
                      +-------------v--------------+
                      |      Data Cleaning          |
@@ -173,7 +177,10 @@ cp .env.example .env.dev
 **4. Run the pipeline**
 
 ```bash
-# Full 6-year backfill
+# First run: initialise schema + full 6-year backfill
+poetry run python Main.py --env_type dev --init_schema
+
+# Subsequent runs: full backfill (schema already exists)
 poetry run python Main.py --env_type dev
 
 # Daily incremental update
@@ -325,7 +332,7 @@ Big-Data-Pipeline/
 │   │   ├── stage_macro.py           # FX, VIX, risk-free rate, benchmarks
 │   │   ├── stage_ratios.py          # 57-field ratio computation engine
 │   │   ├── stage_esg.py             # ESG sustainability scores (LSEG)
-│   │   └── stage_sentiment.py       # News sentiment + GDELT backfill
+│   │   └── stage_sentiment.py       # News sentiment (yfinance + NewsAPI + GDELT)
 │   ├── input/                       # Data source downloaders
 │   │   ├── base_downloader.py       # Abstract base (circuit breaker, retry)
 │   │   ├── price_downloader.py      # Daily OHLCV for 678 equities
@@ -337,16 +344,19 @@ Big-Data-Pipeline/
 │   │   ├── alphavantage_downloader.py  # Alpha Vantage (disabled — low coverage)
 │   │   ├── fx_downloader.py         # FX rate pairs
 │   │   ├── vix_downloader.py        # CBOE Volatility Index
-│   │   ├── risk_free_rate_downloader.py
+│   │   ├── risk_free_rate_downloader.py  # FRED DGS3MO T-bill rate
 │   │   ├── esg_downloader.py        # ESG sustainability scores (LSEG batch)
 │   │   ├── news_downloader.py       # News articles (3-source cascade)
-│   │   ├── gdelt_downloader.py      # GDELT DOC API (sentiment gap-fill + backfill)
+│   │   ├── gdelt_downloader.py      # GDELT DOC API (sentiment gap-fill)
 │   │   ├── newsapi_downloader.py    # NewsAPI (secondary news source)
 │   │   └── get_company_static.py    # 678-company universe
 │   ├── processing/                  # Data cleaning and transformation
 │   │   ├── data_cleaner.py          # Pydantic validation
+│   │   ├── data_quality.py          # Post-clean quality checks
 │   │   ├── sentiment_scorer.py      # VADER + financial domain boost
 │   │   └── ticker_utils.py          # Currency mapping, Swiss remap
+│   ├── output/                      # Data export utilities
+│   │   └── data_exporter.py         # Query by company or year
 │   ├── db_ops/                      # Database clients
 │   │   ├── sql_conn.py              # PostgreSQL (SQLAlchemy)
 │   │   ├── mongo_conn.py            # MongoDB (PyMongo)
@@ -354,9 +364,20 @@ Big-Data-Pipeline/
 │   │   └── kafka_ops.py             # Kafka producer/consumer
 │   ├── data_models/                 # Pydantic + SQLAlchemy ORM
 │   └── utils/                       # Infrastructure utilities
+│       ├── args_parser.py           # CLI argument parser
 │       ├── circuit_breaker.py       # Three-state resilience pattern
+│       ├── concurrent_executor.py   # ThreadPoolExecutor wrapper
+│       ├── exceptions.py            # Custom pipeline exceptions
+│       ├── health_check.py          # Pre-flight system health checks
+│       ├── info_logger.py           # Centralised pipeline logging
+│       ├── pipeline_metrics.py      # Observability metrics
+│       ├── progress_tracker.py      # Rich animated progress bars
 │       ├── rate_limiter.py          # Token-bucket rate limiting
-│       └── retry.py                 # Exponential backoff decorator
+│       ├── retry.py                 # Exponential backoff decorator
+│       └── scheduler.py            # APScheduler integration
+├── .coveragerc                      # Coverage measurement configuration
+├── .flake8                          # Flake8 linting rules
+├── .env.example                     # Environment variable template
 ├── .github/workflows/
 │   └── ci.yml                       # CI/CD: lint, test, security scan
 ├── static/schema/

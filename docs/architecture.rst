@@ -34,12 +34,12 @@ Data Flow
    - ``PriceDownloader`` -- daily OHLCV for 678 equities
    - ``FundamentalsDownloader`` -- quarterly balance sheet + income statement
    - ``EdgarDownloader`` -- SEC EDGAR 10-Q/10-K filings (US companies)
-   - ``FinnhubDownloader`` -- Finnhub fundamentals (non-US tickers)
    - ``FxDownloader`` -- GBP, EUR, CAD, CHF vs USD
    - ``VixDownloader`` -- CBOE Volatility Index
-   - ``EsgDownloader`` -- ESG sustainability scores
+   - ``EsgDownloader`` -- ESG sustainability scores (LSEG batch)
    - ``RiskFreeRateDownloader`` -- FRED DGS3MO T-bill rate
-   - ``RatiosDownloader`` -- 20 financial ratios per ticker
+   - ``NewsDownloader`` -- 3-source news cascade (yfinance + NewsAPI + GDELT)
+   - ``RatiosDownloader`` -- 57 financial ratios per ticker
 
 2. **Raw Storage** -- ``MinioStore`` persists raw CSV/JSON files in the MinIO
    data lake under ``raw-data/{category}/{symbol}/{date}.csv``.
