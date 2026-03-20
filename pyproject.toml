@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "ift-systematic-equity"
-version = "3.2.0"
+version = "3.3.0"
 description = "Systematic Equity Pipeline: Data Pipeline for Flow-Based Multi-Factor Equity Strategy"
 authors = ["Kolmogorov's team"]
 readme = "README.md"

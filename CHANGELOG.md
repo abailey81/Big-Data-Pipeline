@@ -6,6 +6,43 @@ Format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
 ---
 
+## [3.3.0] - 2026-03-20
+
+### Added
+
+- **Comprehensive fundamentals-based ratio fallbacks** — when yfinance
+  `Ticker.info` does not return certain fields (common for non-US tickers),
+  the pipeline now computes them from real fundamental and price data already
+  in the database: `return_on_equity`, `profit_margin`, `operating_margin`,
+  `gross_margin`, `pe_ratio_trailing`, `price_to_book`, `book_to_price`,
+  `ev_to_ebitda`, `enterprise_value`, `market_cap`, `earnings_growth`,
+  `revenue_growth`, `free_cash_flow`, `current_ratio`, and more. All
+  computations use only real accounting data from the `fundamentals` table
+  and real market prices from `daily_prices` — no fabricated or imputed values.
+- **Ratios retry pass** — after the main ratios phase, the pipeline checks
+  for tickers that failed due to transient yfinance errors, waits 30 seconds
+  for Yahoo rate limits to reset, and re-attempts only the missing tickers.
+  This eliminates transient failures on a single fresh run.
+- **`earnings_growth` snapshot fallback** — computed from the two most recent
+  quarterly EPS values in the fundamentals table when Yahoo doesn't provide it.
+- **`revenue_growth` snapshot fallback** — computed from the two most recent
+  quarterly revenue values.
+
+### Changed
+
+- **`earnings_stability` threshold** — lowered minimum from 4 to 3 quarterly
+  EPS observations and from 3 to 2 growth rates. This captures more tickers
+  while still requiring sufficient data for a meaningful standard deviation.
+- **Historical ratio growth fields** — changed zero-denominator check from
+  `prev != 0` to `abs(prev) > 0.001` to avoid skipping near-zero values
+  that would produce valid growth rates.
+- **`book_value` derivation** — when `book_value` field is missing from
+  fundamentals, uses `stockholders_equity` (same accounting concept).
+- **30-second cooldown** before ratios phase to reset yfinance rate limits
+  after heavy API usage in prices/fundamentals/ESG/sentiment phases.
+
+---
+
 ## [3.2.0] - 2026-03-20
 
 ### Removed
