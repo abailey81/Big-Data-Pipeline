@@ -152,6 +152,12 @@ From the root of the `ift_coursework_2025` repository, start the required servic
 docker compose up --build postgres_db mongo_db miniocw minio_client_cw postgres_seed
 ```
 
+> If `docker` is not found, Docker Desktop may not be in your PATH. Fix with:
+> ```bash
+> sudo ln -s /Applications/Docker.app/Contents/Resources/bin/docker /usr/local/bin/docker
+> ```
+> Or on Linux: `sudo apt install docker-compose-plugin`
+
 This starts PostgreSQL (port 5439), MongoDB (port 27019), and MinIO (port 9000),
 and seeds the `fift` database with the `company_static` table (678 equities).
 
