@@ -161,6 +161,10 @@ docker compose up --build -d
 
 This starts PostgreSQL (5438), MongoDB (27017), MinIO (9000), and Kafka (9092).
 
+> **Class infrastructure:** If using the class `docker-compose.yml` from
+> `ift_coursework_2025`, ports are PostgreSQL (5439) and MongoDB (27019).
+> Use `--env_type docker` instead of `--env_type dev`.
+
 **3. Configure environment**
 
 ```bash
@@ -177,10 +181,13 @@ cp .env.example .env.dev
 **4. Run the pipeline**
 
 ```bash
-# First run: initialise schema + full 6-year backfill
+# First run with YOUR docker-compose (dev):
 poetry run python Main.py --env_type dev --init_schema
 
-# Subsequent runs: full backfill (schema already exists)
+# First run with CLASS docker-compose (docker):
+poetry run python Main.py --env_type docker
+
+# Subsequent runs:
 poetry run python Main.py --env_type dev
 
 # Daily incremental update
