@@ -641,6 +641,15 @@ def main():
                 f"Independent thread {t.name} still alive after 10min — " f"proceeding to ratios anyway"
             )
 
+    # ── Cooldown before ratios ──
+    # After prices, fundamentals, ESG, and sentiment have all hit yfinance,
+    # Yahoo's rate limiter needs time to reset. Without this pause, the first
+    # 10-20 ratios tickers get 429/crumb errors before recovering.
+    if "ratios" in sources and not check_shutdown("ratios_cooldown"):
+        import time as _time
+        pipeline_logger.info("Ratios: 30s cooldown to reset yfinance rate limit...")
+        _time.sleep(30)
+
     # ── Group C: Company ratios (per-ticker parallelised with ThreadPoolExecutor) ──
     #
     # Each worker downloads a *different* symbol — no same-symbol concurrent

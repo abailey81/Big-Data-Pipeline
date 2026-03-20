@@ -215,106 +215,32 @@ def detect_inactive_tickers(db_client, ticker_map=None) -> set[str]:
 
     candidates: set[str] = set()
 
-    # ── Signal 1: Stale prices (no data in last 180 calendar days) ──
+    # ── Signal 1: No prices at all (truly delisted/unavailable) ──
+    # Only flag tickers with ZERO rows in daily_prices.
+    # Tickers with any price data are active — even if stale.
     try:
-        stale_rows = db_client.read_query(
-            "SELECT cs.symbol, MAX(dp.cob_date) AS last_date "
+        no_price_rows = db_client.read_query(
+            "SELECT cs.symbol "
             "FROM systematic_equity.company_static cs "
             "LEFT JOIN systematic_equity.daily_prices dp "
             "  ON TRIM(cs.symbol) = TRIM(dp.symbol) "
             "GROUP BY cs.symbol "
-            "HAVING MAX(dp.cob_date) IS NULL "
-            "   OR MAX(dp.cob_date) < CURRENT_DATE - INTERVAL '180 days'"
+            "HAVING COUNT(dp.cob_date) = 0"
         )
-        stale_symbols = {r[0].strip() for r in stale_rows} if stale_rows else set()
-        if stale_symbols:
+        confirmed_inactive = {r[0].strip() for r in no_price_rows} if no_price_rows else set()
+        if confirmed_inactive:
             pipeline_logger.info(
-                f"Signal 1 (stale prices): {len(stale_symbols)} tickers "
-                f"with no price data in last 180 days"
+                f"Inactive ticker detection: {len(confirmed_inactive)} tickers "
+                f"with zero price rows in daily_prices (delisted/unavailable)"
             )
-        candidates |= stale_symbols
     except Exception as exc:
-        pipeline_logger.warning(f"Stale-price signal query failed: {exc}")
-
-    # ── Signal 2: Recent ingestion-log FAILED in prices ──
-    try:
-        log_rows = db_client.read_query(
-            "SELECT DISTINCT TRIM(symbol) "
-            "FROM systematic_equity.ingestion_log "
-            "WHERE data_source = 'prices' "
-            "  AND status = 'FAILED' "
-            "  AND run_timestamp > NOW() - INTERVAL '7 days' "
-            "  AND symbol IS NOT NULL"
-        )
-        log_symbols = {r[0] for r in log_rows} if log_rows else set()
-        if log_symbols:
-            pipeline_logger.info(
-                f"Signal 2 (ingestion log): {len(log_symbols)} tickers "
-                f"FAILED in prices across recent runs"
-            )
-        candidates |= log_symbols
-    except Exception as exc:
-        pipeline_logger.warning(f"Ingestion-log signal query failed: {exc}")
-
-    if not candidates:
-        pipeline_logger.info("Pre-flight delisted detection: 0 candidates — all tickers look active")
-        return set()
-
-    pipeline_logger.info(
-        f"Pre-flight delisted detection: {len(candidates)} candidates identified, "
-        f"running live verification..."
-    )
-
-    # Build db_symbol → yf_ticker mapping
-    sym_to_yf: dict[str, str] = {}
-    if ticker_map:
-        for db_sym, yf_tick, _cur in ticker_map:
-            sym_to_yf[db_sym.strip()] = yf_tick
-    else:
-        for s in candidates:
-            sym_to_yf[s] = s.replace(".", "-")
-
-    # ── Signal 3: Live verification via yfinance fast_info ──
-    confirmed_inactive: set[str] = set()
-
-    def _check_live(db_symbol: str) -> tuple[str, bool]:
-        """Return (db_symbol, True if inactive)."""
-        yf_ticker = sym_to_yf.get(db_symbol, db_symbol.replace(".", "-"))
-        try:
-            t = yf.Ticker(yf_ticker)
-            fi = t.fast_info
-            price = fi.get("regularMarketPrice", None) if fi else None
-            if price is None or float(price) <= 0:
-                return (db_symbol, True)
-            return (db_symbol, False)
-        except Exception:
-            return (db_symbol, True)
-
-    candidate_list = sorted(candidates & set(sym_to_yf.keys())) if ticker_map else sorted(candidates)
-
-    with ThreadPoolExecutor(max_workers=10) as pool:
-        futures = {pool.submit(_check_live, sym): sym for sym in candidate_list}
-        for fut in as_completed(futures):
-            try:
-                sym, is_inactive = fut.result(timeout=30)
-                if is_inactive:
-                    confirmed_inactive.add(sym)
-            except Exception:
-                confirmed_inactive.add(futures[fut])
+        pipeline_logger.warning(f"Inactive ticker detection query failed: {exc}")
+        confirmed_inactive = set()
 
     if confirmed_inactive:
-        pipeline_logger.info(
-            f"Pre-flight delisted detection complete: {len(confirmed_inactive)}/{len(candidates)} "
-            f"confirmed inactive (will skip in fundamentals, ratios, ESG, sentiment)"
-        )
         examples = sorted(confirmed_inactive)[:10]
         pipeline_logger.info(
             f"  Examples: {', '.join(examples)}{'...' if len(confirmed_inactive) > 10 else ''}"
-        )
-    else:
-        pipeline_logger.info(
-            f"Pre-flight delisted detection: 0/{len(candidates)} confirmed inactive — "
-            f"all candidates passed live check"
         )
 
     return confirmed_inactive
