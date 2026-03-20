@@ -186,16 +186,16 @@ cp .env.example .env.dev
 
 ```bash
 # Full 6-year backfill:
-poetry run python Main.py --env_type docker
+poetry run python Main.py --env_type dev
 
 # Daily incremental update:
-poetry run python Main.py --env_type docker --frequency daily
+poetry run python Main.py --env_type dev --frequency daily
 
 # Custom date range:
-poetry run python Main.py --env_type docker --start_date 2023-01-01 --end_date 2024-12-31
+poetry run python Main.py --env_type dev --start_date 2023-01-01 --end_date 2024-12-31
 
 # Subset of sources:
-poetry run python Main.py --env_type docker --sources prices fundamentals fx
+poetry run python Main.py --env_type dev --sources prices fundamentals fx
 
 # Subset of sources
 poetry run python Main.py --env_type dev --sources prices fundamentals fx
