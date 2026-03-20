@@ -167,6 +167,10 @@ def compute_historical_ratios(
                 if fcf is None and ocf is not None and capex is not None:
                     fcf = ocf - abs(capex)
 
+                # Derive book_value from equity when missing
+                if book_val is None and equity is not None:
+                    book_val = equity
+
                 # Derive shares: prefer equity/book_value, fallback to shares_outstanding
                 shares = None
                 if book_val and book_val != 0 and equity:
@@ -307,7 +311,7 @@ def compute_historical_ratios(
                     prev_eps = fund_lookup.get(("basic_eps", prev_date, "quarterly"))
                 if curr_eps is None:
                     curr_eps = fund_lookup.get(("basic_eps", curr_date, "quarterly"))
-                if prev_eps is not None and curr_eps is not None and prev_eps != 0:
+                if prev_eps is not None and curr_eps is not None and abs(prev_eps) > 0.001:
                     growth = (curr_eps - prev_eps) / abs(prev_eps)
                     if abs(growth) < 100:
                         key = ("earnings_growth_hist", curr_date)
@@ -323,7 +327,7 @@ def compute_historical_ratios(
                 # Revenue growth (QoQ)
                 prev_rev = fund_lookup.get(("total_revenue", prev_date, "quarterly"))
                 curr_rev = fund_lookup.get(("total_revenue", curr_date, "quarterly"))
-                if prev_rev is not None and curr_rev is not None and prev_rev != 0:
+                if prev_rev is not None and curr_rev is not None and abs(prev_rev) > 0.001:
                     rev_growth = (curr_rev - prev_rev) / abs(prev_rev)
                     if abs(rev_growth) < 100:
                         key = ("revenue_growth_hist", curr_date)
@@ -339,7 +343,7 @@ def compute_historical_ratios(
                 # Net income growth (QoQ)
                 prev_ni = fund_lookup.get(("net_income", prev_date, "quarterly"))
                 curr_ni = fund_lookup.get(("net_income", curr_date, "quarterly"))
-                if prev_ni is not None and curr_ni is not None and prev_ni != 0:
+                if prev_ni is not None and curr_ni is not None and abs(prev_ni) > 0.001:
                     ni_growth = (curr_ni - prev_ni) / abs(prev_ni)
                     if abs(ni_growth) < 100:
                         key = ("net_income_growth_hist", curr_date)
@@ -355,7 +359,7 @@ def compute_historical_ratios(
                 # OCF growth (QoQ)
                 prev_ocf = fund_lookup.get(("operating_cash_flow", prev_date, "quarterly"))
                 curr_ocf = fund_lookup.get(("operating_cash_flow", curr_date, "quarterly"))
-                if prev_ocf is not None and curr_ocf is not None and prev_ocf != 0:
+                if prev_ocf is not None and curr_ocf is not None and abs(prev_ocf) > 0.001:
                     ocf_growth = (curr_ocf - prev_ocf) / abs(prev_ocf)
                     if abs(ocf_growth) < 100:
                         key = ("ocf_growth_hist", curr_date)
@@ -634,11 +638,11 @@ def _compute_earnings_stability(db_client, db_symbol: str, snapshot_date) -> lis
         with db_client.connection.connect() as conn:
             rows = conn.execute(query, {"sym": db_symbol}).fetchall()
 
-        if len(rows) < 4:
+        if len(rows) < 3:
             return []
 
         eps_values = [float(r[0]) for r in rows if r[0] is not None]
-        if len(eps_values) < 4:
+        if len(eps_values) < 3:
             return []
 
         # Quarter-over-quarter growth rates
@@ -649,7 +653,7 @@ def _compute_earnings_stability(db_client, db_symbol: str, snapshot_date) -> lis
             if prev != 0:
                 growths.append((curr - prev) / abs(prev))
 
-        if len(growths) < 3:
+        if len(growths) < 2:
             return []
 
         std = float(np.std(growths, ddof=1))
@@ -1006,13 +1010,39 @@ def run_ratios(
         records.extend(es_records)
 
         # ── Fundamentals-based D/E fallback ──
-        # If debt_to_equity_inv was NOT computed from Ticker.info, try
-        # computing it from the most recent total_debt / stockholders_equity
-        # in the fundamentals table.
         has_de = any(r.get("field_name") == "debt_to_equity_inv" for r in records)
         if not has_de:
             de_records = _compute_debt_equity_from_fundamentals(db_client, db_symbol, _d.today())
             records.extend(de_records)
+
+        # ── Fundamentals-based earnings_growth fallback ──
+        # If earningsGrowth was NOT in Ticker.info, compute from the two
+        # most recent quarterly diluted_eps values in the fundamentals table.
+        has_eg = any(r.get("field_name") == "earnings_growth" for r in records)
+        if not has_eg:
+            try:
+                from sqlalchemy import text as _text
+                eq = _text(
+                    "SELECT field_value FROM systematic_equity.fundamentals "
+                    "WHERE TRIM(symbol) = :sym AND field_name IN ('diluted_eps', 'basic_eps') "
+                    "AND period_type = 'quarterly' AND field_value IS NOT NULL "
+                    "ORDER BY report_date DESC LIMIT 2"
+                )
+                with db_client.connection.connect() as conn:
+                    eps_rows = conn.execute(eq, {"sym": db_symbol}).fetchall()
+                if len(eps_rows) == 2:
+                    curr_e, prev_e = float(eps_rows[0][0]), float(eps_rows[1][0])
+                    if abs(prev_e) > 0.001:
+                        eg_val = (curr_e - prev_e) / abs(prev_e)
+                        if abs(eg_val) < 100:
+                            records.append({
+                                "symbol": db_symbol,
+                                "snapshot_date": _d.today(),
+                                "field_name": "earnings_growth",
+                                "field_value": round(eg_val, 6),
+                            })
+            except Exception:
+                pass
 
         if records:
             n = db_client.upsert_company_ratios(records)
