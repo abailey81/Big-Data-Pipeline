@@ -460,23 +460,41 @@ class TestDelistedDetection:
         result = _detect_inactive_tickers(mock_db)
         assert result == set()
 
-    def test_detect_inactive_finds_zero_price_tickers(self):
-        """Tickers with zero price rows are marked inactive."""
+    @patch("yfinance.Ticker")
+    def test_detect_inactive_live_confirms(self, mock_ticker_cls):
+        """Candidates confirmed inactive via live fast_info check."""
         from modules.orchestration.state import detect_inactive_tickers as _detect_inactive_tickers
 
         mock_db = MagicMock()
-        mock_db.read_query.return_value = [("DEAD_TICKER",)]
-        result = _detect_inactive_tickers(mock_db)
+        mock_db.read_query.side_effect = [
+            [("DEAD_TICKER",)],  # Signal 1: stale prices
+            [],  # Signal 2: no ingestion log hits
+        ]
+        mock_instance = MagicMock()
+        mock_instance.fast_info = {"regularMarketPrice": None}
+        mock_ticker_cls.return_value = mock_instance
+
+        ticker_map = [("DEAD_TICKER", "DEAD-TICKER", "USD")]
+        result = _detect_inactive_tickers(mock_db, ticker_map)
         assert "DEAD_TICKER" in result
 
-    def test_detect_inactive_does_not_flag_active_tickers(self):
-        """Tickers with price data are NOT marked inactive."""
+    @patch("yfinance.Ticker")
+    def test_detect_inactive_live_clears_false_positive(self, mock_ticker_cls):
+        """Candidate with valid live price is NOT marked inactive."""
         from modules.orchestration.state import detect_inactive_tickers as _detect_inactive_tickers
 
         mock_db = MagicMock()
-        mock_db.read_query.return_value = []  # no tickers with zero prices
-        result = _detect_inactive_tickers(mock_db)
-        assert result == set()
+        mock_db.read_query.side_effect = [
+            [("ACTIVE_TICKER",)],  # Signal 1: appears stale
+            [],  # Signal 2: empty
+        ]
+        mock_instance = MagicMock()
+        mock_instance.fast_info = {"regularMarketPrice": 150.0}
+        mock_ticker_cls.return_value = mock_instance
+
+        ticker_map = [("ACTIVE_TICKER", "ACTIVE-TICKER", "USD")]
+        result = _detect_inactive_tickers(mock_db, ticker_map)
+        assert "ACTIVE_TICKER" not in result
 
     def test_inactive_tickers_set_initially_empty(self):
         """Module-level _inactive_tickers starts as empty set."""
