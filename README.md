@@ -179,14 +179,11 @@ cp .env.example .env.dev
 **4. Run the pipeline**
 
 ```bash
-# Using class infrastructure (docker compose from ift_coursework_2025 repo):
+# Full 6-year backfill (class infrastructure):
 poetry run python Main.py --env_type docker
 
-# Using local dev infrastructure (our own docker-compose.yml):
+# Full 6-year backfill (local dev infrastructure):
 poetry run python Main.py --env_type dev --init_schema
-
-# Daily incremental update:
-poetry run python Main.py --env_type docker --frequency daily
 
 # Daily incremental update
 poetry run python Main.py --env_type dev --frequency daily
