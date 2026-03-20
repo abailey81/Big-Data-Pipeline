@@ -155,15 +155,13 @@ poetry install
 
 **2. Start infrastructure**
 
+From the root of the `ift_coursework_2025` repository:
+
 ```bash
-docker compose up --build -d
+docker compose up --build postgres_db mongo_db miniocw minio_client_cw postgres_seed
 ```
 
-This starts PostgreSQL (5438), MongoDB (27017), MinIO (9000), and Kafka (9092).
-
-> **Class infrastructure:** If using the class `docker-compose.yml` from
-> `ift_coursework_2025`, ports are PostgreSQL (5439) and MongoDB (27019).
-> Use `--env_type docker` instead of `--env_type dev`.
+This starts PostgreSQL (5439), MongoDB (27019), and MinIO (9000) with the class configuration.
 
 **3. Configure environment**
 
@@ -181,14 +179,14 @@ cp .env.example .env.dev
 **4. Run the pipeline**
 
 ```bash
-# First run with YOUR docker-compose (dev):
-poetry run python Main.py --env_type dev --init_schema
-
-# First run with CLASS docker-compose (docker):
+# Using class infrastructure (docker compose from ift_coursework_2025 repo):
 poetry run python Main.py --env_type docker
 
-# Subsequent runs:
-poetry run python Main.py --env_type dev
+# Using local dev infrastructure (our own docker-compose.yml):
+poetry run python Main.py --env_type dev --init_schema
+
+# Daily incremental update:
+poetry run python Main.py --env_type docker --frequency daily
 
 # Daily incremental update
 poetry run python Main.py --env_type dev --frequency daily
@@ -401,17 +399,17 @@ Big-Data-Pipeline/
 
 | Service | Image | Port | Purpose |
 |---------|-------|------|---------|
-| `postgres_db` | postgres:16 | 5438 | Primary relational store |
-| `mongodb` | mongo:7.0 | 27017 | Document store |
+| `postgres_db` | postgres | 5439 (class) / 5438 (dev) | Primary relational store |
+| `mongo_db` | mongo | 27019 (class) / 27017 (dev) | Document store |
 | `minio` | minio/minio | 9000 / 9001 | Object store + console |
-| `zookeeper` | confluentinc/cp-zookeeper:7.6.0 | 2181 | Kafka coordination |
-| `kafka` | confluentinc/cp-kafka:7.6.0 | 9092 | Event streaming |
-| `pgadmin` | dpage/pgadmin4 | 5050 | PostgreSQL GUI |
+| `pgadmin` | dpage/pgadmin4 | 5051 (class) / 5050 (dev) | PostgreSQL GUI |
 
 ```bash
-docker compose up --build -d    # Start all
-docker compose down             # Stop all
-docker compose down -v          # Stop and reset data
+# Class infrastructure (from ift_coursework_2025 root):
+docker compose up --build postgres_db mongo_db miniocw minio_client_cw postgres_seed
+
+# Local dev infrastructure (from coursework_one/):
+docker compose up --build -d
 ```
 
 ---
