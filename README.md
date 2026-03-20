@@ -144,52 +144,52 @@ Circuit breaker, token-bucket rate limiter, exponential backoff, and graceful de
 
 ## Quick Start
 
-**1. Clone and install dependencies**
+**1. Start the class infrastructure**
 
-```bash
-git clone https://github.com/abailey81/Big-Data-Pipeline.git
-cd Big-Data-Pipeline
-pip install poetry
-poetry install
-```
-
-**2. Start infrastructure**
-
-From the root of the `ift_coursework_2025` repository:
+From the root of the `ift_coursework_2025` repository, start the required services:
 
 ```bash
 docker compose up --build postgres_db mongo_db miniocw minio_client_cw postgres_seed
 ```
 
-This starts PostgreSQL (5439), MongoDB (27019), and MinIO (9000) with the class configuration.
+This starts PostgreSQL (port 5439), MongoDB (port 27019), and MinIO (port 9000),
+and seeds the `fift` database with the `company_static` table (678 equities).
+
+**2. Install dependencies**
+
+Navigate to the `team_kolmogorov/coursework_one/` directory:
+
+```bash
+cd team_kolmogorov/coursework_one
+pip install poetry
+poetry install
+```
 
 **3. Configure environment**
 
 ```bash
 cp .env.example .env.dev
-# Edit .env.dev with your API keys:
-#   NEWSAPI_KEY              (free at newsapi.org, optional)
+# Edit .env.dev with your API keys (all optional — pipeline degrades gracefully):
+#   NEWSAPI_KEY              (free at newsapi.org)
 #   REFINITIV_USERNAME       (LSEG platform — ESG scores)
 #   REFINITIV_PASSWORD
 #   REFINITIV_APP_KEY
-# All API keys are optional — the pipeline degrades gracefully
-# when keys are missing, skipping the corresponding data sources.
 ```
 
 **4. Run the pipeline**
 
 ```bash
-# Full 6-year backfill (class infrastructure):
+# Full 6-year backfill:
 poetry run python Main.py --env_type docker
 
-# Full 6-year backfill (local dev infrastructure):
-poetry run python Main.py --env_type dev --init_schema
+# Daily incremental update:
+poetry run python Main.py --env_type docker --frequency daily
 
-# Daily incremental update
-poetry run python Main.py --env_type dev --frequency daily
+# Custom date range:
+poetry run python Main.py --env_type docker --start_date 2023-01-01 --end_date 2024-12-31
 
-# Custom date range
-poetry run python Main.py --env_type dev --start_date 2023-01-01 --end_date 2024-12-31
+# Subset of sources:
+poetry run python Main.py --env_type docker --sources prices fundamentals fx
 
 # Subset of sources
 poetry run python Main.py --env_type dev --sources prices fundamentals fx
@@ -396,17 +396,20 @@ Big-Data-Pipeline/
 
 | Service | Image | Port | Purpose |
 |---------|-------|------|---------|
-| `postgres_db` | postgres | 5439 (class) / 5438 (dev) | Primary relational store |
-| `mongo_db` | mongo | 27019 (class) / 27017 (dev) | Document store |
-| `minio` | minio/minio | 9000 / 9001 | Object store + console |
-| `pgadmin` | dpage/pgadmin4 | 5051 (class) / 5050 (dev) | PostgreSQL GUI |
+| `postgres_db` | postgres | 5439 | Primary relational store (database: `fift`) |
+| `mongo_db` | mongo | 27019 | Document store |
+| `minio` | minio/minio | 9000 / 9001 | Object store (bucket: `csreport`) + console |
+| `pgadmin` | dpage/pgadmin4 | 5051 | PostgreSQL GUI |
 
 ```bash
-# Class infrastructure (from ift_coursework_2025 root):
+# From ift_coursework_2025 root:
 docker compose up --build postgres_db mongo_db miniocw minio_client_cw postgres_seed
 
-# Local dev infrastructure (from coursework_one/):
-docker compose up --build -d
+# Stop all:
+docker compose down
+
+# Stop and reset data:
+docker compose down -v
 ```
 
 ---
