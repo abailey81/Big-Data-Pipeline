@@ -148,3 +148,67 @@ class TestKafkaConsumerClient:
         client.close()
         mock_consumer.close.assert_called_once()
         assert client._consumer is None
+
+    def test_consumer_creation_failure_sets_none(self):
+        """Consumer property handles init failure gracefully."""
+        from modules.db_ops.kafka_ops import KafkaConsumerClient
+
+        with patch("modules.db_ops.kafka_ops.KAFKA_AVAILABLE", True), \
+             patch("modules.db_ops.kafka_ops.Consumer", side_effect=Exception("no broker")):
+            client = KafkaConsumerClient(bootstrap_servers="invalid:0000", topics=["test"])
+            result = client.consumer
+            assert result is None
+
+    def test_consume_with_messages(self):
+        """consume() processes valid messages and counts them."""
+        from modules.db_ops.kafka_ops import KafkaConsumerClient
+
+        mock_msg = MagicMock()
+        mock_msg.error.return_value = None
+        mock_msg.topic.return_value = "test.topic"
+        mock_msg.value.return_value = b'{"key": "val"}'
+
+        client = KafkaConsumerClient()
+        mock_consumer = MagicMock()
+        mock_consumer.poll.side_effect = [mock_msg, None]
+        client._consumer = mock_consumer
+
+        callback = MagicMock()
+        client.consume(callback, max_messages=5)
+        callback.assert_called_once_with("test.topic", {"key": "val"})
+
+    def test_consume_skips_error_messages(self):
+        """consume() skips messages with errors."""
+        from modules.db_ops.kafka_ops import KafkaConsumerClient
+
+        mock_err = MagicMock()
+        mock_err.code.return_value = -1  # not PARTITION_EOF
+
+        mock_msg = MagicMock()
+        mock_msg.error.return_value = mock_err
+
+        client = KafkaConsumerClient()
+        mock_consumer = MagicMock()
+        mock_consumer.poll.side_effect = [mock_msg, None]
+        client._consumer = mock_consumer
+
+        callback = MagicMock()
+        client.consume(callback)
+        callback.assert_not_called()
+
+    def test_consume_handles_callback_exception(self):
+        """consume() catches exceptions from callback processing."""
+        from modules.db_ops.kafka_ops import KafkaConsumerClient
+
+        mock_msg = MagicMock()
+        mock_msg.error.return_value = None
+        mock_msg.value.return_value = b"not json"  # will fail json.loads
+
+        client = KafkaConsumerClient()
+        mock_consumer = MagicMock()
+        mock_consumer.poll.side_effect = [mock_msg, None]
+        client._consumer = mock_consumer
+
+        callback = MagicMock()
+        client.consume(callback)
+        callback.assert_not_called()

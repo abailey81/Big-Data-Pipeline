@@ -393,6 +393,7 @@ class EsgDownloader(BaseDownloader):
                 pipeline_logger.warning(
                     "ESG batch: LSEG returned empty after 5 attempts — falling back to per-ticker path."
                 )
+                self._use_lseg = False
                 return {}
 
             results: dict = {}

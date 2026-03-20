@@ -13,7 +13,7 @@ from unittest.mock import MagicMock, patch
 
 import pytest
 
-from Main import _get_date_range, _make_log_entry
+from modules.orchestration.state import get_date_range as _get_date_range, make_log_entry as _make_log_entry
 
 # ── _get_date_range tests ─────────────────────────────────────────────
 
@@ -117,10 +117,10 @@ class TestMakeLogEntry:
 
 class TestGetDbClient:
 
-    @patch("Main.DatabaseMethods")
-    @patch("Main.PostgresConfig")
+    @patch("modules.orchestration.state.DatabaseMethods")
+    @patch("modules.orchestration.state.PostgresConfig")
     def test_creates_client_with_correct_params(self, mock_pg_cls, mock_db_cls, sample_conf):
-        from Main import _get_db_client
+        from modules.orchestration.state import get_db_client as _get_db_client
 
         mock_pg_instance = MagicMock()
         mock_pg_instance.username = "postgres"

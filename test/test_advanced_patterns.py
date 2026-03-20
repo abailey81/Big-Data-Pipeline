@@ -337,7 +337,7 @@ class TestDateRangeParametrized:
         ],
     )
     def test_frequency_lookback_days(self, frequency, expected_days, sample_conf, mock_parsed_args):
-        from Main import _get_date_range
+        from modules.orchestration.state import get_date_range as _get_date_range
 
         args = mock_parsed_args(frequency=frequency, date_run="2024-06-15")
         start, end = _get_date_range(sample_conf, args)

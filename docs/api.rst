@@ -117,6 +117,44 @@ Input / Downloaders
    :undoc-members:
    :show-inheritance:
 
+Orchestration
+--------------
+
+.. automodule:: modules.orchestration.state
+   :members:
+   :undoc-members:
+   :show-inheritance:
+
+.. automodule:: modules.orchestration.stage_prices
+   :members:
+   :undoc-members:
+   :show-inheritance:
+
+.. automodule:: modules.orchestration.stage_fundamentals
+   :members:
+   :undoc-members:
+   :show-inheritance:
+
+.. automodule:: modules.orchestration.stage_macro
+   :members:
+   :undoc-members:
+   :show-inheritance:
+
+.. automodule:: modules.orchestration.stage_ratios
+   :members:
+   :undoc-members:
+   :show-inheritance:
+
+.. automodule:: modules.orchestration.stage_esg
+   :members:
+   :undoc-members:
+   :show-inheritance:
+
+.. automodule:: modules.orchestration.stage_sentiment
+   :members:
+   :undoc-members:
+   :show-inheritance:
+
 Processing
 -----------
 

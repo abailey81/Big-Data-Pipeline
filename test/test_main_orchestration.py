@@ -34,48 +34,50 @@ import pytest
 
 
 class TestSignalHandler:
-    """Tests for _signal_handler and _check_shutdown."""
+    """Tests for request_shutdown and check_shutdown."""
 
     def setup_method(self):
-        import Main
+        from modules.orchestration import state
 
-        Main._shutdown_requested = False
+        state._shutdown_requested = False
 
     def teardown_method(self):
-        import Main
+        from modules.orchestration import state
 
-        Main._shutdown_requested = False
+        state._shutdown_requested = False
 
     def test_signal_handler_sets_flag(self):
-        import Main
+        from modules.orchestration import state
+        from modules.orchestration.state import request_shutdown
 
-        assert Main._shutdown_requested is False
-        Main._signal_handler(signal.SIGINT, None)
-        assert Main._shutdown_requested is True
+        assert state._shutdown_requested is False
+        request_shutdown(signal.SIGINT, None)
+        assert state._shutdown_requested is True
 
     def test_signal_handler_sigterm(self):
-        import Main
+        from modules.orchestration import state
+        from modules.orchestration.state import request_shutdown
 
-        Main._signal_handler(signal.SIGTERM, None)
-        assert Main._shutdown_requested is True
+        request_shutdown(signal.SIGTERM, None)
+        assert state._shutdown_requested is True
 
     def test_check_shutdown_false_when_not_requested(self):
-        from Main import _check_shutdown
+        from modules.orchestration.state import check_shutdown as _check_shutdown
 
         assert _check_shutdown("prices") is False
 
     def test_check_shutdown_true_when_requested(self):
-        import Main
-        from Main import _check_shutdown
+        from modules.orchestration import state
+        from modules.orchestration.state import check_shutdown as _check_shutdown
 
-        Main._shutdown_requested = True
+        state._shutdown_requested = True
         assert _check_shutdown("prices") is True
 
     def test_check_shutdown_empty_stage(self):
-        import Main
-        from Main import _check_shutdown
+        from modules.orchestration import state
+        from modules.orchestration.state import check_shutdown as _check_shutdown
 
-        Main._shutdown_requested = True
+        state._shutdown_requested = True
         assert _check_shutdown() is True
 
 
@@ -103,9 +105,9 @@ class TestGenerateRunId:
 
 class TestRunHealthChecks:
 
-    @patch("Main.PipelineHealthChecker")
+    @patch("modules.orchestration.state.PipelineHealthChecker")
     def test_healthy_returns_true(self, mock_checker_cls):
-        from Main import _run_health_checks
+        from modules.orchestration.state import run_health_checks as _run_health_checks
 
         mock_checker = MagicMock()
         result = SimpleNamespace(name="PostgreSQL", healthy=True, message="OK")
@@ -120,9 +122,9 @@ class TestRunHealthChecks:
 
         assert _run_health_checks(db, minio, conf, tracker) is True
 
-    @patch("Main.PipelineHealthChecker")
+    @patch("modules.orchestration.state.PipelineHealthChecker")
     def test_unhealthy_critical_returns_false(self, mock_checker_cls):
-        from Main import _run_health_checks
+        from modules.orchestration.state import run_health_checks as _run_health_checks
 
         mock_checker = MagicMock()
         result = SimpleNamespace(name="PostgreSQL", healthy=False, message="conn refused")
@@ -137,9 +139,9 @@ class TestRunHealthChecks:
 
         assert _run_health_checks(db, minio, conf, tracker) is False
 
-    @patch("Main.PipelineHealthChecker")
+    @patch("modules.orchestration.state.PipelineHealthChecker")
     def test_noncritical_failure_still_passes(self, mock_checker_cls):
-        from Main import _run_health_checks
+        from modules.orchestration.state import run_health_checks as _run_health_checks
 
         mock_checker = MagicMock()
         r1 = SimpleNamespace(name="PostgreSQL", healthy=True, message="OK")
@@ -157,7 +159,7 @@ class TestRunHealthChecks:
 class TestDetectInactiveTickers:
 
     def test_no_candidates_returns_empty(self):
-        from Main import _detect_inactive_tickers
+        from modules.orchestration.state import detect_inactive_tickers as _detect_inactive_tickers
 
         db = MagicMock()
         db.read_query.return_value = []
@@ -166,7 +168,7 @@ class TestDetectInactiveTickers:
 
     @patch("yfinance.Ticker")
     def test_stale_tickers_checked_live(self, mock_yf_ticker):
-        from Main import _detect_inactive_tickers
+        from modules.orchestration.state import detect_inactive_tickers as _detect_inactive_tickers
 
         db = MagicMock()
         # Signal 1: stale tickers
@@ -185,7 +187,7 @@ class TestDetectInactiveTickers:
         assert isinstance(result, set)
 
     def test_query_failure_handled_gracefully(self):
-        from Main import _detect_inactive_tickers
+        from modules.orchestration.state import detect_inactive_tickers as _detect_inactive_tickers
 
         db = MagicMock()
         db.read_query.side_effect = Exception("connection lost")
@@ -199,13 +201,13 @@ class TestDetectInactiveTickers:
 class TestExtractRatiosFromInfo:
 
     def test_empty_info_returns_empty(self):
-        from Main import _extract_ratios_from_info
+        from modules.orchestration.stage_ratios import _extract_ratios_from_info
 
         assert _extract_ratios_from_info({}, "AAPL") == []
         assert _extract_ratios_from_info(None, "AAPL") == []
 
     def test_extracts_known_fields(self):
-        from Main import _extract_ratios_from_info
+        from modules.orchestration.stage_ratios import _extract_ratios_from_info
 
         info = {
             "marketCap": 3000000000000,
@@ -224,7 +226,7 @@ class TestExtractRatiosFromInfo:
         assert "return_on_equity" in field_names
 
     def test_skips_nan_and_inf(self):
-        from Main import _extract_ratios_from_info
+        from modules.orchestration.stage_ratios import _extract_ratios_from_info
 
         info = {
             "marketCap": float("nan"),
@@ -238,7 +240,7 @@ class TestExtractRatiosFromInfo:
         assert "beta" in field_names
 
     def test_record_structure(self):
-        from Main import _extract_ratios_from_info
+        from modules.orchestration.stage_ratios import _extract_ratios_from_info
 
         info = {"beta": 1.05}
         records = _extract_ratios_from_info(info, "MSFT")
@@ -252,7 +254,7 @@ class TestExtractRatiosFromInfo:
 class TestComputeDerivedRatios:
 
     def test_book_to_price_computed(self):
-        from Main import _compute_derived_ratios
+        from modules.orchestration.stage_ratios import _compute_derived_ratios
 
         info = {"bookValue": 25.0, "regularMarketPrice": 100.0}
         records = _compute_derived_ratios(info, "AAPL", date.today())
@@ -262,7 +264,7 @@ class TestComputeDerivedRatios:
         assert abs(bp["field_value"] - 0.25) < 0.001
 
     def test_earnings_to_price_computed(self):
-        from Main import _compute_derived_ratios
+        from modules.orchestration.stage_ratios import _compute_derived_ratios
 
         info = {"trailingEps": 5.0, "regularMarketPrice": 100.0}
         records = _compute_derived_ratios(info, "AAPL", date.today())
@@ -270,7 +272,7 @@ class TestComputeDerivedRatios:
         assert "earnings_to_price" in field_names
 
     def test_no_price_no_derived(self):
-        from Main import _compute_derived_ratios
+        from modules.orchestration.stage_ratios import _compute_derived_ratios
 
         info = {"bookValue": 25.0}  # no price
         records = _compute_derived_ratios(info, "AAPL", date.today())
@@ -278,7 +280,7 @@ class TestComputeDerivedRatios:
         assert "book_to_price" not in field_names
 
     def test_roe_computed_from_equity(self):
-        from Main import _compute_derived_ratios
+        from modules.orchestration.stage_ratios import _compute_derived_ratios
 
         info = {
             "netIncomeToCommon": 50000,
@@ -289,7 +291,7 @@ class TestComputeDerivedRatios:
         assert "roe_computed" in field_names
 
     def test_cashflow_to_price(self):
-        from Main import _compute_derived_ratios
+        from modules.orchestration.stage_ratios import _compute_derived_ratios
 
         info = {
             "operatingCashflow": 100000,
@@ -306,11 +308,11 @@ class TestComputeDerivedRatios:
 
 class TestRunFx:
 
-    @patch("Main.FxDownloader")
-    @patch("Main.DataQualityChecker")
-    @patch("Main.clean_fx_dataframe")
+    @patch("modules.orchestration.stage_macro.FxDownloader")
+    @patch("modules.orchestration.stage_macro.DataQualityChecker")
+    @patch("modules.orchestration.stage_macro.clean_fx_dataframe")
     def test_run_fx_success_path(self, mock_clean, mock_dq_cls, mock_dl_cls):
-        from Main import _run_fx
+        from modules.orchestration.stage_macro import run_fx as _run_fx
 
         mock_dl = MagicMock()
         mock_dl.stats = {"total": 4, "success": 4}
@@ -339,11 +341,11 @@ class TestRunFx:
         db.upsert_fx_rates.assert_called_once()
         metrics.record_outcome.assert_called()
 
-    @patch("Main.FxDownloader")
-    @patch("Main.DataQualityChecker")
-    @patch("Main.clean_fx_dataframe")
+    @patch("modules.orchestration.stage_macro.FxDownloader")
+    @patch("modules.orchestration.stage_macro.DataQualityChecker")
+    @patch("modules.orchestration.stage_macro.clean_fx_dataframe")
     def test_run_fx_empty_data(self, mock_clean, mock_dq_cls, mock_dl_cls):
-        from Main import _run_fx
+        from modules.orchestration.stage_macro import run_fx as _run_fx
 
         mock_dl = MagicMock()
         mock_dl.stats = {}
@@ -364,11 +366,11 @@ class TestRunFx:
 
 class TestRunVix:
 
-    @patch("Main.VixDownloader")
-    @patch("Main.DataQualityChecker")
-    @patch("Main.clean_vix_dataframe")
+    @patch("modules.orchestration.stage_macro.VixDownloader")
+    @patch("modules.orchestration.stage_macro.DataQualityChecker")
+    @patch("modules.orchestration.stage_macro.clean_vix_dataframe")
     def test_run_vix_success(self, mock_clean, mock_dq_cls, mock_dl_cls):
-        from Main import _run_vix
+        from modules.orchestration.stage_macro import run_vix as _run_vix
 
         idx = pd.to_datetime(["2024-01-02"])
         vix_df = pd.DataFrame(
@@ -398,10 +400,10 @@ class TestRunVix:
         result = _run_vix(db, minio, params, "2024-01-01", "2024-01-05", "run-1", "daily", metrics=metrics)
         db.upsert_vix_data.assert_called_once()
 
-    @patch("Main.VixDownloader")
-    @patch("Main.DataQualityChecker")
+    @patch("modules.orchestration.stage_macro.VixDownloader")
+    @patch("modules.orchestration.stage_macro.DataQualityChecker")
     def test_run_vix_empty_df(self, mock_dq_cls, mock_dl_cls):
-        from Main import _run_vix
+        from modules.orchestration.stage_macro import run_vix as _run_vix
 
         mock_dl = MagicMock()
         mock_dl.stats = {}
@@ -429,10 +431,10 @@ class TestRunVix:
 
 class TestRunRiskFreeRate:
 
-    @patch("Main.RiskFreeRateDownloader")
-    @patch("Main.clean_risk_free_rate_dataframe")
+    @patch("modules.orchestration.stage_macro.RiskFreeRateDownloader")
+    @patch("modules.orchestration.stage_macro.clean_risk_free_rate_dataframe")
     def test_run_rfr_success(self, mock_clean, mock_dl_cls):
-        from Main import _run_risk_free_rate
+        from modules.orchestration.stage_macro import run_risk_free_rate as _run_risk_free_rate
 
         idx = pd.to_datetime(["2024-01-02"])
         rfr_df = pd.DataFrame({"Close": [5.25]}, index=idx)
@@ -451,9 +453,9 @@ class TestRunRiskFreeRate:
         _run_risk_free_rate(db, minio, params, "2024-01-01", "2024-01-05", "run-1", "daily", metrics=metrics)
         db.upsert_risk_free_rate.assert_called_once()
 
-    @patch("Main.RiskFreeRateDownloader")
+    @patch("modules.orchestration.stage_macro.RiskFreeRateDownloader")
     def test_run_rfr_empty(self, mock_dl_cls):
-        from Main import _run_risk_free_rate
+        from modules.orchestration.stage_macro import run_risk_free_rate as _run_risk_free_rate
 
         mock_dl = MagicMock()
         mock_dl.stats = {}
@@ -480,10 +482,10 @@ class TestRunRiskFreeRate:
 
 class TestRunBenchmark:
 
-    @patch("yfinance.download")
-    @patch("Main.clean_price_dataframe")
+    @patch("modules.orchestration.stage_macro.yf.download")
+    @patch("modules.orchestration.stage_macro.clean_price_dataframe")
     def test_run_benchmark_success(self, mock_clean, mock_yf_dl):
-        from Main import _run_benchmark
+        from modules.orchestration.stage_macro import run_benchmark as _run_benchmark
 
         idx = pd.to_datetime(["2024-01-02"])
         bench_df = pd.DataFrame(
@@ -515,11 +517,11 @@ class TestRunBenchmark:
 
 class TestRunPrices:
 
-    @patch("Main.PriceDownloader")
-    @patch("Main.DataQualityChecker")
-    @patch("Main.clean_price_dataframe")
+    @patch("modules.orchestration.stage_prices.PriceDownloader")
+    @patch("modules.orchestration.stage_prices.DataQualityChecker")
+    @patch("modules.orchestration.stage_prices.clean_price_dataframe")
     def test_run_prices_empty_ticker_map(self, mock_clean, mock_dq_cls, mock_dl_cls):
-        from Main import _run_prices
+        from modules.orchestration.stage_prices import run_prices as _run_prices
 
         mock_dl = MagicMock()
         mock_dl.stats = {}
@@ -546,10 +548,10 @@ class TestRunPrices:
 
 class TestRunFundamentals:
 
-    @patch("Main.ConcurrentDownloadExecutor")
-    @patch("Main.DataQualityChecker")
+    @patch("modules.orchestration.stage_fundamentals.ConcurrentDownloadExecutor")
+    @patch("modules.orchestration.stage_fundamentals.DataQualityChecker")
     def test_run_fundamentals_empty_tickers(self, mock_dq_cls, mock_exec_cls):
-        from Main import _run_fundamentals
+        from modules.orchestration.stage_fundamentals import run_fundamentals as _run_fundamentals
 
         mock_dq_cls.return_value = MagicMock()
         mock_exec = MagicMock()
@@ -568,11 +570,11 @@ class TestRunFundamentals:
 
 class TestRunEdgar:
 
-    @patch("Main.futures_wait")
-    @patch("Main.ThreadPoolExecutor")
-    @patch("Main.EdgarFundamentalsDownloader")
+    @patch("modules.orchestration.stage_fundamentals.futures_wait")
+    @patch("modules.orchestration.stage_fundamentals.ThreadPoolExecutor")
+    @patch("modules.orchestration.stage_fundamentals.EdgarFundamentalsDownloader")
     def test_run_edgar_us_tickers_only(self, mock_dl_cls, mock_pool_cls, mock_wait):
-        from Main import _run_edgar_fundamentals
+        from modules.orchestration.stage_fundamentals import run_edgar_fundamentals as _run_edgar_fundamentals
 
         mock_dl = MagicMock()
         mock_dl.stats = {}
@@ -591,11 +593,11 @@ class TestRunEdgar:
         )
         assert result is None
 
-    @patch("Main.futures_wait")
-    @patch("Main.ThreadPoolExecutor")
-    @patch("Main.EdgarFundamentalsDownloader")
+    @patch("modules.orchestration.stage_fundamentals.futures_wait")
+    @patch("modules.orchestration.stage_fundamentals.ThreadPoolExecutor")
+    @patch("modules.orchestration.stage_fundamentals.EdgarFundamentalsDownloader")
     def test_run_edgar_with_us_tickers(self, mock_dl_cls, mock_pool_cls, mock_wait):
-        from Main import _run_edgar_fundamentals
+        from modules.orchestration.stage_fundamentals import run_edgar_fundamentals as _run_edgar_fundamentals
 
         mock_dl = MagicMock()
         mock_dl.stats = {"total": 1}
@@ -620,7 +622,7 @@ class TestRunFinnhub:
 
     @patch.dict("os.environ", {"FINNHUB_API_KEY": ""})
     def test_run_finnhub_no_api_key(self):
-        from Main import _run_finnhub_fundamentals
+        from modules.orchestration.stage_fundamentals import run_finnhub_fundamentals as _run_finnhub_fundamentals
 
         db = MagicMock()
         params = {"max_retries": 1, "backoff_base": 1.0}
@@ -631,11 +633,11 @@ class TestRunFinnhub:
         assert result is None
 
     @patch.dict("os.environ", {"FINNHUB_API_KEY": "test_key"})
-    @patch("Main.futures_wait")
-    @patch("Main.ThreadPoolExecutor")
-    @patch("Main.FinnhubFundamentalsDownloader")
+    @patch("modules.orchestration.stage_fundamentals.futures_wait")
+    @patch("modules.orchestration.stage_fundamentals.ThreadPoolExecutor")
+    @patch("modules.orchestration.stage_fundamentals.FinnhubFundamentalsDownloader")
     def test_run_finnhub_no_nonus_tickers(self, mock_dl_cls, mock_pool_cls, mock_wait):
-        from Main import _run_finnhub_fundamentals
+        from modules.orchestration.stage_fundamentals import run_finnhub_fundamentals as _run_finnhub_fundamentals
 
         mock_dl_cls.return_value = MagicMock()
         db = MagicMock()
@@ -652,10 +654,10 @@ class TestRunFinnhub:
 
 class TestRunEsg:
 
-    @patch("Main.clean_esg_record")
-    @patch("Main.EsgDownloader")
+    @patch("modules.orchestration.stage_esg.clean_esg_record")
+    @patch("modules.orchestration.stage_esg.EsgDownloader")
     def test_run_esg_processes_tickers(self, mock_dl_cls, mock_clean):
-        from Main import _run_esg
+        from modules.orchestration.stage_esg import run_esg as _run_esg
 
         mock_dl = MagicMock()
         mock_dl.stats = {}
@@ -680,9 +682,9 @@ class TestRunEsg:
         db.upsert_esg_scores.assert_called_once()
         metrics.record_outcome.assert_called()
 
-    @patch("Main.EsgDownloader")
+    @patch("modules.orchestration.stage_esg.EsgDownloader")
     def test_run_esg_empty_ticker_list(self, mock_dl_cls):
-        from Main import _run_esg
+        from modules.orchestration.stage_esg import run_esg as _run_esg
 
         mock_dl = MagicMock()
         mock_dl.download_batch.return_value = {}
@@ -706,14 +708,14 @@ class TestRunEsg:
 
 class TestRunSentiment:
 
-    @patch("Main.ThreadPoolExecutor")
-    @patch("Main.NewsApiDownloader")
-    @patch("Main.GdeltDownloader")
-    @patch("Main.NewsDownloader")
+    @patch("modules.orchestration.stage_sentiment.ThreadPoolExecutor")
+    @patch("modules.orchestration.stage_sentiment.NewsApiDownloader")
+    @patch("modules.orchestration.stage_sentiment.GdeltDownloader")
+    @patch("modules.orchestration.stage_sentiment.NewsDownloader")
     def test_run_sentiment_uses_thread_pool(
         self, mock_dl_cls, mock_gdelt_cls, mock_newsapi_cls, mock_pool_cls
     ):
-        from Main import _run_news_sentiment
+        from modules.orchestration.stage_sentiment import run_news_sentiment as _run_news_sentiment
 
         mock_dl = MagicMock()
         mock_dl.stats = {}
@@ -744,17 +746,17 @@ class TestRunSentiment:
 class TestRatioFieldMappings:
 
     def test_ratio_fields_not_empty(self):
-        from Main import RATIO_FIELDS
+        from modules.orchestration.stage_ratios import RATIO_FIELDS
 
         assert len(RATIO_FIELDS) > 20
 
     def test_finnhub_metric_fields_not_empty(self):
-        from Main import FINNHUB_METRIC_FIELDS
+        from modules.orchestration.stage_ratios import FINNHUB_METRIC_FIELDS
 
         assert len(FINNHUB_METRIC_FIELDS) > 15
 
     def test_no_duplicate_canonical_names(self):
-        from Main import RATIO_FIELDS
+        from modules.orchestration.stage_ratios import RATIO_FIELDS
 
         values = list(RATIO_FIELDS.values())
         assert len(values) == len(set(values))
@@ -769,7 +771,7 @@ class TestRatioFieldMappings:
 class TestComputeEarningsStability:
 
     def test_returns_empty_when_db_query_fails(self):
-        from Main import _compute_earnings_stability
+        from modules.orchestration.stage_ratios import _compute_earnings_stability
 
         db = MagicMock()
         db.connection.connect.side_effect = Exception("db error")
@@ -778,7 +780,7 @@ class TestComputeEarningsStability:
 
     @patch("sqlalchemy.text")
     def test_returns_empty_when_not_enough_rows(self, mock_text):
-        from Main import _compute_earnings_stability
+        from modules.orchestration.stage_ratios import _compute_earnings_stability
 
         db = MagicMock()
         mock_conn = MagicMock()
@@ -790,7 +792,7 @@ class TestComputeEarningsStability:
 
     @patch("sqlalchemy.text")
     def test_returns_stability_with_enough_data(self, mock_text):
-        from Main import _compute_earnings_stability
+        from modules.orchestration.stage_ratios import _compute_earnings_stability
 
         db = MagicMock()
         mock_conn = MagicMock()
@@ -817,7 +819,7 @@ class TestComputeEarningsStability:
 class TestComputeDebtEquityFromFundamentals:
 
     def test_returns_empty_when_db_query_fails(self):
-        from Main import _compute_debt_equity_from_fundamentals
+        from modules.orchestration.stage_ratios import _compute_debt_equity_from_fundamentals
 
         db = MagicMock()
         db.connection.connect.side_effect = Exception("db error")
@@ -826,7 +828,7 @@ class TestComputeDebtEquityFromFundamentals:
 
     @patch("sqlalchemy.text")
     def test_returns_empty_when_no_rows(self, mock_text):
-        from Main import _compute_debt_equity_from_fundamentals
+        from modules.orchestration.stage_ratios import _compute_debt_equity_from_fundamentals
 
         db = MagicMock()
         mock_conn = MagicMock()
@@ -838,7 +840,7 @@ class TestComputeDebtEquityFromFundamentals:
 
     @patch("sqlalchemy.text")
     def test_returns_de_ratios(self, mock_text):
-        from Main import _compute_debt_equity_from_fundamentals
+        from modules.orchestration.stage_ratios import _compute_debt_equity_from_fundamentals
 
         db = MagicMock()
         mock_conn = MagicMock()
@@ -858,12 +860,12 @@ class TestComputeDebtEquityFromFundamentals:
 class TestFetchFinnhubMetricRatios:
 
     def test_returns_empty_no_api_key(self):
-        from Main import _fetch_finnhub_metric_ratios
+        from modules.orchestration.stage_ratios import _fetch_finnhub_metric_ratios
 
         assert _fetch_finnhub_metric_ratios("AAPL", "", "AAPL") == []
 
     def test_returns_empty_non_us_ticker(self):
-        from Main import _fetch_finnhub_metric_ratios
+        from modules.orchestration.stage_ratios import _fetch_finnhub_metric_ratios
 
         assert _fetch_finnhub_metric_ratios("VOD.L", "key123", "VOD.L") == []
 
@@ -871,7 +873,7 @@ class TestFetchFinnhubMetricRatios:
     def test_returns_records_for_us_ticker(self, mock_urlopen):
         import json
 
-        from Main import _fetch_finnhub_metric_ratios
+        from modules.orchestration.stage_ratios import _fetch_finnhub_metric_ratios
 
         mock_response = MagicMock()
         mock_response.read.return_value = json.dumps(
@@ -897,7 +899,7 @@ class TestFetchFinnhubMetricRatios:
     def test_handles_http_error(self, mock_urlopen):
         import urllib.error
 
-        from Main import _fetch_finnhub_metric_ratios
+        from modules.orchestration.stage_ratios import _fetch_finnhub_metric_ratios
 
         mock_urlopen.side_effect = urllib.error.HTTPError("url", 403, "Forbidden", {}, None)
         result = _fetch_finnhub_metric_ratios("AAPL", "key", "AAPL")
@@ -910,7 +912,7 @@ class TestFetchFinnhubMetricRatios:
 class TestExtractRatiosFromFastInfo:
 
     def test_returns_records_from_fast_info(self):
-        from Main import _extract_ratios_from_fast_info
+        from modules.orchestration.stage_ratios import _extract_ratios_from_fast_info
 
         mock_ticker = MagicMock()
         fi = MagicMock()
@@ -927,7 +929,7 @@ class TestExtractRatiosFromFastInfo:
         assert "shares_outstanding" in field_names
 
     def test_returns_empty_on_exception(self):
-        from Main import _extract_ratios_from_fast_info
+        from modules.orchestration.stage_ratios import _extract_ratios_from_fast_info
 
         mock_ticker = MagicMock()
         type(mock_ticker).fast_info = PropertyMock(side_effect=Exception("no data"))
@@ -936,7 +938,7 @@ class TestExtractRatiosFromFastInfo:
         assert records == []
 
     def test_skips_nan_values(self):
-        from Main import _extract_ratios_from_fast_info
+        from modules.orchestration.stage_ratios import _extract_ratios_from_fast_info
 
         mock_ticker = MagicMock()
         fi = MagicMock()
@@ -958,10 +960,10 @@ class TestExtractRatiosFromFastInfo:
 
 class TestRunRatios:
 
-    @patch("Main.ThreadPoolExecutor")
-    @patch("Main.futures_wait")
+    @patch("modules.orchestration.stage_ratios.ThreadPoolExecutor")
+    @patch("modules.orchestration.stage_ratios.futures_wait")
     def test_run_ratios_creates_workers(self, mock_wait, mock_pool_cls):
-        from Main import _run_ratios
+        from modules.orchestration.stage_ratios import run_ratios as _run_ratios
 
         mock_pool = MagicMock()
         mock_pool_cls.return_value = mock_pool
@@ -973,10 +975,10 @@ class TestRunRatios:
         _run_ratios(db, MagicMock(), [("AAPL", "AAPL", "USD")], params, "run-1", "daily")
         mock_pool_cls.assert_called_once()
 
-    @patch("Main.ThreadPoolExecutor")
-    @patch("Main.futures_wait")
+    @patch("modules.orchestration.stage_ratios.ThreadPoolExecutor")
+    @patch("modules.orchestration.stage_ratios.futures_wait")
     def test_run_ratios_empty_tickers(self, mock_wait, mock_pool_cls):
-        from Main import _run_ratios
+        from modules.orchestration.stage_ratios import run_ratios as _run_ratios
 
         mock_pool = MagicMock()
         mock_pool_cls.return_value = mock_pool
@@ -994,7 +996,7 @@ class TestRunRatios:
 class TestBenchmarkSymbols:
 
     def test_benchmark_symbols_present(self):
-        from Main import BENCHMARK_SYMBOLS
+        from modules.orchestration.stage_macro import BENCHMARK_SYMBOLS
 
         assert len(BENCHMARK_SYMBOLS) == 5
         assert "^GSPC" in BENCHMARK_SYMBOLS
@@ -1006,10 +1008,10 @@ class TestBenchmarkSymbols:
 
 class TestRunRatiosDeep:
 
-    @patch("Main.futures_wait")
-    @patch("Main.ThreadPoolExecutor")
+    @patch("modules.orchestration.stage_ratios.futures_wait")
+    @patch("modules.orchestration.stage_ratios.ThreadPoolExecutor")
     def test_run_ratios_with_metrics(self, mock_pool_cls, mock_wait):
-        from Main import _run_ratios
+        from modules.orchestration.stage_ratios import run_ratios as _run_ratios
 
         mock_pool = MagicMock()
         mock_pool_cls.return_value = mock_pool
@@ -1038,11 +1040,11 @@ class TestRunRatiosDeep:
 
 class TestRunFxDeep:
 
-    @patch("Main.FxDownloader")
-    @patch("Main.DataQualityChecker")
-    @patch("Main.clean_fx_dataframe")
+    @patch("modules.orchestration.stage_macro.FxDownloader")
+    @patch("modules.orchestration.stage_macro.DataQualityChecker")
+    @patch("modules.orchestration.stage_macro.clean_fx_dataframe")
     def test_fx_with_kafka_and_mongo(self, mock_clean, mock_dq_cls, mock_dl_cls):
-        from Main import _run_fx
+        from modules.orchestration.stage_macro import run_fx as _run_fx
 
         mock_dl = MagicMock()
         mock_dl.stats = {}
@@ -1086,11 +1088,11 @@ class TestRunFxDeep:
 
 class TestRunVixDeep:
 
-    @patch("Main.VixDownloader")
-    @patch("Main.DataQualityChecker")
-    @patch("Main.clean_vix_dataframe")
+    @patch("modules.orchestration.stage_macro.VixDownloader")
+    @patch("modules.orchestration.stage_macro.DataQualityChecker")
+    @patch("modules.orchestration.stage_macro.clean_vix_dataframe")
     def test_vix_with_kafka_and_mongo(self, mock_clean, mock_dq_cls, mock_dl_cls):
-        from Main import _run_vix
+        from modules.orchestration.stage_macro import run_vix as _run_vix
 
         idx = pd.to_datetime(["2024-01-02"])
         # yfinance returns MultiIndex columns
@@ -1136,10 +1138,10 @@ class TestRunVixDeep:
 
 class TestRunRfrDeep:
 
-    @patch("Main.RiskFreeRateDownloader")
-    @patch("Main.clean_risk_free_rate_dataframe")
+    @patch("modules.orchestration.stage_macro.RiskFreeRateDownloader")
+    @patch("modules.orchestration.stage_macro.clean_risk_free_rate_dataframe")
     def test_rfr_with_kafka_and_mongo(self, mock_clean, mock_dl_cls):
-        from Main import _run_risk_free_rate
+        from modules.orchestration.stage_macro import run_risk_free_rate as _run_risk_free_rate
 
         idx = pd.to_datetime(["2024-01-02"])
         rfr_df = pd.DataFrame({"Close": [5.25]}, index=idx)
@@ -1177,8 +1179,8 @@ class TestMainDryRun:
 
     @patch("Main.set_env_variables")
     @patch("Main.ReadConfig")
-    @patch("Main.DatabaseMethods")
-    @patch("Main.PostgresConfig")
+    @patch("modules.orchestration.state.DatabaseMethods")
+    @patch("modules.orchestration.state.PostgresConfig")
     @patch("Main.arg_parse_cmd")
     def test_main_dry_run_exits_cleanly(self, mock_arg_cmd, mock_pg_cls, mock_db_cls, mock_rc, mock_sev):
         from Main import main

@@ -4,7 +4,7 @@
 
 ### Production-Grade ETL for Multi-Factor Quantitative Research
 
-*678 equities &middot; 14 data streams &middot; 11 APIs &middot; triple-database architecture &middot; 756 tests*
+*678 equities &middot; 11 data streams &middot; 6 APIs &middot; triple-database architecture &middot; 1,221 tests*
 
 <br>
 
@@ -12,8 +12,8 @@
 [![PostgreSQL](https://img.shields.io/badge/PostgreSQL-16-4169E1?style=for-the-badge&logo=postgresql&logoColor=white)](https://www.postgresql.org/)
 [![Docker](https://img.shields.io/badge/Docker-Compose-2496ED?style=for-the-badge&logo=docker&logoColor=white)](https://docs.docker.com/compose/)
 [![Kafka](https://img.shields.io/badge/Kafka-3.0-231F20?style=for-the-badge&logo=apachekafka&logoColor=white)](https://kafka.apache.org/)
-[![Tests](https://img.shields.io/badge/Tests-756_passed-brightgreen?style=for-the-badge)](test/)
-[![Coverage](https://img.shields.io/badge/Coverage-83%25-brightgreen?style=for-the-badge)](test/)
+[![Tests](https://img.shields.io/badge/Tests-1221_passed-brightgreen?style=for-the-badge)](test/)
+[![Coverage](https://img.shields.io/badge/Coverage-94%25-brightgreen?style=for-the-badge)](test/)
 [![License](https://img.shields.io/badge/License-MIT-green?style=for-the-badge)](LICENSE)
 
 [![GitHub stars](https://img.shields.io/github/stars/abailey81/Big-Data-Pipeline?style=social)](https://github.com/abailey81/Big-Data-Pipeline/stargazers)
@@ -37,9 +37,9 @@
 <tr>
 <td align="center" width="25%">
 <br>
-<strong>14 Data Streams</strong>
+<strong>11 Data Streams</strong>
 <br><br>
-Prices, fundamentals, EDGAR, FMP, SimFin, Alpha Vantage, FX, VIX, RFR, ESG, sentiment, ratios, historical ratios, sentiment backfill
+Prices, fundamentals, EDGAR, FX, VIX, RFR, ESG, sentiment, ratios, historical ratios, benchmarks
 <br><br>
 </td>
 <td align="center" width="25%">
@@ -58,9 +58,9 @@ Circuit breaker, token-bucket rate limiter, exponential backoff, and graceful de
 </td>
 <td align="center" width="25%">
 <br>
-<strong>83% Test Coverage</strong>
+<strong>1,221 Tests</strong>
 <br><br>
-756 tests across unit, integration, and end-to-end tiers with Bandit security scanning
+1,221 tests across unit, integration, and end-to-end tiers with Bandit security scanning
 <br><br>
 </td>
 </tr>
@@ -74,18 +74,15 @@ Circuit breaker, token-bucket rate limiter, exponential backoff, and graceful de
 |---|--------|-----|----------|------------|
 | 1 | Daily prices (OHLCV + adjusted close) | Yahoo Finance | 678 symbols, 6 years | -- |
 | 2 | Quarterly / annual fundamentals | Yahoo Finance | 606 / 678 symbols | -- |
-| 3 | EDGAR supplementary fundamentals | SEC EDGAR XBRL | US tickers, 5+ years | Skips non-US |
-| 4 | Finnhub supplementary fundamentals | Finnhub | Non-US tickers | Skips US |
-| 5 | Non-US fundamentals supplement | FMP + SimFin + Alpha Vantage | Non-US tickers, cascade | Skips tickers with 20+ quarterly records |
-| 6 | Company financial ratios (snapshot) | Yahoo Finance + Finnhub | 637 / 678 symbols | -- |
-| 7 | Historical ratios (6-year time-series) | Computed from fundamentals + prices | All tickers with data | Skips tickers with 20+ `_hist` records |
-| 8 | FX rates (GBP, EUR, CAD, CHF to USD) | Yahoo Finance | 4 / 4 pairs, 6 years | -- |
-| 9 | CBOE Volatility Index (VIX) | Yahoo Finance | 2020--2026 | -- |
-| 10 | US 3-Month Treasury rate (DGS3MO) | FRED | 2020--2026 | -- |
-| 11 | Regional benchmark indices (5) | Yahoo Finance | S&P 500, FTSE 100, Euro Stoxx 50, TSX, SMI | -- |
-| 12 | ESG sustainability scores | LSEG Data Platform | ~34% (API ceiling) | -- |
-| 13 | News sentiment (VADER + financial boost) | yfinance + NewsAPI + GDELT | 667 / 678 symbols | -- |
-| 14 | Sentiment historical backfill | GDELT quarterly archive | 6-year quarterly coverage | Skips tickers with 4+ records |
+| 3 | EDGAR supplementary fundamentals | SEC EDGAR XBRL | 430 US tickers, 5+ years | Skips non-US |
+| 4 | Company financial ratios (snapshot) | Yahoo Finance | 678 / 678 symbols | -- |
+| 5 | Historical ratios (6-year time-series) | Computed from fundamentals + prices | 603 / 678 symbols | -- |
+| 6 | FX rates (GBP, EUR, CAD, CHF to USD) | Yahoo Finance | 4 / 4 pairs, 6 years | -- |
+| 7 | CBOE Volatility Index (VIX) | Yahoo Finance | 2020--2026 | -- |
+| 8 | US 3-Month Treasury rate (DGS3MO) | FRED | 2020--2026 | -- |
+| 9 | Regional benchmark indices (5) | Yahoo Finance | S&P 500, FTSE 100, Euro Stoxx 50, TSX, SMI | -- |
+| 10 | ESG sustainability scores | LSEG Data Platform | 234 / 678 symbols (API ceiling) | -- |
+| 11 | News sentiment (VADER + financial boost) | yfinance + NewsAPI + GDELT | 674 / 678 symbols | -- |
 
 **Date range:** 2020-02-27 to present (6-year backfill by default)
 
@@ -96,19 +93,19 @@ Circuit breaker, token-bucket rate limiter, exponential backoff, and graceful de
 ## Architecture
 
 ```
-                              +---------------------------+
-                              |      Main.py (ETL)        |
-                              |   Parallel orchestration  |
-                              +-------------+-------------+
-                                            |
-    +--------+--------+--------+-------+-------+-------+--------+-------+--------+
-    |        |        |        |       |       |       |        |       |        |
-  +-v-----+ +-v----+ +-v----+ +-v---+ +-v---+ +-v---+ +-v----+ +-v---+ +-v----+
-  |Yahoo  | | SEC  | |Finn- | |FMP | |Sim- | |Alpha| |FRED  | |LSEG | |GDELT |
-  |Finance| |EDGAR | |hub   | |    | |Fin  | |Vant.| |T-Bill| |(ESG)| |News  |
-  +-------+ +------+ +------+ +----+ +-----+ +-----+ +------+ +-----+ +------+
-    |        |        |        |       |       |       |        |       |
-    +--------+--------+--------+---+---+-------+-------+--------+-------+
+                         +---------------------------+
+                         |      Main.py (ETL)        |
+                         |   Parallel orchestration  |
+                         +-------------+-------------+
+                                       |
+          +----------+---------+-------+-------+---------+
+          |          |         |       |       |         |
+     +----v---+ +---v----+ +-v----+ +-v----+ +-v-----+ |
+     | Yahoo  | |  SEC   | | FRED | | LSEG | | GDELT | |
+     |Finance | | EDGAR  | |T-Bill| |(ESG) | | News  | |
+     +----+---+ +---+----+ +--+---+ +--+---+ +--+----+ |
+          |          |         |        |        |      |
+          +----------+---------+---+----+--------+------+
                                    |
                      +-------------v--------------+
                      |      Data Cleaning          |
@@ -134,13 +131,10 @@ Circuit breaker, token-bucket rate limiter, exponential backoff, and graceful de
 |-------|---------|-------------|------------------|
 | A (parallel) | Prices + Fundamentals | 2 threads, launched at t=0 | -- |
 | Independent (parallel) | FX + RFR + ESG + Sentiment | 4 threads, launched at t=0 | -- |
-| A.5-A.7 (parallel) | EDGAR (US) + Finnhub (non-US) + **FMP/SimFin/AV (non-US)** | 3 threads, start after Group A | Non-US supplement skips tickers with 20+ quarterly records |
+| A.5 | EDGAR (US tickers) | After Group A | Skips non-US tickers |
 | B (sequential) | VIX + Benchmark | Sequential (yfinance thread-safety) | -- |
 | C | Company Ratios (snapshots) | 8 parallel workers | Skips inactive tickers |
-| D | **Historical Ratios** (computed) | 8 parallel workers, DB-only | Skips tickers with 20+ existing `_hist` records |
-| E | **Sentiment Backfill** (GDELT archive) | 4 parallel workers | Skips tickers with 4+ sentiment records; skips quarters already in DB |
-
-**Non-US fundamentals cascade** (Group A.7): For each ticker missing quarterly depth, tries FMP first (fastest, 250 req/day). If FMP returns nothing, SimFin tries immediately on the same thread (2000 req/day). If SimFin also fails, Alpha Vantage tries with 8-key fallback (200 req/day). Stops at the first source that returns data.
+| D | Historical Ratios (computed) | 8 parallel workers, DB-only | -- |
 
 ---
 
@@ -168,14 +162,10 @@ This starts PostgreSQL (5438), MongoDB (27017), MinIO (9000), and Kafka (9092).
 ```bash
 cp .env.example .env.dev
 # Edit .env.dev with your API keys:
-#   FINNHUB_API_KEY          (free at finnhub.io)
 #   NEWSAPI_KEY              (free at newsapi.org, optional)
 #   REFINITIV_USERNAME       (LSEG platform — ESG scores)
 #   REFINITIV_PASSWORD
 #   REFINITIV_APP_KEY
-#   ALPHA_VANTAGE_KEY_1..8   (free at alphavantage.co, up to 8 keys)
-#   FMP_API_KEY              (free at financialmodelingprep.com)
-#   SIMFIN_API_KEY           (free at simfin.com)
 # All API keys are optional — the pipeline degrades gracefully
 # when keys are missing, skipping the corresponding data sources.
 ```
@@ -231,7 +221,7 @@ poetry run python Main.py --env_type <dev|docker> [OPTIONS]
 | `vix_data` | `cob_date` | CBOE VIX daily |
 | `risk_free_rate` | `cob_date` | US 3-Month T-Bill (DGS3MO) |
 | `benchmark_index` | `(symbol, cob_date)` | 5 regional indices |
-| `company_ratios` | `(symbol, snapshot_date, field_name)` | 33 financial ratios (EAV) |
+| `company_ratios` | `(symbol, snapshot_date, field_name)` | 57 financial ratios (EAV) |
 | `esg_scores` | `(symbol, cob_date)` | Total ESG + component scores |
 | `news_sentiment` | `(symbol, cob_date)` | VADER composite score + dispersion |
 | `ingestion_log` | `log_id` | Audit trail for every download attempt |
@@ -290,11 +280,11 @@ sentiment_score = vader_component  * 0.45
 
 ## Testing
 
-**756 tests** across 30 test files | **83% coverage**
+**1,221 tests** across 34 test files | **94% coverage**
 
 ```
-TOTAL                                         3109    242    83%
-======================= 756 passed, 5 skipped =========================
+poetry run pytest ./test/ --cov=modules --cov-report=term-missing
+======================= 1221 passed =========================
 ```
 
 Three-tier testing strategy:
@@ -328,15 +318,23 @@ Big-Data-Pipeline/
 ├── config/
 │   └── conf.yaml                    # Pipeline configuration (dev + docker)
 ├── modules/
-│   ├── input/                       # 14 downloaders (one per data source)
+│   ├── orchestration/               # Pipeline stage orchestration (v3.2.0)
+│   │   ├── state.py                 # Shared state, utilities, health checks
+│   │   ├── stage_prices.py          # Daily OHLCV ingestion stage
+│   │   ├── stage_fundamentals.py    # Yahoo Finance + SEC EDGAR
+│   │   ├── stage_macro.py           # FX, VIX, risk-free rate, benchmarks
+│   │   ├── stage_ratios.py          # 57-field ratio computation engine
+│   │   ├── stage_esg.py             # ESG sustainability scores (LSEG)
+│   │   └── stage_sentiment.py       # News sentiment + GDELT backfill
+│   ├── input/                       # Data source downloaders
 │   │   ├── base_downloader.py       # Abstract base (circuit breaker, retry)
 │   │   ├── price_downloader.py      # Daily OHLCV for 678 equities
 │   │   ├── fundamentals_downloader.py  # yfinance quarterly/annual
 │   │   ├── edgar_downloader.py      # SEC EDGAR XBRL filings (US)
-│   │   ├── finnhub_downloader.py    # Finnhub fundamentals (non-US)
-│   │   ├── fmp_downloader.py        # Financial Modeling Prep (non-US supplement)
-│   │   ├── simfin_downloader.py     # SimFin bulk financials (non-US supplement)
-│   │   ├── alphavantage_downloader.py  # Alpha Vantage (non-US supplement, 8-key fallback)
+│   │   ├── finnhub_downloader.py    # Finnhub fundamentals (disabled — free tier US-only)
+│   │   ├── fmp_downloader.py        # FMP fundamentals (disabled — low coverage)
+│   │   ├── simfin_downloader.py     # SimFin fundamentals (disabled — low coverage)
+│   │   ├── alphavantage_downloader.py  # Alpha Vantage (disabled — low coverage)
 │   │   ├── fx_downloader.py         # FX rate pairs
 │   │   ├── vix_downloader.py        # CBOE Volatility Index
 │   │   ├── risk_free_rate_downloader.py
@@ -359,10 +357,12 @@ Big-Data-Pipeline/
 │       ├── circuit_breaker.py       # Three-state resilience pattern
 │       ├── rate_limiter.py          # Token-bucket rate limiting
 │       └── retry.py                 # Exponential backoff decorator
+├── .github/workflows/
+│   └── ci.yml                       # CI/CD: lint, test, security scan
 ├── static/schema/
 │   ├── create_tables.sql            # PostgreSQL DDL (12 tables)
 │   └── company_static.csv           # Universe of 678 tickers
-├── test/                           # 756 tests, 83% coverage
+├── test/                            # 1,221 tests, 94% coverage
 ├── docs/                            # Sphinx documentation
 └── reports/                         # Security scan results
 ```

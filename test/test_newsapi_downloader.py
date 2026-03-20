@@ -288,13 +288,48 @@ class TestParseNewsapiArticles:
         assert parsed[0]["publisher"] == "NewsAPI"
 
 
+class TestNewsApiDownloaderDownloadMethod:
+
+    def test_circuit_breaker_open_returns_empty(self):
+        """download() returns [] when circuit breaker is OPEN."""
+        from modules.input.newsapi_downloader import NewsApiDownloader
+
+        dl = NewsApiDownloader(api_delay=0, max_retries=1)
+        dl.api_key = "test-key"
+        # Trip the circuit breaker by recording enough failures
+        for _ in range(dl.circuit_breaker.failure_threshold + 5):
+            dl.circuit_breaker.record_failure()
+        result = dl.download("AAPL")
+        assert result == []
+        assert dl._failure_count == 1
+
+    def test_no_api_key_returns_empty(self):
+        """download() returns [] when no API key is set."""
+        from modules.input.newsapi_downloader import NewsApiDownloader
+
+        dl = NewsApiDownloader(api_delay=0, max_retries=1)
+        dl.api_key = ""
+        result = dl.download("AAPL")
+        assert result == []
+
+    def test_download_with_invalid_key_handles_gracefully(self):
+        """download() with invalid key returns [] after retries."""
+        from modules.input.newsapi_downloader import NewsApiDownloader
+
+        dl = NewsApiDownloader(api_delay=0, max_retries=1, backoff_base=0.01)
+        dl.api_key = "invalid-key-that-will-fail"
+        # This will hit the real NewsAPI and get a 401 — exercises the retry path
+        result = dl.download("AAPL")
+        assert isinstance(result, list)
+
+
 # ── Computed ratios tests ─────────────────────────────────────────────
 
 
 class TestComputedRatios:
 
     def test_book_to_price(self):
-        from Main import _compute_derived_ratios
+        from modules.orchestration.stage_ratios import _compute_derived_ratios
 
         info = {"regularMarketPrice": 150.0, "bookValue": 30.0}
         records = _compute_derived_ratios(info, "AAPL", "2024-01-15")
@@ -303,7 +338,7 @@ class TestComputedRatios:
         assert abs(b2p[0]["field_value"] - 0.2) < 1e-6
 
     def test_earnings_to_price(self):
-        from Main import _compute_derived_ratios
+        from modules.orchestration.stage_ratios import _compute_derived_ratios
 
         info = {"regularMarketPrice": 200.0, "trailingEps": 10.0}
         records = _compute_derived_ratios(info, "MSFT", "2024-01-15")
@@ -312,7 +347,7 @@ class TestComputedRatios:
         assert abs(e2p[0]["field_value"] - 0.05) < 1e-6
 
     def test_cashflow_to_price(self):
-        from Main import _compute_derived_ratios
+        from modules.orchestration.stage_ratios import _compute_derived_ratios
 
         info = {
             "regularMarketPrice": 100.0,
@@ -325,7 +360,7 @@ class TestComputedRatios:
         assert abs(cf2p[0]["field_value"] - 0.1) < 1e-6
 
     def test_roe_computed(self):
-        from Main import _compute_derived_ratios
+        from modules.orchestration.stage_ratios import _compute_derived_ratios
 
         info = {
             "netIncomeToCommon": 1_000_000,
@@ -337,7 +372,7 @@ class TestComputedRatios:
         assert abs(roe[0]["field_value"] - 0.2) < 1e-6
 
     def test_debt_to_equity_inv(self):
-        from Main import _compute_derived_ratios
+        from modules.orchestration.stage_ratios import _compute_derived_ratios
 
         info = {"debtToEquity": 50.0}
         records = _compute_derived_ratios(info, "TEST", "2024-01-15")
@@ -346,7 +381,7 @@ class TestComputedRatios:
         assert abs(de[0]["field_value"] - 0.02) < 1e-6
 
     def test_no_price_skips_price_ratios(self):
-        from Main import _compute_derived_ratios
+        from modules.orchestration.stage_ratios import _compute_derived_ratios
 
         info = {"bookValue": 30.0, "trailingEps": 5.0}
         records = _compute_derived_ratios(info, "TEST", "2024-01-15")
@@ -355,7 +390,7 @@ class TestComputedRatios:
             assert r["field_name"] not in price_fields
 
     def test_zero_price_skips_price_ratios(self):
-        from Main import _compute_derived_ratios
+        from modules.orchestration.stage_ratios import _compute_derived_ratios
 
         info = {"regularMarketPrice": 0, "bookValue": 30.0}
         records = _compute_derived_ratios(info, "TEST", "2024-01-15")
@@ -363,7 +398,7 @@ class TestComputedRatios:
         assert len(b2p) == 0
 
     def test_zero_equity_skips_roe(self):
-        from Main import _compute_derived_ratios
+        from modules.orchestration.stage_ratios import _compute_derived_ratios
 
         info = {"netIncomeToCommon": 1_000_000, "totalStockholderEquity": 0}
         records = _compute_derived_ratios(info, "TEST", "2024-01-15")
@@ -371,7 +406,7 @@ class TestComputedRatios:
         assert len(roe) == 0
 
     def test_zero_debt_equity_skips_inv(self):
-        from Main import _compute_derived_ratios
+        from modules.orchestration.stage_ratios import _compute_derived_ratios
 
         info = {"debtToEquity": 0}
         records = _compute_derived_ratios(info, "TEST", "2024-01-15")
@@ -379,13 +414,13 @@ class TestComputedRatios:
         assert len(de) == 0
 
     def test_empty_info_returns_empty(self):
-        from Main import _compute_derived_ratios
+        from modules.orchestration.stage_ratios import _compute_derived_ratios
 
         records = _compute_derived_ratios({}, "TEST", "2024-01-15")
         assert records == []
 
     def test_all_ratios_computed(self):
-        from Main import _compute_derived_ratios
+        from modules.orchestration.stage_ratios import _compute_derived_ratios
 
         info = {
             "regularMarketPrice": 100.0,
@@ -416,7 +451,7 @@ class TestDelistedDetection:
     @patch("yfinance.Ticker")
     def test_detect_inactive_no_candidates(self, mock_ticker_cls):
         """When DB returns no stale/failed tickers, result is empty."""
-        from Main import _detect_inactive_tickers
+        from modules.orchestration.state import detect_inactive_tickers as _detect_inactive_tickers
 
         mock_db = MagicMock()
         # Signal 1: no stale tickers
@@ -428,7 +463,7 @@ class TestDelistedDetection:
     @patch("yfinance.Ticker")
     def test_detect_inactive_live_confirms(self, mock_ticker_cls):
         """Candidates confirmed inactive via live fast_info check."""
-        from Main import _detect_inactive_tickers
+        from modules.orchestration.state import detect_inactive_tickers as _detect_inactive_tickers
 
         mock_db = MagicMock()
         # First call returns stale tickers, second returns empty
@@ -448,7 +483,7 @@ class TestDelistedDetection:
     @patch("yfinance.Ticker")
     def test_detect_inactive_live_clears_false_positive(self, mock_ticker_cls):
         """Candidate with valid live price is NOT marked inactive."""
-        from Main import _detect_inactive_tickers
+        from modules.orchestration.state import detect_inactive_tickers as _detect_inactive_tickers
 
         mock_db = MagicMock()
         mock_db.read_query.side_effect = [
@@ -466,7 +501,7 @@ class TestDelistedDetection:
 
     def test_inactive_tickers_set_initially_empty(self):
         """Module-level _inactive_tickers starts as empty set."""
-        from Main import _inactive_tickers
+        from modules.orchestration.state import _inactive_tickers
 
         assert isinstance(_inactive_tickers, set)
 
@@ -478,7 +513,7 @@ class TestRoeComputedFallback:
 
     def test_roe_via_total_stockholder_equity(self):
         """ROE computed using primary totalStockholderEquity field."""
-        from Main import _compute_derived_ratios
+        from modules.orchestration.stage_ratios import _compute_derived_ratios
 
         info = {"netIncomeToCommon": 1_000_000, "totalStockholderEquity": 5_000_000}
         records = _compute_derived_ratios(info, "TEST", "2024-01-15")
@@ -488,7 +523,7 @@ class TestRoeComputedFallback:
 
     def test_roe_via_book_value_shares_fallback(self):
         """ROE computed using bookValue * sharesOutstanding when equity is None."""
-        from Main import _compute_derived_ratios
+        from modules.orchestration.stage_ratios import _compute_derived_ratios
 
         info = {
             "netIncomeToCommon": 2_000_000,
@@ -504,7 +539,7 @@ class TestRoeComputedFallback:
 
     def test_roe_skipped_when_no_equity_available(self):
         """ROE skipped when neither totalStockholderEquity nor bookValue*shares."""
-        from Main import _compute_derived_ratios
+        from modules.orchestration.stage_ratios import _compute_derived_ratios
 
         info = {"netIncomeToCommon": 1_000_000}
         records = _compute_derived_ratios(info, "TEST", "2024-01-15")

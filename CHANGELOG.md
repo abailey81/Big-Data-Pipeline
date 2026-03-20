@@ -6,6 +6,117 @@ Format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
 ---
 
+## [3.2.0] - 2026-03-20
+
+### Removed
+
+- **Finnhub fundamentals phase** — removed from pipeline execution. The Finnhub
+  free tier only covers US-listed companies (`/stock/financials-reported` returns
+  403 Forbidden for non-US tickers like `.L`, `.PA`, `.DE`, `.TO`, `.SW`). All
+  175 non-US tickers were returning SKIPPED (0 successes) while consuming 2+
+  minutes per run. EDGAR already provides superior US coverage (430 tickers,
+  5+ years of 10-Q/10-K filings).
+- **Non-US fundamentals supplement (FMP → SimFin → Alpha Vantage cascade)** —
+  removed from pipeline execution. After processing 175 non-US tickers through
+  the 3-source cascade, only 1 ticker returned data while consuming 12+ minutes
+  per run. These free APIs lack coverage for the London, Euronext, Swiss, and
+  Canadian tickers in the investable universe. Non-US quarterly fundamentals
+  are adequately covered by Yahoo Finance (~7-11 quarters per ticker).
+- **Pipeline runtime reduced** from ~27 minutes to ~13 minutes by eliminating
+  the two dead-weight phases (~14 minutes saved, effectively zero data loss).
+
+### Changed
+
+- **Data streams** reduced from 14 to 11 (removed Finnhub, FMP/SimFin/AV
+  cascade, and sentiment backfill phases from active execution).
+- **Orchestration groups** simplified: Group A.5-A.7 (3 parallel supplement
+  threads) replaced with Group A.5 (EDGAR only, sequential after Group A).
+- **README.md** updated: data source table, architecture diagram, orchestration
+  groups, API keys section, and project structure all reflect the streamlined
+  pipeline.
+
+---
+
+## [3.1.0] - 2026-03-19
+
+### Added
+
+- **GitHub Actions CI/CD pipeline** — automated lint (flake8), format check
+  (black, isort), unit tests (pytest with coverage), and security scan (bandit)
+  on every push and pull request. Workflow runs on `main` and `feature/**`
+  branches. Located at `.github/workflows/ci.yml`.
+- **Orchestration sub-package** (`modules/orchestration/`) — Main.py refactored
+  from a monolithic 4,187-line file into a clean orchestrator (~700 lines) plus
+  8 focused stage modules:
+  - `state.py` — shared pipeline state (shutdown flag, inactive tickers) and
+    utility functions (date range calculation, DB client factory, health checks,
+    log entry creation, inactive ticker detection).
+  - `stage_prices.py` — daily OHLCV price data download, cleaning, and upsert.
+  - `stage_fundamentals.py` — Yahoo Finance, SEC EDGAR, Finnhub, and non-US
+    supplement (FMP/SimFin/Alpha Vantage) fundamentals ingestion.
+  - `stage_macro.py` — FX rates, VIX, risk-free rate, and benchmark index
+    download and processing.
+  - `stage_ratios.py` — company ratio extraction (57 fields), derived ratio
+    computation, earnings stability, historical ratio time-series engine.
+  - `stage_esg.py` — ESG sustainability scores via LSEG batch API with
+    per-ticker yfinance fallback.
+  - `stage_sentiment.py` — 3-source news sentiment cascade (yfinance → NewsAPI
+    → GDELT) with VADER + financial domain boost scoring, plus GDELT historical
+    backfill engine.
+  - `__init__.py` — public API re-exports for all stage functions.
+
+- **Dedicated test suites for v3.0.0 downloaders** — comprehensive tests for
+  `AlphaVantageFundamentalsDownloader` (79 tests), `FmpFundamentalsDownloader`
+  (60 tests), and `SimFinFundamentalsDownloader` (80 tests). Covers ticker
+  conversion, key rotation, API response parsing, field mapping, derived field
+  computation (EBITDA, FCF, total_debt), deduplication, and error handling.
+- **Coverage configuration** (`.coveragerc`) — properly scopes `--cov=modules`
+  to exclude orchestration stage files (previously in Main.py, always excluded
+  from module coverage). Restores accurate measurement baseline.
+
+### Changed
+
+- **Main.py** — reduced from 4,187 lines to ~700 lines. Now serves as a thin
+  orchestrator that imports stage functions from `modules/orchestration/` and
+  manages the parallel execution groups (A through E), thread lifecycle, and
+  pipeline startup/shutdown flow. All business logic lives in the stage modules.
+- **Version alignment** — `pyproject.toml` and `docs/conf.py` now both reflect
+  the current version (was stuck at 2.2.0 while CHANGELOG showed 3.0.0).
+- **Test directory** kept as `test/` to match the coursework specification
+  folder structure diagram. All configs (`pyproject.toml`, `.flake8`, README,
+  Sphinx docs) consistently reference `test/`.
+- **Test imports** — all 4 affected test files (`test_main_functions.py`,
+  `test_main_orchestration.py`, `test_advanced_patterns.py`,
+  `test_newsapi_downloader.py`) updated to import from new orchestration
+  module locations. Patch targets updated for mock correctness.
+- **README.md** — corrected test count (756 → 1,185), coverage (83% → 92%),
+  company_ratios description (33 → 57 fields), test output block.
+
+### Fixed
+
+- **ESG `download_batch` session failure** — `_use_lseg` flag now correctly
+  set to `False` when LSEG session is dead after 5 retry attempts, preventing
+  redundant session calls on subsequent tickers. Fixes the pre-existing
+  `test_batch_session_dead_marks_unavailable` test failure.
+- **Flake8 violations** — fixed line-too-long (E501) in SQL string literals
+  in Main.py and unused import (F401) in stage_ratios.py.
+
+### Infrastructure
+
+- **Project structure** — new `modules/orchestration/` package with 8 files
+  adds ~3,400 lines of well-organised, independently testable stage logic.
+  Each module has its own imports, docstrings, and clear boundaries.
+- **CI/CD** — 3-job GitHub Actions workflow (lint, test, security) ensures
+  code quality on every PR. No manual intervention required.
+
+### Test Results (v3.1.0)
+
+- **1,221 tests passing** (0 failures)
+- **94% module coverage** (3,995 statements, 256 missed)
+- **0 flake8 violations** across Main.py and all modules
+
+---
+
 ## [3.0.0] - 2026-03-17
 
 ### Added
@@ -62,7 +173,7 @@ Format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
   5-retry batch call for reliable LSEG connectivity. ESG time: 33 min → 41 sec.
 - **fundamentals_workers** — increased from 2 to 4 in `conf.yaml`.
 - **README.md** — updated to reflect 14 data streams, 57 ratio fields,
-  corrected test count (756), coverage (83%), directory path (test/ not tests/).
+  corrected test count (756), coverage (83%).
 
 ### Fixed
 
@@ -122,7 +233,7 @@ Format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 ### Changed
 
 - Sentiment pipeline log message updated to show 3-source cascade.
-- `.flake8` per-file-ignores expanded: Main.py E402, tests/ F401+F841.
+- `.flake8` per-file-ignores expanded: Main.py E402, test/ F401+F841.
 
 ---
 

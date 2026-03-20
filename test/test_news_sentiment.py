@@ -552,3 +552,87 @@ class TestNewsSentimentModel:
         assert "positive_ratio" in col_names
         assert "sentiment_score" in col_names
         assert "score_dispersion" in col_names
+
+
+# ── parse_news_articles coverage for legacy + edge cases ──────────────
+
+
+class TestParseNewsArticlesLegacy:
+
+    def test_legacy_flat_format(self):
+        """Legacy format without content key is parsed correctly."""
+        from modules.input.news_downloader import parse_news_articles
+
+        articles = [
+            {
+                "title": "AAPL hits record",
+                "publisher": "Reuters",
+                "providerPublishTime": 1700000000,
+                "link": "https://example.com/1",
+                "type": "STORY",
+            }
+        ]
+        result = parse_news_articles(articles, "AAPL")
+        assert len(result) == 1
+        assert result[0]["title"] == "AAPL hits record"
+        assert result[0]["publisher"] == "Reuters"
+
+    def test_legacy_no_timestamp(self):
+        """Legacy format without providerPublishTime uses current time."""
+        from modules.input.news_downloader import parse_news_articles
+
+        articles = [{"title": "News", "publisher": "AP"}]
+        result = parse_news_articles(articles, "AAPL")
+        assert len(result) == 1
+        assert result[0]["published_at"] is not None
+
+    def test_empty_title_skipped(self):
+        """Articles with empty title are skipped."""
+        from modules.input.news_downloader import parse_news_articles
+
+        articles = [{"title": "", "publisher": "AP"}]
+        result = parse_news_articles(articles, "AAPL")
+        assert len(result) == 0
+
+    def test_nested_invalid_pubdate_fallback(self):
+        """Invalid pubDate in nested format falls back to now."""
+        from modules.input.news_downloader import parse_news_articles
+
+        articles = [
+            {
+                "content": {
+                    "title": "Test",
+                    "pubDate": "not-a-date",
+                    "provider": {"displayName": "AP"},
+                }
+            }
+        ]
+        result = parse_news_articles(articles, "AAPL")
+        assert len(result) == 1
+
+    def test_nested_empty_pubdate(self):
+        """Empty pubDate string falls back to now."""
+        from modules.input.news_downloader import parse_news_articles
+
+        articles = [
+            {
+                "content": {
+                    "title": "Test",
+                    "pubDate": "",
+                    "provider": {"displayName": "AP"},
+                }
+            }
+        ]
+        result = parse_news_articles(articles, "AAPL")
+        assert len(result) == 1
+
+    def test_circuit_breaker_open_returns_none(self):
+        """NewsDownloader returns None when circuit breaker is open."""
+        from modules.input.news_downloader import NewsDownloader
+
+        dl = NewsDownloader(max_retries=1)
+        # Open the breaker by recording enough failures
+        for _ in range(dl.circuit_breaker.failure_threshold + 5):
+            dl.circuit_breaker.record_failure()
+        result = dl.download("AAPL")
+        assert result is None

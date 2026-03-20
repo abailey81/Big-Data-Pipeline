@@ -743,3 +743,60 @@ class TestRiskFreeRateRecordModel:
 
         r = RiskFreeRateRecord(cob_date=date(2024, 1, 2), rate_pct=None)
         assert r.rate_pct is None
+
+
+# ── DataQualityChecker extra coverage ─────────────────────────────────
+
+
+class TestDataQualityFxChecks:
+
+    def test_fx_null_close_detected(self):
+        from modules.processing.data_quality import DataQualityChecker
+
+        dq = DataQualityChecker("fx")
+        records = [
+            {"close_rate": None, "currency_pair": "GBPUSD=X"},
+            {"close_rate": 1.25, "currency_pair": "GBPUSD=X"},
+        ]
+        report = dq.check_fx_records(records)
+        assert report["null_close"] == 1
+        assert len(report["issues"]) == 1
+
+    def test_fx_non_positive_rate_detected(self):
+        from modules.processing.data_quality import DataQualityChecker
+
+        dq = DataQualityChecker("fx")
+        records = [
+            {"close_rate": -0.5, "currency_pair": "GBPUSD=X"},
+            {"close_rate": 0, "currency_pair": "EURUSD=X"},
+        ]
+        report = dq.check_fx_records(records)
+        assert report["non_positive_rate"] == 2
+
+    def test_fundamentals_empty_returns_zero(self):
+        from modules.processing.data_quality import DataQualityChecker
+
+        dq = DataQualityChecker("fundamentals")
+        report = dq.check_fundamentals_records([])
+        assert report["total"] == 0
+
+    def test_log_report_with_issues_logs_warning(self):
+        from modules.processing.data_quality import DataQualityChecker
+
+        dq = DataQualityChecker("test")
+        report = {"total": 5, "issues": ["5 records have NULL close"]}
+        dq.log_report(report, "AAPL")  # should not raise
+
+    def test_log_report_no_issues_logs_debug(self):
+        from modules.processing.data_quality import DataQualityChecker
+
+        dq = DataQualityChecker("test")
+        report = {"total": 5, "issues": []}
+        dq.log_report(report, "AAPL")  # should not raise
+
+    def test_log_report_no_symbol(self):
+        from modules.processing.data_quality import DataQualityChecker
+
+        dq = DataQualityChecker("test")
+        report = {"total": 0, "issues": []}
+        dq.log_report(report)  # no symbol — should not raise

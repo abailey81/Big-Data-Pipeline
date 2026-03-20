@@ -907,3 +907,86 @@ class TestEdgarComputedFields:
         fcf = [r for r in records if r["field_name"] == "free_cash_flow"]
         assert len(fcf) == 1
         assert fcf[0]["field_value"] == 120000  # 150000 - abs(-30000)
+
+
+# ── FxDownloader._has_valid_close coverage ────────────────────────────
+
+
+class TestFxHasValidClose:
+
+    def test_multiindex_with_valid_close(self):
+        from modules.input.fx_downloader import FxDownloader
+
+        dl = FxDownloader()
+        idx = pd.to_datetime(["2024-01-02"])
+        arrays = [["Close"], ["GBPUSD=X"]]
+        mi = pd.MultiIndex.from_arrays(arrays)
+        df = pd.DataFrame([[1.25]], index=idx, columns=mi)
+        assert dl._has_valid_close(df) == True
+
+    def test_multiindex_all_nan_close(self):
+        from modules.input.fx_downloader import FxDownloader
+
+        dl = FxDownloader()
+        idx = pd.to_datetime(["2024-01-02"])
+        arrays = [["Close"], ["GBPUSD=X"]]
+        mi = pd.MultiIndex.from_arrays(arrays)
+        df = pd.DataFrame([[float("nan")]], index=idx, columns=mi)
+        assert dl._has_valid_close(df) == False
+
+    def test_multiindex_no_close_column(self):
+        from modules.input.fx_downloader import FxDownloader
+
+        dl = FxDownloader()
+        idx = pd.to_datetime(["2024-01-02"])
+        arrays = [["Open"], ["GBPUSD=X"]]
+        mi = pd.MultiIndex.from_arrays(arrays)
+        df = pd.DataFrame([[1.25]], index=idx, columns=mi)
+        assert dl._has_valid_close(df) == False
+
+    def test_single_level_with_close(self):
+        from modules.input.fx_downloader import FxDownloader
+
+        dl = FxDownloader()
+        idx = pd.to_datetime(["2024-01-02"])
+        df = pd.DataFrame({"Close": [1.25]}, index=idx)
+        assert dl._has_valid_close(df) == True
+
+    def test_single_level_no_close(self):
+        from modules.input.fx_downloader import FxDownloader
+
+        dl = FxDownloader()
+        idx = pd.to_datetime(["2024-01-02"])
+        df = pd.DataFrame({"Open": [1.25]}, index=idx)
+        assert dl._has_valid_close(df) == False
+
+    def test_fx_download_circuit_open(self):
+        from modules.input.fx_downloader import FxDownloader
+
+        dl = FxDownloader()
+        for _ in range(20):
+            dl.circuit_breaker.record_failure()
+        result = dl.download("GBPUSD=X", "2024-01-01", "2024-12-31")
+        assert result.empty
+
+    def test_fx_download_empty_nan_retries(self):
+        from modules.input.fx_downloader import FxDownloader
+
+        dl = FxDownloader(max_retries=2, backoff_base=0.01)
+        idx = pd.to_datetime(["2024-01-02"])
+        nan_df = pd.DataFrame({"Close": [float("nan")]}, index=idx)
+
+        with patch.object(dl, "_execute_download", return_value=nan_df), \
+             patch("time.sleep"):
+            result = dl.download("GBPUSD=X", "2024-01-01", "2024-12-31")
+        assert result.empty
+
+    def test_fx_download_exception_retries(self):
+        from modules.input.fx_downloader import FxDownloader
+
+        dl = FxDownloader(max_retries=2, backoff_base=0.01)
+
+        with patch.object(dl, "_execute_download", side_effect=Exception("timeout")), \
+             patch("time.sleep"):
+            result = dl.download("GBPUSD=X", "2024-01-01", "2024-12-31")
+        assert result.empty
