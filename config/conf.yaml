@@ -151,7 +151,7 @@ docker:
         Port: 5439
         Schema: systematic_equity
       Minio:
-        BucketName: iftbigdata
+        BucketName: csreport
         RawDataPath: raw-data
       MongoDB:
         Host: localhost

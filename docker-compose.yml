@@ -123,7 +123,8 @@ services:
       - |
         mc alias set myminio http://minio:9000 ift_bigdata minio_password &&
         mc mb --ignore-existing myminio/iftbigdata &&
-        echo "MinIO bucket iftbigdata ready."
+        mc mb --ignore-existing myminio/csreport &&
+        echo "MinIO buckets iftbigdata + csreport ready."
     restart: "no"
 
   # ---------------------------------------------------------------------------
