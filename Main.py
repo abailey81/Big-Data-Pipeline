@@ -680,6 +680,42 @@ def main():
             metrics._counts.get("ratios", {}).get("total_rows", 0),
         )
 
+        # ── Ratios retry pass: re-attempt failed tickers after a cooldown ──
+        # The main ratios phase may fail some tickers due to transient yfinance
+        # errors (crumb expiry, 429 rate limits). This retry pass waits 30s for
+        # Yahoo to recover, then re-runs ratios ONLY for tickers that have no
+        # snapshot ratios in the DB yet — existing data is preserved via upsert.
+        try:
+            from modules.db_ops.extract_from_query import get_postgres_data
+            existing = get_postgres_data(
+                "SELECT DISTINCT TRIM(symbol) FROM systematic_equity.company_ratios "
+                "WHERE field_name NOT LIKE '%%_hist'",
+                username=db_client._engine.url.username or "postgres",
+                password=db_client._engine.url.password or "postgres",
+                host=db_client._engine.url.host or "localhost",
+                port=str(db_client._engine.url.port or 5438),
+                database=db_client._engine.url.database or "fift",
+            )
+            covered = {r[0] for r in existing} if existing else set()
+            active_syms = {t[0] for t in ticker_map if t[0] not in pipeline_state.inactive_tickers()}
+            missing = active_syms - covered
+            if missing and len(missing) <= 50:
+                import time as _time
+                pipeline_logger.info(
+                    f"Ratios retry: {len(missing)} tickers missing snapshot ratios — "
+                    f"waiting 30s then retrying..."
+                )
+                _time.sleep(30)
+                retry_map = [t for t in ticker_map if t[0] in missing]
+                run_ratios(
+                    db_client, minio_store, retry_map, pipeline_params,
+                    run_id, freq, metrics, None,
+                    kafka_producer=kafka_producer, mongo_store=mongo_store,
+                )
+                pipeline_logger.info("Ratios retry complete")
+        except Exception as e:
+            pipeline_logger.warning(f"Ratios retry pass failed: {e}")
+
     # ── Group D: Historical ratios (computed from fundamentals + prices) ──
     if "ratios" in sources and not check_shutdown("historical_ratios"):
         tracker.print_phase_start("historical_ratios")
