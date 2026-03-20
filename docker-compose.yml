@@ -1,22 +1,23 @@
 # =============================================================================
 # Kolmogorov's team
 # Systematic Equity Pipeline – Docker Compose Infrastructure
+# Service names and ports match the class docker-compose for compatibility.
 # =============================================================================
 
 services:
   # ---------------------------------------------------------------------------
-  # PostgreSQL – Analytical data store (port 5438 on host)
+  # PostgreSQL – Analytical data store (port 5439 on host, matching class)
   # ---------------------------------------------------------------------------
-  postgres-db:
+  postgres_db:
     image: postgres:16-alpine
-    container_name: postgres_db
+    container_name: postgres_db_cw
     restart: unless-stopped
     environment:
       POSTGRES_USER: postgres
       POSTGRES_PASSWORD: postgres
       POSTGRES_DB: fift
     ports:
-      - "5438:5432"
+      - "5439:5432"
     volumes:
       - pgdata:/var/lib/postgresql/data
     healthcheck:
@@ -26,19 +27,18 @@ services:
       retries: 10
 
   # ---------------------------------------------------------------------------
-  # MongoDB – Document store for semi-structured data (port 27017 on host)
-  # Stores: raw API responses, ESG reports, news sentiment documents
+  # MongoDB – Document store for semi-structured data (port 27019, matching class)
   # ---------------------------------------------------------------------------
-  mongodb:
+  mongo_db:
     image: mongo:7.0
-    container_name: mongodb_service
+    container_name: mongo_db_cw
     restart: unless-stopped
     environment:
       MONGO_INITDB_ROOT_USERNAME: ift_bigdata
       MONGO_INITDB_ROOT_PASSWORD: mongo_password
       MONGO_INITDB_DATABASE: ift_cw1
     ports:
-      - "27017:27017"
+      - "27019:27017"
     volumes:
       - mongodata:/data/db
     healthcheck:
@@ -52,13 +52,13 @@ services:
   # ---------------------------------------------------------------------------
   mongo-seed:
     image: mongo:7.0
-    container_name: mongo_seed
+    container_name: mongo_seed_cw
     depends_on:
-      mongodb:
+      mongo_db:
         condition: service_healthy
     entrypoint:
       - mongosh
-      - "mongodb://ift_bigdata:mongo_password@mongodb:27017/ift_cw1?authSource=admin"
+      - "mongodb://ift_bigdata:mongo_password@mongo_db:27017/ift_cw1?authSource=admin"
       - --eval
       - |
         db.createCollection('raw_prices');
@@ -89,9 +89,9 @@ services:
   # ---------------------------------------------------------------------------
   # MinIO – S3-compatible object storage for raw data lake (port 9000/9001)
   # ---------------------------------------------------------------------------
-  minio:
+  miniocw:
     image: minio/minio:latest
-    container_name: minio_service
+    container_name: miniocw
     restart: unless-stopped
     environment:
       MINIO_ROOT_USER: ift_bigdata
@@ -109,22 +109,22 @@ services:
       retries: 10
 
   # ---------------------------------------------------------------------------
-  # MinIO seed – Creates the iftbigdata bucket, then exits
+  # MinIO seed – Creates buckets, then exits
   # ---------------------------------------------------------------------------
-  minio-seed:
+  minio_client_cw:
     image: minio/mc:latest
-    container_name: minio_seed
+    container_name: minio_client_cw
     depends_on:
-      minio:
+      miniocw:
         condition: service_healthy
     entrypoint:
       - /bin/sh
       - -c
       - |
-        mc alias set myminio http://minio:9000 ift_bigdata minio_password &&
-        mc mb --ignore-existing myminio/iftbigdata &&
+        mc alias set myminio http://miniocw:9000 ift_bigdata minio_password &&
         mc mb --ignore-existing myminio/csreport &&
-        echo "MinIO buckets iftbigdata + csreport ready."
+        mc mb --ignore-existing myminio/iftbigdata &&
+        echo "MinIO buckets ready."
     restart: "no"
 
   # ---------------------------------------------------------------------------
@@ -132,7 +132,7 @@ services:
   # ---------------------------------------------------------------------------
   zookeeper:
     image: confluentinc/cp-zookeeper:7.6.0
-    container_name: zookeeper_service
+    container_name: zookeeper_cw
     restart: unless-stopped
     environment:
       ZOOKEEPER_CLIENT_PORT: 2181
@@ -150,11 +150,10 @@ services:
 
   # ---------------------------------------------------------------------------
   # Apache Kafka – Event streaming for data ingestion pipeline
-  # Topics: market.prices, market.fundamentals, market.fx, esg.scores
   # ---------------------------------------------------------------------------
   kafka:
     image: confluentinc/cp-kafka:7.6.0
-    container_name: kafka_service
+    container_name: kafka_cw
     restart: unless-stopped
     depends_on:
       zookeeper:
@@ -177,13 +176,13 @@ services:
       retries: 10
 
   # ---------------------------------------------------------------------------
-  # Schema seed – Creates tables and loads company_static data, then exits
+  # PostgreSQL seed – Creates tables and loads company_static data
   # ---------------------------------------------------------------------------
-  postgres-seed:
+  postgres_seed:
     image: postgres:16-alpine
-    container_name: postgres_seed
+    container_name: postgres_seed_cw
     depends_on:
-      postgres-db:
+      postgres_db:
         condition: service_healthy
     environment:
       PGPASSWORD: postgres
@@ -193,6 +192,19 @@ services:
       - ./static/schema/seed.sh:/seed/seed.sh:ro
     entrypoint: ["sh", "/seed/seed.sh"]
     restart: "no"
+
+  # ---------------------------------------------------------------------------
+  # pgAdmin – PostgreSQL GUI management
+  # ---------------------------------------------------------------------------
+  pgadmin:
+    image: dpage/pgadmin4
+    container_name: pgadmin_cw
+    restart: unless-stopped
+    environment:
+      PGADMIN_DEFAULT_EMAIL: admin@admin.com
+      PGADMIN_DEFAULT_PASSWORD: root
+    ports:
+      - "5051:80"
 
 volumes:
   pgdata:

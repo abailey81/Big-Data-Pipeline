@@ -41,14 +41,14 @@ dev:
         Database: fift
         Username: postgres
         Password: postgres
-        Port: 5438
+        Port: 5439
         Schema: systematic_equity
       Minio:
         BucketName: iftbigdata
         RawDataPath: raw-data
       MongoDB:
         Host: localhost
-        Port: 27017
+        Port: 27019
         Database: ift_cw1
         Username: ift_bigdata
         Password: mongo_password
