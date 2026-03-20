@@ -497,8 +497,46 @@ def main():
                     metrics._counts.get("edgar_fundamentals", {}).get("total_rows", 0),
                 )
 
+    # ── Fundamentals retry: re-attempt tickers that returned no data ──
+    # yfinance is non-deterministic for non-US tickers — some runs return
+    # data, others don't. A retry after a 30s cooldown often succeeds.
+    if "fundamentals" in sources and not check_shutdown("fundamentals_retry"):
+        try:
+            from modules.db_ops.extract_from_query import get_postgres_data as _gpd
+            existing_fund = _gpd(
+                "SELECT DISTINCT TRIM(symbol) FROM systematic_equity.fundamentals",
+                username=db_client._engine.url.username or "postgres",
+                password=db_client._engine.url.password or "postgres",
+                host=db_client._engine.url.host or "localhost",
+                port=str(db_client._engine.url.port or 5438),
+                database=db_client._engine.url.database or "fift",
+            )
+            fund_covered = {r[0] for r in existing_fund} if existing_fund else set()
+            active_syms = {t[0] for t in ticker_map if t[0] not in pipeline_state.inactive_tickers()}
+            fund_missing = active_syms - fund_covered
+            if fund_missing and len(fund_missing) <= 200:
+                import time as _time
+                pipeline_logger.info(
+                    f"Fundamentals retry: {len(fund_missing)} tickers missing — "
+                    f"waiting 45s then retrying with slower rate..."
+                )
+                _time.sleep(45)
+                retry_map = [t for t in ticker_map if t[0] in fund_missing]
+                # Use slower API delay for retry to avoid rate limits
+                retry_params = dict(pipeline_params)
+                retry_params["api_delay_seconds"] = 1.0
+                retry_params["fundamentals_workers"] = 2
+                run_fundamentals(
+                    db_client, minio_store, retry_map, retry_params,
+                    run_id, freq, metrics, None,
+                    kafka_producer=kafka_producer, mongo_store=mongo_store,
+                )
+                pipeline_logger.info("Fundamentals retry complete")
+        except Exception as e:
+            pipeline_logger.warning(f"Fundamentals retry failed: {e}")
+
     # ── Fundamentals post-processing: derive missing fields ──
-    # Runs after fundamentals sources complete (yfinance + EDGAR).
+    # Runs after fundamentals sources complete (yfinance + EDGAR + retry).
     # Fills gaps that exist because yfinance doesn't report certain fields historically.
     if not check_shutdown("fundamentals_derive"):
         try:
@@ -647,8 +685,8 @@ def main():
     # 10-20 ratios tickers get 429/crumb errors before recovering.
     if "ratios" in sources and not check_shutdown("ratios_cooldown"):
         import time as _time
-        pipeline_logger.info("Ratios: 30s cooldown to reset yfinance rate limit...")
-        _time.sleep(30)
+        pipeline_logger.info("Ratios: 45s cooldown to reset yfinance rate limit...")
+        _time.sleep(45)
 
     # ── Group C: Company ratios (per-ticker parallelised with ThreadPoolExecutor) ──
     #

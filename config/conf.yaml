@@ -144,23 +144,23 @@ docker:
       - SIMFIN_API_KEY
     Database:
       Postgres:
-        Host: postgres_db
+        Host: localhost
         Database: fift
         Username: postgres
         Password: postgres
-        Port: 5432
+        Port: 5439
         Schema: systematic_equity
       Minio:
         BucketName: iftbigdata
         RawDataPath: raw-data
       MongoDB:
-        Host: mongodb
-        Port: 27017
+        Host: localhost
+        Port: 27019
         Database: ift_cw1
         Username: ift_bigdata
         Password: mongo_password
       Kafka:
-        BootstrapServers: kafka:29092
+        BootstrapServers: localhost:9092
   params:
     Pipeline:
       lookback_years: 6
