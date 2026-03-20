@@ -1015,34 +1015,165 @@ def run_ratios(
             de_records = _compute_debt_equity_from_fundamentals(db_client, db_symbol, _d.today())
             records.extend(de_records)
 
-        # ── Fundamentals-based earnings_growth fallback ──
-        # If earningsGrowth was NOT in Ticker.info, compute from the two
-        # most recent quarterly diluted_eps values in the fundamentals table.
-        has_eg = any(r.get("field_name") == "earnings_growth" for r in records)
-        if not has_eg:
-            try:
-                from sqlalchemy import text as _text
-                eq = _text(
-                    "SELECT field_value FROM systematic_equity.fundamentals "
-                    "WHERE TRIM(symbol) = :sym AND field_name IN ('diluted_eps', 'basic_eps') "
-                    "AND period_type = 'quarterly' AND field_value IS NOT NULL "
-                    "ORDER BY report_date DESC LIMIT 2"
+        # ── Fundamentals-based fallbacks for missing snapshot ratios ──
+        # All computations below use REAL data from the fundamentals and
+        # daily_prices tables. They fill gaps where yfinance Ticker.info
+        # doesn't return certain fields (common for non-US tickers).
+        existing_fields = {r.get("field_name") for r in records}
+        today = _d.today()
+
+        try:
+            from sqlalchemy import text as _text
+
+            # Fetch the most recent quarterly fundamentals for this ticker
+            fq = _text(
+                "SELECT field_name, field_value FROM systematic_equity.fundamentals "
+                "WHERE TRIM(symbol) = :sym AND period_type = 'quarterly' "
+                "AND field_value IS NOT NULL "
+                "AND report_date = (SELECT MAX(report_date) FROM systematic_equity.fundamentals "
+                "WHERE TRIM(symbol) = :sym AND period_type = 'quarterly')"
+            )
+            with db_client.connection.connect() as conn:
+                fund_rows = conn.execute(fq, {"sym": db_symbol}).fetchall()
+
+            latest = {r[0]: float(r[1]) for r in fund_rows} if fund_rows else {}
+
+            # Fetch latest close price
+            pq = _text(
+                "SELECT close_price FROM systematic_equity.daily_prices "
+                "WHERE TRIM(symbol) = :sym AND close_price IS NOT NULL "
+                "ORDER BY cob_date DESC LIMIT 1"
+            )
+            with db_client.connection.connect() as conn:
+                price_row = conn.execute(pq, {"sym": db_symbol}).fetchone()
+            price = float(price_row[0]) if price_row else None
+
+            def _add_if_missing(field_name, value):
+                if field_name not in existing_fields and value is not None:
+                    import numpy as np
+                    fv = float(value)
+                    if not np.isnan(fv) and not np.isinf(fv) and abs(fv) < 1e15:
+                        records.append({
+                            "symbol": db_symbol, "snapshot_date": today,
+                            "field_name": field_name, "field_value": round(fv, 6),
+                        })
+                        existing_fields.add(field_name)
+
+            equity = latest.get("stockholders_equity")
+            net_inc = latest.get("net_income")
+            total_rev = latest.get("total_revenue")
+            total_debt = latest.get("total_debt")
+            ocf = latest.get("operating_cash_flow")
+            total_assets = latest.get("total_assets")
+            total_liab = latest.get("total_liabilities")
+            gross_prof = latest.get("gross_profit")
+            op_inc = latest.get("operating_income")
+            capex = latest.get("capital_expenditure")
+            ebitda = latest.get("ebitda")
+
+            # return_on_equity = net_income / equity
+            if net_inc and equity and abs(equity) > 0.001:
+                _add_if_missing("return_on_equity", net_inc / equity)
+
+            # profit_margin = net_income / revenue
+            if net_inc and total_rev and abs(total_rev) > 0.001:
+                _add_if_missing("profit_margin", net_inc / total_rev)
+
+            # operating_margin = operating_income / revenue
+            if op_inc and total_rev and abs(total_rev) > 0.001:
+                _add_if_missing("operating_margin", op_inc / total_rev)
+
+            # gross_margin = gross_profit / revenue
+            if gross_prof and total_rev and abs(total_rev) > 0.001:
+                _add_if_missing("gross_margin", gross_prof / total_rev)
+
+            # current_ratio = total_assets / total_liabilities (rough proxy)
+            if total_assets and total_liab and abs(total_liab) > 0.001:
+                _add_if_missing("current_ratio", total_assets / total_liab)
+
+            # free_cash_flow = ocf - |capex|
+            if ocf is not None and capex is not None:
+                _add_if_missing("free_cash_flow", ocf - abs(capex))
+
+            # operating_cash_flow
+            if ocf is not None:
+                _add_if_missing("operating_cash_flow", ocf)
+
+            # total_revenue_ttm (latest quarterly × 4 as rough proxy)
+            if total_rev:
+                _add_if_missing("total_revenue_ttm", total_rev * 4)
+
+            # pe_ratio_trailing = price / trailing_eps
+            eps = latest.get("diluted_eps") or latest.get("basic_eps")
+            if price and eps and abs(eps) > 0.001:
+                _add_if_missing("pe_ratio_trailing", price / eps)
+                _add_if_missing("trailing_eps", eps)
+
+            # price_to_book = price / (equity / shares)
+            shares = latest.get("shares_outstanding")
+            if not shares:
+                # Try from company_ratios
+                sq = _text(
+                    "SELECT field_value FROM systematic_equity.company_ratios "
+                    "WHERE TRIM(symbol) = :sym AND field_name = 'shares_outstanding' "
+                    "ORDER BY snapshot_date DESC LIMIT 1"
                 )
                 with db_client.connection.connect() as conn:
-                    eps_rows = conn.execute(eq, {"sym": db_symbol}).fetchall()
-                if len(eps_rows) == 2:
-                    curr_e, prev_e = float(eps_rows[0][0]), float(eps_rows[1][0])
-                    if abs(prev_e) > 0.001:
-                        eg_val = (curr_e - prev_e) / abs(prev_e)
-                        if abs(eg_val) < 100:
-                            records.append({
-                                "symbol": db_symbol,
-                                "snapshot_date": _d.today(),
-                                "field_name": "earnings_growth",
-                                "field_value": round(eg_val, 6),
-                            })
-            except Exception:
-                pass
+                    sr = conn.execute(sq, {"sym": db_symbol}).fetchone()
+                if sr and sr[0]:
+                    shares = float(sr[0])
+
+            if price and equity and shares and shares > 0:
+                bvps = equity / shares
+                if bvps > 0:
+                    _add_if_missing("price_to_book", price / bvps)
+                    _add_if_missing("book_value_per_share", bvps)
+                    _add_if_missing("book_to_price", bvps / price)
+                # market_cap
+                _add_if_missing("market_cap", price * shares)
+                _add_if_missing("shares_outstanding", shares)
+
+            # ev_to_ebitda
+            mcap = price * shares if price and shares and shares > 0 else None
+            if mcap and total_debt is not None and ebitda and abs(ebitda) > 0.001:
+                ev = mcap + total_debt
+                _add_if_missing("ev_to_ebitda", ev / ebitda)
+                _add_if_missing("enterprise_value", ev)
+
+            # earnings_growth from two most recent EPS
+            eq2 = _text(
+                "SELECT field_value FROM systematic_equity.fundamentals "
+                "WHERE TRIM(symbol) = :sym AND field_name IN ('diluted_eps', 'basic_eps') "
+                "AND period_type = 'quarterly' AND field_value IS NOT NULL "
+                "ORDER BY report_date DESC LIMIT 2"
+            )
+            with db_client.connection.connect() as conn:
+                eps_rows = conn.execute(eq2, {"sym": db_symbol}).fetchall()
+            if len(eps_rows) == 2:
+                curr_e, prev_e = float(eps_rows[0][0]), float(eps_rows[1][0])
+                if abs(prev_e) > 0.001:
+                    eg_val = (curr_e - prev_e) / abs(prev_e)
+                    if abs(eg_val) < 100:
+                        _add_if_missing("earnings_growth", eg_val)
+
+            # revenue_growth from two most recent quarterly revenues
+            rq = _text(
+                "SELECT field_value FROM systematic_equity.fundamentals "
+                "WHERE TRIM(symbol) = :sym AND field_name = 'total_revenue' "
+                "AND period_type = 'quarterly' AND field_value IS NOT NULL "
+                "ORDER BY report_date DESC LIMIT 2"
+            )
+            with db_client.connection.connect() as conn:
+                rev_rows = conn.execute(rq, {"sym": db_symbol}).fetchall()
+            if len(rev_rows) == 2:
+                curr_r, prev_r = float(rev_rows[0][0]), float(rev_rows[1][0])
+                if abs(prev_r) > 0.001:
+                    rg_val = (curr_r - prev_r) / abs(prev_r)
+                    if abs(rg_val) < 100:
+                        _add_if_missing("revenue_growth", rg_val)
+
+        except Exception:
+            pass
 
         if records:
             n = db_client.upsert_company_ratios(records)
