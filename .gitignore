@@ -53,3 +53,17 @@ build/
 # Assignment documents (not part of codebase)
 *.pdf
 *.docx
+
+# CW2 additions
+coursework_two/.venv/
+coursework_two/__pycache__/
+coursework_two/**/__pycache__/
+coursework_two/.pytest_cache/
+coursework_two/**/.pytest_cache/
+coursework_two/.coverage
+coursework_two/output/.ff_cache/
+coursework_two/notebooks/.ipynb_checkpoints/
+coursework_two/docs/_build/
+coursework_two/.env
+coursework_two/.env.*
+!coursework_two/.env.example

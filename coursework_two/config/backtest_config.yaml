@@ -1,0 +1,176 @@
+# =============================================================================
+# Team Kolmogorov — CW2 Backtest Configuration
+# Single source of truth for ALL parameters. No magic numbers in code.
+# =============================================================================
+
+database:
+  # Development defaults — mirror CW1 docker-compose postgres_db_cw.
+  # Override in production via env-vars: POSTGRES_{HOST,PORT,USER,PASSWORD,DATABASE,SCHEMA}.
+  # See `engine/config.py::load_config` and `.env.example`.
+  host: localhost
+  port: 5439
+  name: fift
+  user: postgres
+  password: postgres
+  schema: systematic_equity
+
+universe:
+  # Liquidity filter (§5.15): min ADV + bottom-percentile exclusion
+  min_adv_usd: 5_000_000
+  bottom_pct_filter: 0.15
+  # Short-sale feasibility (§7.8)
+  short_min_market_cap_usd: 1_000_000_000
+  short_min_adv_usd: 10_000_000
+  # Universe variants for multi-universe robustness (§7.7)
+  variant: "default"  # default | top500_adv | us_only
+
+dates:
+  in_sample_start: "2022-01-01"
+  in_sample_end:   "2023-06-30"
+  oos_start:       "2023-07-01"
+  oos_end:         "2024-12-31"
+  extended_oos_end: "2026-03-31"
+  rebalance_frequency: "monthly"
+  trading_calendar: "NYSE"
+
+estimation_windows:
+  momentum_lookback_months: 12    # 12-1 momentum formation
+  momentum_skip_months: 1
+  covariance_days: 252
+  var_days: 756
+  vol_target_days: 60
+  vix_regime_days: 252
+  drawdown_lookback_months: 12
+  bayesian_signal_half_life_months: 12
+
+factors:
+  # Composite weights (30/30/25/15 per CW1 §3.4)
+  base_weights:
+    momentum: 0.30
+    value: 0.30
+    quality: 0.25
+    sentiment: 0.15
+  # Winsorisation (per CW1 §3.2)
+  winsor_lower_pct: 0.025
+  winsor_upper_pct: 0.975
+  # Orthogonalisation (§5.14): order of Gram-Schmidt
+  orthogonalise: true
+  orthogonalisation_order: ["momentum", "value", "quality", "sentiment"]
+  min_sector_size: 5            # sectors with <5 stocks → neutral z=0
+
+dynamic_weights:
+  # VIX regime thresholds (§3.5)
+  vix_low_pct: 0.30
+  vix_high_pct: 0.80
+  # Regime tilts λ^(r_f) — matrix [regime × factor]
+  regime_tilts:
+    low:
+      momentum: 0.10
+      value: -0.05
+      quality: -0.05
+      sentiment: 0.00
+    normal:
+      momentum: 0.00
+      value: 0.00
+      quality: 0.00
+      sentiment: 0.00
+    high:
+      momentum: -0.10
+      value: 0.05
+      quality: 0.05
+      sentiment: 0.00
+  # Dispersion sensitivity γ
+  gamma: 0.50
+  # Absolute momentum filter (CW1 §3.2)
+  absolute_momentum_filter: true
+
+portfolio:
+  # CW2 TASK explicitly permits: "selection rules (e.g., top/bottom deciles,
+  # threshold filters) and weighting schemes (equal-weighted, factor-weighted,
+  # risk-parity, etc)".
+  # Team Kolmogorov CW2 design: DECILE selection + SCORE-WEIGHTED (factor-
+  # weighted) allocation — concentrates capital on strongest-conviction names,
+  # maximising IR per Grinold & Kahn (2000) Fundamental Law: IR ∝ IC · √breadth.
+  construction: "score_weighted"   # options: minvar_lw | minvar_denoised_lw | minvar_turnover | hrp | score_weighted
+  max_weight_per_stock: 0.05
+  min_weight_per_stock: 0.0
+  long_quartile: 0.10              # CW2 decile per TASK recommendation (was CW1 0.25 quartile)
+  short_quartile: 0.10
+  turnover_penalty_lambda: 50.0
+  denoise_enabled: true
+
+risk_scaler:
+  # 99% HVaR position sizing (CW1 §3.5)
+  hvar_confidence: 0.99
+  hvar_target_budget: 0.02      # PLAN §5.16 — 2% daily 99%-HVaR target
+  # Conditional vol targeting (§5.16 Moreira-Muir 2017)
+  vol_target_enabled: true
+  vol_target_annual: 0.10       # PLAN §5.16 — 10% target annualised vol
+  vol_target_clip_lower: 0.3
+  vol_target_clip_upper: 1.5
+  # Drawdown control overlay (§5.17 Korn-Korn-Kroisandt 2017)
+  dd_control_enabled: true
+  dd_threshold_soft: -0.03
+  dd_threshold_hard: -0.06
+  dd_scalar_soft: 0.75
+  dd_scalar_hard: 0.50
+  dd_recover_threshold: -0.01
+
+costs:
+  # Per-side proportional costs (spec-mandated 20/30 bp)
+  cost_per_side_bp_headline: 20
+  cost_per_side_bp_sensitivity: 30
+
+bandit:
+  # Linear Thompson Sampling (§5.4)
+  enabled: true
+  n_arms: 12
+  context_dim: 12
+  prior_sigma2: 1.0
+  warmup_months: 6
+  reward_half_life_months: 12
+  random_seed: 42
+
+backtest:
+  initial_nav: 1_000_000
+  random_seed: 42
+  n_workers: -1                 # joblib: -1 uses all cores
+  # Sensitivity grid (§5.5)
+  gamma_grid: [0.00, 0.25, 0.50, 0.75, 1.00]
+  lambda_magnitude_grid: [0.05, 0.10, 0.15]
+  # CPCV (§5.5)
+  cpcv_n_groups: 12
+  cpcv_test_groups: 2
+  cpcv_purge_months: 2
+  cpcv_embargo_months: 1
+  # Monte Carlo paths (§7.5)
+  monte_carlo_n_paths: 10000
+  monte_carlo_block_months: 6
+
+outputs:
+  output_dir: "output"
+  charts_dir: "charts"
+  # Reproducibility
+  track_git_sha: true
+  track_data_hash: true
+
+stress_windows:
+  covid_2020:
+    start: "2020-02-15"
+    end: "2020-06-30"
+  rate_shock_2022:
+    start: "2022-01-01"
+    end: "2022-10-31"
+  q4_2025_reversal:
+    start: "2025-10-01"
+    end: "2025-12-31"
+
+ml_enhancer:
+  enabled: false                # gated: only include if OOS IC > 0.03
+  model: "lightgbm"
+  gate_min_oos_ic: 0.03
+  gate_min_sharpe_improvement: 0.1
+
+logging:
+  level: "INFO"
+  rich_tracebacks: true
