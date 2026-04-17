@@ -149,7 +149,7 @@ Circuit breaker, token-bucket rate limiter, exponential backoff, and graceful de
 From the root of the `ift_coursework_2025` repository, start the required services:
 
 ```bash
-docker compose up --build postgres_db mongo_db miniocw minio_client_cw postgres_seed
+docker compose up -d --build
 ```
 
 > If `docker` is not found, Docker Desktop may not be in your PATH. Fix with:
@@ -158,7 +158,8 @@ docker compose up --build postgres_db mongo_db miniocw minio_client_cw postgres_
 > ```
 > Or on Linux: `sudo apt install docker-compose-plugin`
 
-This starts PostgreSQL (port 5439), MongoDB (port 27019), and MinIO (port 9000),
+This starts PostgreSQL (port 5439), MongoDB (port 27019), MinIO (port 9000),
+Kafka (port 9092), Zookeeper (port 2181), and pgAdmin (port 5051),
 and seeds the `fift` database with the `company_static` table (678 equities).
 
 **2. Install dependencies**
@@ -167,7 +168,18 @@ Navigate to the `team_kolmogorov/coursework_one/` directory:
 
 ```bash
 cd team_kolmogorov/coursework_one
-pip install poetry
+```
+
+Install Poetry if not already installed (pick one):
+
+```bash
+brew install poetry
+```
+> Alternatives: `pipx install poetry` or `pip install --user poetry`
+
+Then install project dependencies:
+
+```bash
 poetry install
 ```
 
@@ -402,14 +414,16 @@ Big-Data-Pipeline/
 
 | Service | Image | Port | Purpose |
 |---------|-------|------|---------|
-| `postgres_db` | postgres | 5439 | Primary relational store (database: `fift`) |
-| `mongo_db` | mongo | 27019 | Document store |
-| `minio` | minio/minio | 9000 / 9001 | Object store (bucket: `csreport`) + console |
+| `postgres_db` | postgres:16-alpine | 5439 | Primary relational store (database: `fift`) |
+| `mongo_db` | mongo:7.0 | 27019 | Document store |
+| `miniocw` | minio/minio | 9000 / 9001 | Object store (bucket: `csreport`) + console |
+| `zookeeper` | cp-zookeeper:7.6.0 | 2181 | Kafka cluster coordination |
+| `kafka` | cp-kafka:7.6.0 | 9092 | Event streaming (6 topics) |
 | `pgadmin` | dpage/pgadmin4 | 5051 | PostgreSQL GUI |
 
 ```bash
-# From ift_coursework_2025 root:
-docker compose up --build postgres_db mongo_db miniocw minio_client_cw postgres_seed
+# Start all services:
+docker compose up -d --build
 
 # Stop all:
 docker compose down
