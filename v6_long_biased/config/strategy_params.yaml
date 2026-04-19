@@ -1,0 +1,66 @@
+# v6.5: Risk-Managed Long-Only Factor Portfolio
+# Score × inverse-vol weighted construction + 3-signal risk overlay
+# Factors: Momentum (12-1) + Value (B/P+E/P+CF/P)
+
+factors:
+  momentum:
+    lookback_months: 12
+    skip_months: 1
+    weight: 0.45
+    pit_lag_days: 45          # momentum uses prices, PIT only affects value
+  value:
+    bp_weight: 0.34
+    ep_weight: 0.33
+    cfp_weight: 0.33
+    weight: 0.35
+    pit_lag_days: 45          # conservative: 45 days
+  sentiment:
+    weight: 0.20
+    lookback_days: 180
+
+portfolio:
+  long_pct: 0.25             # top 25% of composite score
+  short_pct: 0.00             # NO SHORTING
+  long_notional: 1.00         # 100% long
+  short_notional: 0.00        # 0% short
+  max_weight: 0.015             # 1.5% per stock (v6.5 score×inv-vol, more diversified)
+  cov_window: 252
+
+quality_gate:
+  enabled: true
+  long_min_quality_rank: 0.30
+
+risk_overlay:
+  enabled: true
+  # 3-signal regime classification (all pre-specified, no optimization)
+  signals:
+    sp500_above_200dma: true
+    sp500_12m_return_positive: true
+    vix_below_3y_p80: true
+  exposure_map:
+    signals_3: 1.00           # risk-on
+    signals_2: 0.80           # neutral
+    signals_1: 0.60           # defensive
+    signals_0: 0.40           # risk-off
+
+no_trade_band:
+  enabled: true
+  buffer_pct: 0.05
+
+risk:
+  var_confidence: 0.99
+  var_window_days: 756
+  var_burn_in_days: 756
+  target_risk: 0.02
+
+transaction_costs:
+  trading_bps: 10             # large-cap liquid equities
+  borrowing_bps: 0            # no shorting = no borrowing
+
+backtest:
+  start_date: "2022-03-01"
+  end_date: "2026-03-31"
+  rebalance_freq: "2M"
+
+data_dir: "../data"
+output_dir: "./output"
