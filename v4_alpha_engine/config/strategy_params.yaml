@@ -1,0 +1,65 @@
+factors:
+  momentum:
+    weight: 0.45
+    horizons:
+      h12_1: {lookback: 12, skip: 1, weight: 0.35}
+      h6_1:  {lookback: 6,  skip: 1, weight: 0.30}
+      h3_1:  {lookback: 3,  skip: 1, weight: 0.20}
+      residual: {weight: 0.15}  # beta-adjusted momentum
+  value:
+    weight: 0.20
+    pit_lag_days: 30  # 30-day lag: US large-cap 10-Q deadline is 40 days
+    sub_weights:
+      bp: 0.33
+      ep: 0.33
+      cfp: 0.34
+  quality:
+    weight: 0.20
+    role: "asymmetric_gate"
+    long_filter:
+      roe_min: "sector_p40"      # not too strict
+      margin_trend: "not_declining"
+    short_filter:
+      roe_max: "sector_p30"
+      or_leverage_high: "sector_p75"
+      or_margin_declining: true
+  sentiment:
+    weight: 0.15
+    role: "conviction_modifier"
+    lookback_days: 180
+    confidence_min_articles: 3
+    improving_mult: 1.2
+    deteriorating_mult: 0.7
+
+portfolio:
+  construction: "sector_neutral"   # match long/short within each sector
+  long_pct: 0.20                   # top 20% per sector
+  short_pct: 0.20                  # bottom 20% per sector
+  max_weight: 0.05
+  max_sector_imbalance: 0.02       # max |long_notional - short_notional| per sector
+  cov_window: 252
+
+no_trade_band:
+  enabled: true
+  buffer_pct: 0.12   # 12% buffer reduces turnover without degrading signal
+
+risk:
+  var_confidence: 0.99
+  var_window_days: 756
+  var_burn_in_days: 756
+  target_risk: 0.02
+  max_gross_leverage: 2.5
+  beta_check: true
+  beta_max_abs: 0.15              # if |beta| > 0.15, scale down the offending leg
+
+transaction_costs:
+  trading_bps: 10    # 10bps: defensible for large-cap liquid equities (algo execution)
+  borrowing_bps: 30   # 30bps: defensible for easy-to-borrow large-caps
+
+backtest:
+  start_date: "2022-03-01"
+  end_date: "2026-03-31"
+  rebalance_freq: "M"             # MONTHLY with no-trade band
+
+data_dir: "../data"
+output_dir: "./output"
