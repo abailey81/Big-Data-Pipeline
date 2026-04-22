@@ -3,6 +3,39 @@
 All notable changes to the CW2 backtest engine are recorded here.
 Format follows [Keep a Changelog](https://keepachangelog.com/) with semantic versioning.
 
+## [0.3.1] — 2026-04-22 pm — Documentation refresh
+
+All docs updated to match the v0.3.0 code + data state:
+
+- `README.md` — added a v0.3.0 status banner, updated the data-contract
+  table from 9 parquets to 17, added the fixed `monte_carlo_paths` /
+  `regime_performance` / `trade_ledger` / `sensitivity_grid` rows, refreshed
+  the results table from the fresh 2-factor 32-month run, added an Audit
+  Remediation v0.3.0 section pointing back to the matrix / factor-review /
+  changelog, updated the Quick Start block with the two new Main.py modes
+  (`monte_carlo`, `regime_perf`) and the full 2023-07 → 2026-03 date range,
+  updated the test-count line from 59 → 76.
+- `docs/architecture_diagram.md` — extended the "output/" box from 9 to 17
+  parquet artefacts; added `monte_carlo.py` and `regime_performance.py` to
+  the analytics/ subgraph.
+- `reports/cw1_integration.md` — added a §7 v0.3.0 addendum recording the
+  factor-set change from 4-factor to 2-factor with the empirical
+  rationale; refreshed the header with the v0.3.0 config hash and the
+  current CW1 snapshot SHA-256 so the reproducibility trail is up to date.
+- `AUDIT_FINDINGS_MATRIX.md` — added the final-state metric table
+  (4-factor → 2-factor, all numbers), marked every fix step with
+  verification status; recorded the sensitivity-grid fix details (CPCV
+  out-of-bounds on fold alignment + deflated-Sharpe moved from fold to
+  grid-point level) and the long_leg / short_leg population.
+- `FACTOR_REVIEW_2026-04-22.md` — replaced the "will see at standup"
+  placeholder at the end with the final 8-variant ablation table, the
+  actual CPCV result, and the empirical case for dropping quality after
+  construction fix.
+
+No code changes in this release — documentation only.
+
+---
+
 ## [0.3.0] — 2026-04-22 — Audit remediation pass
 
 This release addresses every audit finding from the cross-team review after
