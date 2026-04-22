@@ -36,43 +36,41 @@ logger = logging.getLogger(__name__)
 
 
 # =============================================================================
-# 12 canonical arms (each a factor-weight vector summing to 1)
+# Arm menu — aligned with current 2-factor adopted strategy (2026-04-22)
+# =============================================================================
+# PR: lucian/pit-cost-bandit-audit
+#
+# CHANGE: Arms updated from 4-factor (0.30/0.30/0.25/0.15) to 2-factor
+# (momentum + value only, quality=0, sentiment=0) to match the adopted
+# strategy definition in backtest_config.yaml.
+#
+# Old 4-factor arms are preserved as comments for the ablation grid.
 # =============================================================================
 def build_arms() -> list[dict[str, float]]:
-    """Canonical K=12 arm menu used throughout PLAN §5.4.
+    """K=8 arm menu aligned with 2-factor (momentum + value) strategy.
 
-    Arms encode different prior beliefs — static baseline, per-factor tilts,
-    regime-favoured presets.  Each is a proper normalised weight vector.
+    Arms explore different momentum/value splits within the adopted 2F
+    framework. Quality and sentiment are fixed at 0 (dropped per IC review).
+
+    Old 4-factor arms (K=12) preserved in FACTOR_REVIEW_2026-04-22.md.
     """
     arms: list[dict[str, float]] = []
-    # 0 — Static baseline
-    arms.append({"momentum": 0.30, "value": 0.30, "quality": 0.25, "sentiment": 0.15})
-    # 1–4 — Single-factor tilt (raise factor to 0.45, others scaled)
-    for tilted, rest in [
-        ("momentum", 0.55),
-        ("value", 0.55),
-        ("quality", 0.55),
-        ("sentiment", 0.55),
-    ]:
-        base = {"momentum": 0.30, "value": 0.30, "quality": 0.25, "sentiment": 0.15}
-        scale = (1.0 - 0.45) / (1.0 - base[tilted])
-        arms.append(
-            {k: (0.45 if k == tilted else v * scale) for k, v in base.items()}
-        )
-    # 5 — VIX-low preset (momentum-favoured)
-    arms.append({"momentum": 0.40, "value": 0.25, "quality": 0.20, "sentiment": 0.15})
-    # 6 — VIX-normal (balanced)
-    arms.append({"momentum": 0.30, "value": 0.30, "quality": 0.25, "sentiment": 0.15})
-    # 7 — VIX-high preset (value+quality)
-    arms.append({"momentum": 0.15, "value": 0.35, "quality": 0.35, "sentiment": 0.15})
-    # 8 — Mom+Val pair
-    arms.append({"momentum": 0.40, "value": 0.40, "quality": 0.15, "sentiment": 0.05})
-    # 9 — Qual-heavy defensive
-    arms.append({"momentum": 0.20, "value": 0.25, "quality": 0.40, "sentiment": 0.15})
-    # 10 — Sentiment-de-emphasised
-    arms.append({"momentum": 0.33, "value": 0.33, "quality": 0.29, "sentiment": 0.05})
-    # 11 — Equal weight
-    arms.append({"momentum": 0.25, "value": 0.25, "quality": 0.25, "sentiment": 0.25})
+    # 0 — Adopted baseline (50/50)
+    arms.append({"momentum": 0.50, "value": 0.50, "quality": 0.00, "sentiment": 0.00})
+    # 1 — Momentum-heavy
+    arms.append({"momentum": 0.60, "value": 0.40, "quality": 0.00, "sentiment": 0.00})
+    # 2 — Strong momentum tilt
+    arms.append({"momentum": 0.70, "value": 0.30, "quality": 0.00, "sentiment": 0.00})
+    # 3 — Value-heavy
+    arms.append({"momentum": 0.40, "value": 0.60, "quality": 0.00, "sentiment": 0.00})
+    # 4 — Strong value tilt
+    arms.append({"momentum": 0.30, "value": 0.70, "quality": 0.00, "sentiment": 0.00})
+    # 5 — Momentum dominant
+    arms.append({"momentum": 0.80, "value": 0.20, "quality": 0.00, "sentiment": 0.00})
+    # 6 — Value dominant
+    arms.append({"momentum": 0.20, "value": 0.80, "quality": 0.00, "sentiment": 0.00})
+    # 7 — Moderate tilt
+    arms.append({"momentum": 0.55, "value": 0.45, "quality": 0.00, "sentiment": 0.00})
     return arms
 
 

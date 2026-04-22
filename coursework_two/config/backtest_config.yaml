@@ -43,6 +43,15 @@ estimation_windows:
   drawdown_lookback_months: 12
   bayesian_signal_half_life_months: 12
 
+# Point-in-Time lag (PR: lucian/pit-cost-bandit-audit)
+# Accounts for delay between fiscal period end and public filing.
+# US large accelerated filers: 40-day SEC deadline, most file in 20-35 days.
+# Default 0 preserves current behaviour; set to 30-45 for conservative PIT.
+pit_lag:
+  fundamentals_days: 0            # default: no lag (current behaviour)
+  ratios_days: 0                  # default: no lag
+  # Sensitivity: our v4 research showed PIT=0 Sharpe 0.79 → PIT=45 Sharpe 0.37
+
 factors:
   # Composite weights — FINAL 2026-04-22 (post-construction-fix IC review).
   #

@@ -275,15 +275,20 @@ class DataLoader:
         ).sort_index()
 
     # ------------------------------------------------------------------
-    def load_fundamentals_pit(self, as_of: date, symbols: list[str]) -> pd.DataFrame:
+    def load_fundamentals_pit(self, as_of: date, symbols: list[str],
+                              pit_lag_days: int = 0) -> pd.DataFrame:
         """Fundamentals EAV → pivoted most-recent value per (symbol, field).
 
-        PIT rule 1: ``report_date ≤ rebalance_date`` (not ``period_end``).
-        For each (symbol, field) we take the row with the maximum
-        ``report_date``.  This addresses the CW1 §5.1 look-ahead risk exactly.
+        PIT rule 1: ``report_date ≤ rebalance_date - pit_lag_days``.
+        The lag accounts for the delay between fiscal period end and public
+        filing (SEC 10-Q deadline: 40 days for large accelerated filers).
+        Default lag=0 preserves current behaviour.
+
+        PR: lucian/pit-cost-bandit-audit
         """
         if not symbols:
             return pd.DataFrame()
+        pit_cutoff = as_of - timedelta(days=pit_lag_days)
         q = text(
             f"""
             WITH ranked AS (
@@ -295,7 +300,7 @@ class DataLoader:
                     ) AS rn
                 FROM {self._schema}.fundamentals
                 WHERE symbol = ANY(:symbols)
-                  AND report_date <= :as_of
+                  AND report_date <= :pit_cutoff
                   AND period_type = 'quarterly'
                   AND field_value IS NOT NULL
             )
@@ -304,7 +309,7 @@ class DataLoader:
             WHERE rn = 1
             """
         )
-        df = pd.read_sql(q, self._engine, params={"symbols": symbols, "as_of": as_of})
+        df = pd.read_sql(q, self._engine, params={"symbols": symbols, "pit_cutoff": pit_cutoff})
         if df.empty:
             return pd.DataFrame()
         wide = df.pivot_table(index="symbol", columns="field_name", values="field_value")
@@ -337,10 +342,18 @@ class DataLoader:
         return pd.Series(df["sentiment_score"].values, index=df["symbol"], name="sentiment")
 
     # ------------------------------------------------------------------
-    def load_ratios_pit(self, as_of: date, symbols: list[str]) -> pd.DataFrame:
-        """Historical ratios from ``company_ratios`` (EAV) — most recent per (sym, field)."""
+    def load_ratios_pit(self, as_of: date, symbols: list[str],
+                        pit_lag_days: int = 0) -> pd.DataFrame:
+        """Historical ratios from ``company_ratios`` (EAV) — most recent per (sym, field).
+
+        PIT lag: snapshot_date <= as_of - pit_lag_days.
+        Default lag=0 preserves current behaviour.
+
+        PR: lucian/pit-cost-bandit-audit
+        """
         if not symbols:
             return pd.DataFrame()
+        pit_cutoff = as_of - timedelta(days=pit_lag_days)
         q = text(
             f"""
             WITH ranked AS (
@@ -350,13 +363,13 @@ class DataLoader:
                            ORDER BY snapshot_date DESC
                        ) AS rn
                 FROM {self._schema}.company_ratios
-                WHERE symbol = ANY(:symbols) AND snapshot_date <= :as_of
+                WHERE symbol = ANY(:symbols) AND snapshot_date <= :pit_cutoff
             )
             SELECT symbol, field_name, field_value
             FROM ranked WHERE rn = 1
             """
         )
-        df = pd.read_sql(q, self._engine, params={"symbols": symbols, "as_of": as_of})
+        df = pd.read_sql(q, self._engine, params={"symbols": symbols, "pit_cutoff": pit_cutoff})
         if df.empty:
             return pd.DataFrame()
         return df.pivot_table(index="symbol", columns="field_name", values="field_value")

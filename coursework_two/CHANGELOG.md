@@ -3,6 +3,24 @@
 All notable changes to the CW2 backtest engine are recorded here.
 Format follows [Keep a Changelog](https://keepachangelog.com/) with semantic versioning.
 
+## [0.3.2] — 2026-04-22 — PIT lag + cost fix + bandit alignment (PR: lucian/pit-cost-bandit-audit)
+
+### Added
+- **PIT lag option**: `pit_lag.fundamentals_days` and `pit_lag.ratios_days` in config
+  (default 0, preserving current behaviour). Adds conservative filing-delay proxy for
+  sensitivity analysis. Our v4 research showed PIT=0→45d reduced Sharpe from 0.79→0.37.
+- `_prev_weights_for_cost` cache in BacktestEngine for correct turnover baseline.
+
+### Fixed
+- **Cost calculation consistency**: `_recent_turnover()` was comparing new weights to
+  empty Series (overestimating turnover). Now uses cached previous weights, consistent
+  with main-loop cost calculation at line ~415.
+
+### Changed
+- **Bandit arms**: Updated from 12 arms spanning 4-factor space to 8 arms spanning
+  2-factor (momentum+value) space, matching the adopted strategy definition (0.50/0.50).
+  Old arms preserved in documentation for ablation reference.
+
 ## [0.3.1] — 2026-04-22 pm — Documentation refresh
 
 All docs updated to match the v0.3.0 code + data state:
