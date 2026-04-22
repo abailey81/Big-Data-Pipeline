@@ -137,8 +137,13 @@ def run_sensitivity_cpcv(
     lambda_grid = bc.lambda_magnitude_grid
 
     rebalance_dates = monthly_rebalance_dates(start, end)
+    # The portfolio_returns series has one *fewer* row than the rebalance
+    # calendar — the last rebalance has no forward return.  Build CPCV splits
+    # on the return-period index (len - 1) rather than the rebalance index so
+    # ``test_idx`` never runs past the end of ``r_series``.
+    n_return_periods = max(0, len(rebalance_dates) - 1)
     cpcv_splits = _build_cpcv_splits(
-        rebalance_dates,
+        rebalance_dates[:n_return_periods],
         bc.cpcv_n_groups,
         bc.cpcv_test_groups,
         purge_months=bc.cpcv_purge_months,
@@ -165,17 +170,29 @@ def run_sensitivity_cpcv(
                     cfg_local.dynamic_weights.regime_tilts[reg_name][f] = sign * lam
         returns = _run_single_backtest(cfg_local, gamma, lam, start, end)
         r_series = returns.set_index("date")["dynamic_net_20bp"].fillna(0)
+        # Deflated Sharpe is a grid-point property (requires the full return
+        # distribution's skew/kurtosis), not a fold-level property — with
+        # n ≈ 4 per fold, the Bailey-López de Prado formula produces NaN.
+        # Compute it once per (γ, λ) from the full sample and repeat it on
+        # every fold row so the parquet still has a populated column.
+        full_deflated = deflated_sharpe_ratio(
+            sharpe_ratio(r_series, 0.0), n_trials, r_series
+        )["deflated_sharpe"]
         out = []
         for fold_idx, (_, test_idx) in enumerate(cpcv_splits):
-            test_returns = r_series.iloc[test_idx]
+            # Clip any test indices that fall outside the available return
+            # series (defensive — should already hold after the alignment
+            # fix above).  Empty test sets emit a NaN Sharpe row so the
+            # parquet still has the (gamma, lambda, fold) cardinality.
+            safe_idx = [j for j in test_idx if 0 <= j < len(r_series)]
+            test_returns = r_series.iloc[safe_idx] if safe_idx else pd.Series(dtype=float)
             sharpe = sharpe_ratio(test_returns, 0.0)
-            deflated = deflated_sharpe_ratio(sharpe, n_trials, test_returns)
             out.append({
                 "gamma": gamma,
                 "lambda_magnitude": lam,
                 "cv_fold": fold_idx,
                 "sharpe_net": sharpe,
-                "sharpe_deflated": deflated["deflated_sharpe"],
+                "sharpe_deflated": full_deflated,
                 "max_dd": max_drawdown(test_returns),
                 "info_ratio": 0.0,
                 "turnover": 0.0,

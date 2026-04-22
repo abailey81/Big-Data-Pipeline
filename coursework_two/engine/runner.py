@@ -51,9 +51,10 @@ def _parse_args() -> argparse.Namespace:
     p.add_argument("--config", default="config/backtest_config.yaml", help="Path to YAML config")
     p.add_argument(
         "--mode",
-        choices=["full", "sensitivity", "ablation", "stress"],
+        choices=["full", "sensitivity", "ablation", "stress", "monte_carlo", "regime_perf"],
         default="full",
-        help="Run mode (default: full)",
+        help="Run mode (default: full). monte_carlo + regime_perf are post-backtest "
+             "analytics that operate on the existing output/*.parquet files.",
     )
     p.add_argument("--start", default=None, help="Override start date (YYYY-MM-DD)")
     p.add_argument("--end", default=None, help="Override end date (YYYY-MM-DD)")
@@ -129,6 +130,14 @@ def main():
         from analytics.stress import run_stress
 
         run_stress(cfg, args.output_dir)
+    elif args.mode == "monte_carlo":
+        from analytics.monte_carlo import run_monte_carlo
+
+        run_monte_carlo(args.output_dir)
+    elif args.mode == "regime_perf":
+        from analytics.regime_performance import run_regime_performance
+
+        run_regime_performance(args.output_dir)
     else:
         raise ValueError(f"Unknown mode: {args.mode}")
 

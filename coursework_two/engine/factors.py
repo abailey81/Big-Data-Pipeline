@@ -136,16 +136,52 @@ class FactorEngine:
 
     # ------------------------------------------------------------------
     def compute_quality(self, ctx: PITContext) -> pd.Series:
-        """ROE + earnings stability + inverse-D/E composite.
+        """QMJ-style quality composite — revised 2026-04-22 per IC diagnostic.
 
-        Uses CW1 ``company_ratios`` pre-computed ``earnings_stability`` from
-        trailing-12Q EPS dispersion (see CW1 §3.2 of the report, Eq. 6).
+        Previous implementation fell through to two broken fallbacks (1/rank(|EPS|)
+        for stability; ``eq / (|debt| + 0.01|eq|)`` for inverse D/E) because the
+        corresponding CW1 ratios (`earnings_stability`, `debt_to_equity_inv`)
+        were single-snapshot (2026-03-20) and dropped out of PIT for every
+        pre-2026-03-20 rebalance.  Quality IC was mean = -0.0005, t = -0.04,
+        p = 0.96 — economically zero.
+
+        This version prefers the 400+-snapshot ``_hist`` variants that the
+        CW1 schema actually carries:
+
+        * **ROE** — ``roe_hist`` (433 snapshots over 2020-2026).  The previous
+          first-priority ``roe_computed`` only has a single 2026-03-20 snapshot
+          and never contributed PIT values.
+        * **Inverse D/E** — ``debt_to_equity_hist`` (433 snapshots) inverted as
+          ``1 / (|D/E| + 0.1)`` so zero-debt firms score high without blowing
+          up numerically.  The 0.1 offset is the approximate 1st-quartile D/E
+          in US large-caps.
+        * **Earnings stability** — ``profit_margin_hist`` (431 snapshots) as a
+          PIT-safe proxy for QMJ-style earnings stability.  Proper TTM-12Q
+          EPS-growth volatility would require multi-snapshot retrieval; margin
+          is the cleanest single-column stability correlate and is the
+          published QMJ "profitability" sub-factor (Asness-Frazzini-Pedersen
+          2019 §III.A).  Documented limitation in Report §7.
+
+        References: Asness, Frazzini & Pedersen (2019) "Quality Minus Junk";
+        Novy-Marx (2013) "The Other Side of Value".
         """
-        roe = self._pick_ratio(ctx, ["roe_computed", "roe_hist", "return_on_equity"])
-        eps_stab = self._pick_ratio(ctx, ["earnings_stability"])
-        inv_de = self._pick_ratio(ctx, ["debt_to_equity_inv"])
+        # ROE — prefer the 433-snapshot time series
+        roe = self._pick_ratio(ctx, ["roe_hist", "roe_computed", "return_on_equity"])
 
-        # Fallback — derive ROE from fundamentals if absent
+        # Inverse D/E from the 433-snapshot time series
+        de_hist = self._pick_ratio(ctx, ["debt_to_equity_hist"])
+        if not de_hist.isna().all():
+            inv_de = 1.0 / (de_hist.abs() + 0.1)
+        else:
+            inv_de = self._pick_ratio(ctx, ["debt_to_equity_inv"])
+
+        # Earnings-stability proxy — profit_margin_hist preferred over the
+        # 1-snapshot `earnings_stability` column.
+        stab = self._pick_ratio(
+            ctx, ["profit_margin_hist", "operating_margin_hist", "earnings_stability"]
+        )
+
+        # Fallback — derive ROE from fundamentals if every ratio column missing
         if roe.isna().all():
             fund = ctx.fundamentals
             ni = fund.get("net_income", pd.Series(np.nan, index=fund.index))
@@ -155,14 +191,14 @@ class FactorEngine:
             fund = ctx.fundamentals
             eq = fund.get("stockholders_equity", pd.Series(np.nan, index=fund.index))
             debt = fund.get("total_debt", pd.Series(np.nan, index=fund.index))
-            inv_de = eq / (debt.abs() + eq.abs() * 0.01)
-        if eps_stab.isna().all():
-            # Approx: inverse of |EPS| rank dispersion within universe
+            inv_de = 1.0 / ((debt.abs() / eq.abs().replace(0, np.nan)).clip(lower=0) + 0.1)
+        if stab.isna().all():
             fund = ctx.fundamentals
-            eps = fund.get("diluted_eps", pd.Series(np.nan, index=fund.index))
-            eps_stab = 1.0 / (eps.abs().rank(pct=True).clip(lower=0.05))
+            rev = fund.get("total_revenue", pd.Series(np.nan, index=fund.index))
+            ni = fund.get("net_income", pd.Series(np.nan, index=fund.index))
+            stab = ni / rev.replace(0, np.nan)
 
-        out = pd.concat([roe, eps_stab, inv_de], axis=1).mean(axis=1, skipna=True)
+        out = pd.concat([roe, stab, inv_de], axis=1).mean(axis=1, skipna=True)
         return out.rename("quality")
 
     # ------------------------------------------------------------------

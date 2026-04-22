@@ -157,6 +157,18 @@ class BacktestEngine:
     _nav: dict[Strategy, float] = field(default_factory=dict)
     _ic_rolling: list[dict[str, float]] = field(default_factory=list)   # 3mo IC window
     _prev_factor_z: Optional[pd.DataFrame] = None  # for Fama-MacBeth
+    _data_snapshot_sha256: str = ""   # cached once at run() start for ledger rows
+    # HRP side-run state (PLAN §5.3 robustness comparison — shares the
+    # DYNAMIC_GRID factor weights but constructs the per-leg book via HRP
+    # instead of score-weighting, so the report can show HRP vs the primary
+    # book head-to-head.  Stored in portfolio_returns.hrp_net_20bp.)
+    _hrp_prev_w: Optional[pd.Series] = None
+    _hrp_monthly_returns: dict = field(default_factory=dict)
+    # Long/short leg realised monthly returns (PLAN §6 data contract —
+    # populated under DYNAMIC_GRID and merged into portfolio_returns.parquet
+    # alongside hrp_net_20bp).
+    _long_leg_returns: dict = field(default_factory=dict)
+    _short_leg_returns: dict = field(default_factory=dict)
 
     # ------------------------------------------------------------------
     def _initial_nav(self) -> float:
@@ -238,6 +250,13 @@ class BacktestEngine:
         rebalance_dates = monthly_rebalance_dates(start, end, self.cfg.dates.trading_calendar)
         logger.info("Running backtest: %d rebalance dates %s → %s",
                     len(rebalance_dates), rebalance_dates[0], rebalance_dates[-1])
+        # Cache the snapshot hash once so every TradeLedgerRow carries the same
+        # reproducibility fingerprint without re-hashing on every trade.
+        try:
+            self._data_snapshot_sha256 = self.data_loader.data_snapshot_sha256()
+        except Exception as exc:
+            logger.warning("Could not fetch data_snapshot_sha256: %s", exc)
+            self._data_snapshot_sha256 = "unknown"
 
         # Per-strategy state
         static_engine = StaticWeights(self.cfg)
@@ -371,12 +390,44 @@ class BacktestEngine:
                 if i + 1 < len(rebalance_dates):
                     next_rb = rebalance_dates[i + 1]
                     r_gross = self._simulate_monthly_return(w_scaled, rb_date, next_rb)
+                    # PLAN §6 data contract + §8.4 L/S decomposition — the
+                    # canonical DYNAMIC_GRID book reports its long-leg and
+                    # short-leg realised monthly returns separately, so the
+                    # report's Figure 12 (L/S decomposition) can be driven
+                    # from portfolio_returns rather than the exposure_log
+                    # proxy alone.  Other strategies share the column via
+                    # the assemble step but only DYNAMIC_GRID persists here.
+                    if strategy == Strategy.DYNAMIC_GRID:
+                        w_long_only = w_scaled[w_scaled > 0]
+                        w_short_only = w_scaled[w_scaled < 0]
+                        self._long_leg_returns[rb_date] = (
+                            self._simulate_monthly_return(w_long_only, rb_date, next_rb)
+                            if len(w_long_only) else 0.0
+                        )
+                        self._short_leg_returns[rb_date] = (
+                            self._simulate_monthly_return(w_short_only, rb_date, next_rb)
+                            if len(w_short_only) else 0.0
+                        )
                 else:
                     r_gross = 0.0
 
                 # Compute costs
                 turnover = self.cost_model.one_way_turnover(w_scaled, prev_w)
                 drag_20 = self.cost_model.headline_drag(turnover)
+                # Per-trade audit log (PLAN §7.9) — every symbol with a
+                # non-trivial weight change is an immutable record.  Gated by
+                # |Δw| > 1e-6 to suppress floating-point noise, and by strategy
+                # DYNAMIC_GRID as the canonical book so the ledger doesn't
+                # triple-count the variants (the variants share the same
+                # signal; writing one record per trade keeps the ledger
+                # auditable and PLAN-compliant).
+                if strategy == Strategy.DYNAMIC_GRID:
+                    self._emit_trade_ledger(
+                        rb_date=rb_date,
+                        new_w=w_scaled,
+                        old_w=prev_w,
+                        strategy=strategy,
+                    )
                 drag_30 = self.cost_model.sensitivity_drag(turnover)
                 r_net_20 = r_gross - drag_20
                 r_net_30 = r_gross - drag_30
@@ -404,15 +455,48 @@ class BacktestEngine:
                         "strategy": strategy.value,
                     })
 
+                # HRP side-run (PLAN §5.3) — same factor weights & symbols,
+                # HRP portfolio construction.  Written only once per
+                # rebalance under DYNAMIC_GRID as the canonical book.
+                if strategy == Strategy.DYNAMIC_GRID:
+                    try:
+                        hrp_w_long = self.portfolio_engine.optimise_leg(
+                            trailing_ret, longs, self._hrp_prev_w,
+                            construction_override="hrp",
+                        )
+                        hrp_w_short = self.portfolio_engine.optimise_leg(
+                            trailing_ret, shorts, self._hrp_prev_w,
+                            construction_override="hrp",
+                        )
+                        hrp_combined = pd.concat(
+                            [hrp_w_long * 0.5, -hrp_w_short * 0.5]
+                        )
+                        hrp_combined = hrp_combined.groupby(hrp_combined.index).sum()
+                        if i + 1 < len(rebalance_dates):
+                            next_rb_h = rebalance_dates[i + 1]
+                            r_hrp = self._simulate_monthly_return(
+                                hrp_combined, rb_date, next_rb_h
+                            )
+                            to_hrp = self.cost_model.one_way_turnover(
+                                hrp_combined, self._hrp_prev_w
+                            )
+                            self._hrp_monthly_returns[rb_date] = (
+                                r_hrp - self.cost_model.headline_drag(to_hrp)
+                            )
+                        self._hrp_prev_w = hrp_combined
+                    except Exception as exc:
+                        logger.warning("HRP side-run failed at %s: %s", rb_date, exc)
+
                 # Exposure log (only once — use dynamic_grid as canonical)
                 if strategy == Strategy.DYNAMIC_GRID:
                     long_alpha = self._leg_alpha(w_scaled[w_scaled > 0], ctx, rb_date)
                     short_alpha = self._leg_alpha(-w_scaled[w_scaled < 0], ctx, rb_date)
+                    port_beta = self._compute_portfolio_beta(daily_port_ret, rb_date)
                     self._exposure_rows.append({
                         "date": rb_date,
                         "gross_exposure": float(w_scaled.abs().sum()),
                         "net_exposure": float(w_scaled.sum()),
-                        "portfolio_beta": 0.0,   # approx — market-neutral construction
+                        "portfolio_beta": port_beta,   # empirical β vs ^GSPC over trailing 252 days
                         "var_99": risk_diag["var_99"],
                         "es_99": risk_diag["es_99"],
                         "position_scale": risk_diag["position_scale"],
@@ -523,6 +607,102 @@ class BacktestEngine:
         return aligned @ weights
 
     # ------------------------------------------------------------------
+    def _emit_trade_ledger(
+        self,
+        rb_date: date,
+        new_w: pd.Series,
+        old_w: pd.Series,
+        strategy: Strategy,
+    ) -> None:
+        """Emit one ``TradeLedgerRow`` per non-trivial weight change (PLAN §7.9).
+
+        Called once per (rebalance_date × strategy) with the *pre-* and *post-*
+        rebalance weight books for that strategy.  ``rebalance_id`` is a UUID4
+        so every rebalance is uniquely identifiable in post-hoc audit.
+        """
+        if new_w is None or len(new_w) == 0:
+            return
+        old = old_w if old_w is not None else pd.Series(dtype=float)
+        all_syms = new_w.index.union(old.index)
+        new_aligned = new_w.reindex(all_syms, fill_value=0.0)
+        old_aligned = old.reindex(all_syms, fill_value=0.0)
+        delta = new_aligned - old_aligned
+        traded = delta.abs() > 1e-6
+        if not traded.any():
+            return
+        rebalance_id = uuid.uuid4().hex
+        nav = float(self._nav.get(strategy, self._initial_nav()))
+        cost_bp = self.cfg.costs.cost_per_side_bp_headline
+        for sym in all_syms[traded]:
+            nw = float(new_aligned.loc[sym])
+            ow = float(old_aligned.loc[sym])
+            dw = nw - ow
+            if abs(ow) < 1e-8 and abs(nw) >= 1e-8:
+                action = "open"
+            elif abs(nw) < 1e-8 and abs(ow) >= 1e-8:
+                action = "close"
+            else:
+                action = "adjust"
+            side = "long" if (nw if abs(nw) >= 1e-8 else ow) > 0 else "short"
+            notional = abs(dw) * nav
+            # Simple sqrt-law market-impact stub (Almgren-Chriss 2001).  Full
+            # Kyle-λ / Amihud estimate lives in engine/attribution.py §5.11 and
+            # is written to a separate capacity report; here we record a
+            # reasonable per-trade predicted impact.
+            predicted_impact_bp = float(5.0 * np.sqrt(abs(dw)))
+            self._ledger_rows.append({
+                "date": rb_date,
+                "symbol": sym,
+                "side": side,
+                "action": action,
+                "old_weight": ow,
+                "new_weight": nw,
+                "notional_usd": notional,
+                "predicted_impact_bp": predicted_impact_bp,
+                "proportional_cost_bp": float(cost_bp),
+                "leg_id": f"{strategy.value}_{side}",
+                "rebalance_id": rebalance_id,
+                "seed": self.cfg.backtest.random_seed,
+                "data_snapshot_sha256": self._data_snapshot_sha256 or "unknown",
+            })
+
+    # ------------------------------------------------------------------
+    def _compute_portfolio_beta(
+        self, daily_port_ret: pd.Series, rb_date: date, lookback: int = 252
+    ) -> float:
+        """Empirical portfolio β vs ^GSPC over trailing ``lookback`` days.
+
+        Replaces the previous ``portfolio_beta = 0.0`` stub flagged by the
+        CW2 audit (B3 / §3).  Computed via paired-period OLS:
+
+            β = Cov(r_port, r_SPX) / Var(r_SPX)
+
+        Per PLAN §8.4, the design target is ``|β| ≤ 0.1`` — writing an
+        empirical estimate here is what lets the report reference the target
+        versus a realised number rather than a hard-coded claim.
+        """
+        r = daily_port_ret.dropna()
+        if len(r) < 20:
+            return 0.0
+        try:
+            spx = self.data_loader.load_benchmark(rb_date, lookback, "^GSPC")
+        except Exception as exc:
+            logger.warning("SPX load for beta at %s failed: %s", rb_date, exc)
+            return 0.0
+        if len(spx) < 20:
+            return 0.0
+        spx_ret = spx.pct_change().dropna()
+        # Align on intersection of dates
+        df = pd.concat([r.rename("port"), spx_ret.rename("spx")], axis=1).dropna()
+        if len(df) < 20:
+            return 0.0
+        cov = float(df["port"].cov(df["spx"]))
+        var = float(df["spx"].var())
+        if var <= 1e-12:
+            return 0.0
+        return cov / var
+
+    # ------------------------------------------------------------------
     def _simulate_monthly_return(
         self, weights: pd.Series, rb_date: date, next_rb_date: date
     ) -> float:
@@ -620,7 +800,8 @@ class BacktestEngine:
         row.setdefault("dynamic_net_30bp", 0.0)
         row.setdefault("static_net_20bp", 0.0)
         row.setdefault("static_net_30bp", 0.0)
-        row.setdefault("hrp_net_20bp", None)
+        # HRP robustness-comparison book (PLAN §5.3)
+        row["hrp_net_20bp"] = self._hrp_monthly_returns.get(rb_date, None)
         row.setdefault("bandit_net_20bp", None)
         # Benchmarks (PLAN §7.13 + user-requested advanced multi-benchmark)
         if ew_bench is not None and self._ew_bench_weights_prev is not None:
@@ -640,8 +821,9 @@ class BacktestEngine:
             row["benchmark_cash_market_50_50"] = blend_bench.period_return(rb_date, next_rb_date)
         else:
             row["benchmark_cash_market_50_50"] = 0.0
-        row["long_leg"] = 0.0
-        row["short_leg"] = 0.0
+        # L/S leg realised monthly returns (PLAN §6 contract + §8.4)
+        row["long_leg"] = self._long_leg_returns.get(rb_date, 0.0)
+        row["short_leg"] = self._short_leg_returns.get(rb_date, 0.0)
         row["rf_rate"] = ctx.rf_rate / 12.0      # monthly
         return row
 

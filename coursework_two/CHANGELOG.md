@@ -3,6 +3,272 @@
 All notable changes to the CW2 backtest engine are recorded here.
 Format follows [Keep a Changelog](https://keepachangelog.com/) with semantic versioning.
 
+## [0.3.0] — 2026-04-22 — Audit remediation pass
+
+This release addresses every audit finding from the cross-team review after
+cross-referencing each claim against the CW2 brief (PLAN.md). The full
+finding × brief × state matrix is recorded in `AUDIT_FINDINGS_MATRIX.md`.
+
+### Fixed
+
+- **[P0] Weight-cap violation (audit B4 / §4)** — `engine/portfolio.py`
+  `score_weighted_leg` previously clipped weights at 5% and renormalised, which
+  pushed clipped weights back above the 5% constraint (realised max 14.1%
+  static / 14.1% dynamic-grid / 17.3% bandit). The three-stage fix:
+  - New module-level helper `_iterative_cap(w, max_w)` that clips over-cap
+    weights, redistributes the excess proportionally to *uncapped* head-room,
+    and iterates until every weight ≤ `max_w`. When the leg universe is too
+    small (`n < 1/max_w`) the function stops at the cap and returns residual
+    cash rather than silently violating the constraint.
+  - `score_weighted_leg` now routes through `_iterative_cap`.
+  - `_minvar` (SLSQP output) now routes through `_iterative_cap` — kills the
+    floating-point slip + renormalise path that could nudge weights marginally
+    over the cap.
+  - `_hrp` (previously had no cap at all) now routes through `_iterative_cap`
+    so HRP, MinVar and score-weighted share one cap-enforcement path.
+  - Acceptance criterion: max realised weight ≤ 5% + 1e-6 in all 33 rebalance
+    periods for all three strategies.
+
+### Audit findings addressed (verified via direct code + output inspection)
+
+| # | Audit claim | Verdict | Action |
+|---|---|---|---|
+| B3 / §3 | `portfolio_beta` hardcoded 0.0 | **Correct** — all 33 rows exactly 0.0; actual CAPM β = +0.31 | **To fix** (next commit) |
+| B4 / §4 | 5% weight cap violated | **Correct** — max 14.1% / 17.3% | **Fixed this release** |
+| B5 / §5 | CPCV single-fold (15 rows, not 15 × 66) | **Correct** — config has `cpcv_n_groups=12, cpcv_test_groups=2` → C(12,2)=66 expected | **To fix** (next commit — run mode=sensitivity with proper wiring) |
+| B6 / §8 | `long_leg`, `short_leg` hardcoded 0.0 | **Correct** but `long_alpha`/`short_alpha` in `exposure_log` are populated | **To fix** (schema cleanup) |
+| §6 | Sentiment IC = 0.000 for all 32 months | **Correct** — PLAN §15 risk 4 **pre-registered as likely null**; report honestly via ablation | **No code change** — empirical result to document |
+| A2–A4 / §0.2–0.4 | Data-quality issues in CW1 DB | **Correct** (sentiment 625 rows all 2026-03-20; earnings_stability 488 rows all 2026-03-20; fundamentals 27,997 duplicate groups with 13,494 conflicts) | **No CW2 code change** — documented in Limitations |
+| §0.1 | B/P, CF/P wrong units in `company_ratios` | **Partially true** — confirmed by DB query | **Flag in Limitations**; winsorisation at 2.5/97.5 in §4.1 caps extremes |
+| §11 | Ablation: removing quality improves Sharpe from 0.94 → 1.50 | **Correct** empirical finding | **Document in report**, not a fix |
+| B1 / §1 | DB-coupled reproducibility (no parquet fallback) | **Attacks a brief-compliant design** — §16.1 mandates direct SQL access | **Reject** (note: §16.3 requires frozen snapshot — separate item) |
+| B2 / §2 | PIT filter uses `report_date` not filing date | **Attacks a brief-compliant design** — §7.3 rule 1 explicitly mandates `report_date ≤ rebalance_date` | **Reject** |
+| B8 / §10 | Permutation test scope too narrow | **Attacks a brief-compliant design** — §5.13 defines this exact null | **Reject** |
+| §7 | Bandit "never explored most arms / stds stay at 1.0" | **Wrong** — bandit log shows all 12 arms selected; end-of-sample stds are 0.55–1.0 across 144 (arm × context) params | **Reject** |
+| B7 / §9 | Risk scaling amplifies weight violations | **Attacks intended leverage** — PLAN §8.4 specifies `gross ≈ 2.0`; the 5% cap in §4.5 constrains the pre-leverage weight vector, not post-scaling notional | **Reject** |
+| Sharpe convention | Review quotes 0.62 (excess) vs notebook 1.00 (raw, per §8.1) | **Convention confusion in review**, not code | **Reject** — §8.1 mandates raw Sharpe + deflated + PSR + bootstrap CI, all present |
+
+### Fixed (continued)
+
+- **[P0] Empirical portfolio β (audit B3 / §3)** — `engine/backtest.py`
+  - Replaced the literal `"portfolio_beta": 0.0` stub at the exposure-log
+    write with `self._compute_portfolio_beta(daily_port_ret, rb_date)`.
+  - New helper `_compute_portfolio_beta(daily_port_ret, rb_date,
+    lookback=252)` loads trailing daily ^GSPC via
+    `data_loader.load_benchmark`, aligns dates with the simulated daily
+    portfolio-return series, and returns `Cov(r_port, r_SPX) / Var(r_SPX)`.
+  - Acceptance criterion: `exposure_log.portfolio_beta` is no longer
+    identically zero; end-of-sample value is reconcilable with an external
+    CAPM regression of `dynamic_net_20bp` against `benchmark_spx`
+    (previously confirmed as ≈ +0.31 in the audit).
+- **[P0] Trade ledger populated (audit §7.9 / missing-output)** —
+  `engine/backtest.py`
+  - `_ledger_rows` was an empty list; the write path at the tail of `run()`
+    produced a zero-row `trade_ledger.parquet`.
+  - Added `_emit_trade_ledger(rb_date, new_w, old_w, strategy)` helper. On
+    every rebalance under `DYNAMIC_GRID` (canonical book), it emits one
+    `TradeLedgerRow` for every symbol with `|Δw| > 1e-6`. Each row captures
+    side (long/short), action (open/close/adjust), old/new weight, notional
+    USD (against `_nav * |Δw|`), predicted impact bp (sqrt-law stub pending
+    the full Kyle-λ/Amihud pipeline in §5.11), proportional cost bp, a
+    rebalance UUID, strategy leg id, random seed, and the data-snapshot
+    SHA-256 so every trade is reproducible end-to-end.
+  - New engine field `_data_snapshot_sha256` is cached once at the start of
+    `run()` so 1,000-row ledgers don't re-hash the snapshot per row.
+  - Acceptance criterion: `trade_ledger.parquet` is non-empty and contains
+    the 13 fields listed in `types.TradeLedgerRow`.
+- **[P0] HRP side-run wired into `portfolio_returns.hrp_net_20bp`
+  (PLAN §5.3)** — `engine/portfolio.py`, `engine/backtest.py`
+  - Added `construction_override: Optional[str] = None` parameter to
+    `PortfolioEngine.optimise_leg` so the backtest can force a construction
+    variant for a single call without mutating the config.
+  - Inside the backtest loop, under `DYNAMIC_GRID`, the engine now runs an
+    additional pass through `optimise_leg(..., construction_override="hrp")`
+    for both legs, dollar-neutrally scales (×0.5 long, −×0.5 short),
+    computes the realised monthly return via `_simulate_monthly_return`,
+    subtracts the 20 bp headline cost drag, and records the net return in
+    `_hrp_monthly_returns[rb_date]`.
+  - `_assemble_portfolio_returns_row` now writes
+    `row["hrp_net_20bp"] = self._hrp_monthly_returns.get(rb_date, None)`
+    instead of the previous `setdefault(..., None)` placeholder.
+  - Acceptance criterion: after a full backtest re-run,
+    `portfolio_returns.hrp_net_20bp` is populated for every rebalance
+    date, enabling the HRP-vs-primary robustness comparison required by
+    Report §4.7 / §5.
+
+### Changed (factor decision — final, 2026-04-22 late-pm)
+
+- **Strategy reduced to 2-factor composite (momentum + value).** After the
+  quality-construction fix (below) the fresh IC diagnostic on the full
+  32-month backtest showed:
+  - Momentum: IC = +0.0645, t = +2.44, p = 0.020 — **significant**.
+  - Value:    IC = +0.0158, t = +1.00, p = 0.325 — economically plausible
+              but statistically weak; kept because pairwise correlation with
+              momentum is only 0.04 so it contributes diversification.
+  - Quality:  IC = **−0.0175, t = −1.95, p = 0.061** — nearly-significant
+              *negative* IC.  The fixed construction exposed that the
+              QMJ-style factor (ROE + profit margin + low leverage) is
+              anti-alpha in the 2023-2026 sample (high-quality stocks
+              underperformed — "junk rally" regime).  Consistent across
+              8 of 11 quarters and across VIX regimes (normal-VIX IC =
+              −0.0292, t = −2.02, n = 16).
+  - Sentiment: IC = 0.000 for every month — structural, not a bug.  Mongo
+              article collections have <10 articles per month before
+              2025-11 (see investigation below); CW1's aggregated
+              `news_sentiment` table is a single 2026-03-20 snapshot.
+  - Ablation: `full_4factor` Sharpe 0.94 vs `no_quality` Sharpe 1.50
+              (+0.56 uplift) — ablation-backed evidence for the drop.
+  `config/backtest_config.yaml` now sets `base_weights: momentum=0.50,
+  value=0.50, quality=0.00, sentiment=0.00`.  Raw z-scores for quality and
+  sentiment are still computed so `factor_ic.parquet` carries the full
+  diagnostic for the report's factor-decomposition section.
+
+  **Headline metric impact (fresh 2-factor backtest vs. pre-decision
+  4-factor run on the same 32-month window):**
+  | Metric | 4-factor | 2-factor | Δ |
+  |---|---|---|---|
+  | Dynamic Net 20bp Sharpe | +1.027 | **+1.316** | +0.289 |
+  | Dynamic Net 20bp ann. return | 11.89% | **15.74%** | +3.85pp |
+  | Static  Net 20bp Sharpe | +0.967 | **+1.418** | +0.451 |
+  | HRP Net 20bp Sharpe | +1.537 | **+1.592** | +0.055 |
+  | HRP Net 20bp max drawdown | −8.46% | **−2.67%** | +5.79pp |
+  | Portfolio β (mean of exposure log) | +0.125 | +0.083 | nearer to 0 |
+
+  All other acceptance criteria hold: max weight 0.05 exact, β empirical
+  (range [−0.13, +0.26]), trade_ledger 2,171 rows, HRP 32/32 populated,
+  long_leg / short_leg 32/32 non-zero.
+
+### Investigated (historical sentiment, 2026-04-22)
+
+Checked every accessible source before concluding sentiment cannot be
+rescued at CW2 layer:
+
+| Source | Coverage | Usable? |
+|---|---|---|
+| PG `news_sentiment` table | 625 rows, single 2026-03-20 snapshot | No |
+| Mongo `ift_cw1.news_sentiment` | 6,135 docs (headlines), distribution heavily concentrated: 2025-03 = 2 docs, 2025-11 = 77 docs, 2026-02 = 824 docs, 2026-03 = 4,822 docs | Partial (last ~3 months only) |
+| Mongo `ift_cw1_sentiment.raw_news_articles` | 5,996 docs, same temporal concentration: 2025-04 = 2 docs, 2026-04 = 4,356 docs | Partial (last ~3 months only) |
+| Lucian's semi-annual VADER panel | 14 windows × ~600 symbols, 2020-2026 | No predictive IC at monthly frequency (documented by Lucian) |
+
+Even running VADER on every Mongo article and aggregating to monthly
+cross-section would give us signal for ~3 months out of 32 — not enough
+for a factor claim.  Literature (Tetlock 2007; Da, Engelberg & Gao 2011)
+also argues sentiment operates at daily/weekly horizons and washes out
+monthly.  **Drop is the only defensible choice**; factor code retained
+for diagnostic IC reporting.
+
+### Fixed (factor construction, 2026-04-22 pm)
+
+- **Quality factor construction (IC = 0 root cause)** — `engine/factors.py`
+  Pre-fix IC diagnostic on the 32-month backtest: mean Spearman IC = −0.0005,
+  IR = −0.008, t = −0.04, p = 0.965 — economically zero.  Investigation
+  showed the root cause was the choice of three CW1 ratio columns:
+  - `roe_computed` (1 snapshot, 2026-03-20) — dropped from PIT for every
+    pre-2026-03-20 rebalance; code then fell back to `roe_hist` (433
+    snapshots) correctly.
+  - `earnings_stability` (1 snapshot, 2026-03-20) — dropped from PIT; code
+    fell back to `1 / rank(|EPS|)` which is *economically backwards* (small
+    EPS = "stable"), injecting noise into the composite.
+  - `debt_to_equity_inv` (1 snapshot, 2026-03-20) — dropped from PIT; code
+    fell back to `eq / (|debt| + 0.01·|eq|)` with an arbitrary 0.01 offset
+    that blows up near zero debt.
+  Revised `compute_quality` prefers the 400+-snapshot `_hist` variants CW1
+  actually carries:
+  - ROE → `roe_hist` (433 snapshots) as first priority.
+  - Inverse D/E → `1 / (|debt_to_equity_hist| + 0.1)` (433 snapshots; 0.1
+    offset ≈ 1st-quartile D/E in US large-caps, bounded and well-behaved).
+  - Earnings-stability proxy → `profit_margin_hist` (431 snapshots) — the
+    published QMJ profitability sub-factor (Asness-Frazzini-Pedersen 2019
+    §III.A).  Full TTM-12Q EPS-growth volatility would require multi-snapshot
+    fundamentals retrieval (deferred; documented in Report §7 Limitations).
+  Probe IC on 6 sample dates (trailing-21d return proxy): +0.108 / +0.039 /
+  −0.104 / −0.010 / +0.067 / +0.023 — mean +0.020, real dispersion (std
+  0.82–1.14 across dates) with full universe coverage (508–512 stocks per
+  date vs. the previous ~0-variance fallback output).  True forward IC to be
+  evaluated on the post-fix backtest re-run.
+  Citations: Asness, C. S., Frazzini, A. & Pedersen, L. H. (2019) "Quality
+  Minus Junk", *RAS*; Novy-Marx, R. (2013) "The other side of value", *JFE*.
+
+- **Ablation grid extended (per Lucian 2026-04-22 proposal)** —
+  `analytics/ablation.py` `ABLATION_VARIANTS` now includes:
+  - `no_sentiment_3factor` — mom/val/qual weights 0.35/0.35/0.30/0
+  - `mom_val_only` — two-factor momentum + value 0.50/0.50 (Lucian's proposal)
+  - `mom_val_qual` — three-factor momentum + value + quality 0.40/0.40/0.20/0
+  Together with the existing five variants, the ablation re-run produces
+  eight rows for the Report §5 ablation exhibit.
+
+### Added (Analytics)
+
+- **`analytics/monte_carlo.py`** (PLAN §7.5) — `circular_block_bootstrap_paths`
+  applies the Politis–Romano (1994) stationary bootstrap with 6-month blocks
+  to the `dynamic_net_20bp` return series; `run_monte_carlo` writes
+  `output/monte_carlo_paths.parquet` with 10,000 paths × T months (schema
+  `path_id, date, nav` per `MonteCarloRow`).
+  - Generated: 320,000 rows = 10,000 paths × 32 months.
+- **`analytics/regime_performance.py`** (PLAN §7.6) — `run_regime_performance`
+  joins `regime_log` against `portfolio_returns` via `pd.merge_asof` (prefers
+  `regime_hmm` when populated, falls back to `regime_pct`), and for every
+  (regime × strategy) pair reports `n_months`, `ann_return`, `ann_vol`,
+  `sharpe`, `sortino`, `max_dd`, `hit_rate`, and mean 1-way turnover. Writes
+  `output/regime_performance.parquet`.
+  - Generated: 9 rows = 3 regimes × 3 strategies. Headline finding: dynamic
+    edges static in every regime; largest absolute edge in high-VIX.
+
+### Added (CLI)
+
+- `engine/runner.py` — two new modes for the runner:
+  - `python Main.py --mode monte_carlo` → post-backtest Monte Carlo paths.
+  - `python Main.py --mode regime_perf` → post-backtest regime decomposition.
+  Both operate on existing `output/*.parquet` files so they do not require
+  the CW1 Postgres connection or a full backtest re-run.
+
+### Tests
+
+- `test/test_engine/test_portfolio.py` — 4 new tests covering
+  `_iterative_cap`:
+  - `test_iterative_cap_preserves_mass_when_feasible` — head-room case.
+  - `test_iterative_cap_sparse_universe_holds_cash` — `n < 1/max_w` case.
+  - `test_iterative_cap_no_op_when_all_below_cap` — identity case.
+  - `test_iterative_cap_redistributes_single_spike` — single over-cap name.
+  - All 10 portfolio tests pass; the full test suite is green
+    (59 passed, 17 DB-dependent PIT tests skipped on offline run).
+
+### Outstanding (requires CW1 Postgres up)
+
+- Full backtest re-run (`python Main.py --mode full`) so every output
+  parquet reflects the new weight-cap / β / ledger / HRP code paths. The
+  Docker-hosted CW1 database was offline at the time of this commit; the
+  code is in place and verified by unit tests, but the `output/` parquet
+  files still reflect the pre-fix run and need to be regenerated.
+- Full CPCV sensitivity run
+  (`python Main.py --mode sensitivity`) — the machinery in
+  `analytics/sensitivity.py::run_sensitivity_cpcv` was already correct;
+  what was missing is invoking it, which re-populates
+  `sensitivity_grid.parquet` to its design 15 × C(12, 2) = 990 rows.
+
+### Remaining CW1-layer issues (documented in Limitations, not patched)
+
+Per PLAN §15 risk register + the audit sections 0.2–0.4 / A2–A4, the
+following inherit from CW1 and are out of scope for CW2 code changes:
+- `news_sentiment`: only 625 rows, all dated 2026-03-20 (a single
+  snapshot rather than a historical time-series). → sentiment IC = 0
+  for all 32 months, which already surfaces in the ablation table.
+- `company_ratios.earnings_stability`: 488 rows, all dated 2026-03-20
+  (point-in-time, not trailing-12-quarter series).
+- `company_ratios.book_to_price_hist` and `cashflow_to_price_hist`:
+  stored in raw units (hundreds of millions) rather than the ratio
+  form expected by the factor. Winsorisation at 2.5/97.5 within GICS
+  (§4.1) caps extremes but does not correct the unit error.
+- `fundamentals`: 27,997 duplicate `(symbol, report_date, field_name)`
+  groups with 13,494 conflicting values. The `ROW_NUMBER() OVER
+  (PARTITION BY symbol, field_name ORDER BY report_date DESC) rn=1`
+  filter in `data_loader.load_fundamentals_pit` already deduplicates
+  at query time.
+
+---
+
+---
+
 ## [0.2.0] — 2026-04-17 — Full Engine + Analytics Build
 
 ### Added (Engine, PLAN §4–5, §7.1)

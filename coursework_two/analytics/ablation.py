@@ -41,6 +41,16 @@ ABLATION_VARIANTS = {
     "no_value":     {"momentum": 0.44, "value": 0.00, "quality": 0.35, "sentiment": 0.21},
     "no_quality":   {"momentum": 0.40, "value": 0.40, "quality": 0.00, "sentiment": 0.20},
     "no_sentiment": {"momentum": 0.35, "value": 0.35, "quality": 0.30, "sentiment": 0.00},
+    # Added 2026-04-22 in response to Lucian's proposal: test whether the
+    # factor composite works better with the two-factor (momentum + value)
+    # subset and the three-factor (momentum + value + quality) subset.
+    # Sentiment IC = 0.000 for all 32 months in the current CW1 data, so
+    # dropping it is a no-op at signal level — this variant makes that
+    # explicit.  The "mom_val_only" variant is the 2-factor baseline
+    # Lucian proposed.
+    "no_sentiment_3factor": {"momentum": 0.35, "value": 0.35, "quality": 0.30, "sentiment": 0.00},
+    "mom_val_only": {"momentum": 0.50, "value": 0.50, "quality": 0.00, "sentiment": 0.00},
+    "mom_val_qual": {"momentum": 0.40, "value": 0.40, "quality": 0.20, "sentiment": 0.00},
 }
 
 

@@ -44,12 +44,43 @@ estimation_windows:
   bayesian_signal_half_life_months: 12
 
 factors:
-  # Composite weights (30/30/25/15 per CW1 §3.4)
+  # Composite weights — FINAL 2026-04-22 (post-construction-fix IC review).
+  #
+  # Sentiment (dropped, weight = 0):
+  #   news_sentiment table has a single 2026-03-20 snapshot.  The Mongo
+  #   article collections hold <10 articles per month before 2025-11, rising
+  #   to 800+ only in 2026-02 — so for ~90% of the 32-month backtest there is
+  #   effectively no per-stock news volume (universe is 512 stocks).  Even
+  #   Lucian's semi-annual VADER panel shows no predictive IC at monthly
+  #   frequency (consistent with Tetlock 2007 and Da-Engelberg-Gao 2011 who
+  #   document sentiment effects at daily/weekly horizons).  PLAN §14 P5
+  #   allows publishing null findings.
+  #
+  # Quality (dropped, weight = 0):
+  #   Pre-fix IC = -0.0005 (t = -0.04, noise).  After fixing the construction
+  #   to use the 400+-snapshot `_hist` variants (roe_hist, debt_to_equity_hist,
+  #   profit_margin_hist) the factor is properly measured and shows
+  #   IC = -0.0175 (t = -1.95, p = 0.061) — a nearly-significant *negative*
+  #   signal.  Consistent across regimes (IC = -0.029 in normal-VIX, n=16,
+  #   t = -2.02) and 8 of 11 quarters.  The fix revealed that 2023-2026 has
+  #   been a "junk rally" period where low-quality (high-leverage, low-margin,
+  #   low-ROE) names have outperformed.  Ablation confirms: removing quality
+  #   improves Sharpe from 0.94 → 1.50 (+0.56).  QMJ is a well-established
+  #   factor, so we do not flip the sign; we drop and document the sample
+  #   period anomaly.
+  #
+  # Momentum (kept, 0.50): IC = +0.064, t = +2.44, p = 0.02 — significant.
+  # Value (kept, 0.50):    IC = +0.016, t = +1.00, p = 0.33 — economically
+  #                        plausible and uncorrelated with momentum (ρ = 0.04).
+  #
+  # The original CW1 4-factor weights (0.30/0.30/0.25/0.15) remain in the
+  # ablation grid as `full_4factor` so the report shows the reduction.  See
+  # AUDIT_FINDINGS_MATRIX.md and FACTOR_REVIEW_2026-04-22.md for the trace.
   base_weights:
-    momentum: 0.30
-    value: 0.30
-    quality: 0.25
-    sentiment: 0.15
+    momentum: 0.50
+    value: 0.50
+    quality: 0.00
+    sentiment: 0.00
   # Winsorisation (per CW1 §3.2)
   winsor_lower_pct: 0.025
   winsor_upper_pct: 0.975

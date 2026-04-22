@@ -40,6 +40,65 @@ logger = logging.getLogger(__name__)
 
 
 # =============================================================================
+# Weight-cap helper (PLAN §4.5)
+# =============================================================================
+def _iterative_cap(w: pd.Series, max_w: float, tol: float = 1e-9, max_iter: int = 50) -> pd.Series:
+    """Enforce ``w_i ≤ max_w`` while keeping ``sum(w) ≤ 1`` and non-negativity.
+
+    Clip-then-renormalise is broken: renormalising after clipping pushes the
+    capped weights back above the cap, which is exactly the bug flagged in the
+    CW2 audit. The correct fix is to redistribute the excess mass only to
+    *uncapped* positions, and repeat until every weight is at or below the cap.
+
+    When the long-leg universe is too small to respect the cap
+    (``n < 1 / max_w``), every position is pinned at ``max_w`` and the portfolio
+    holds ``1 - n*max_w`` in cash rather than silently violating the constraint.
+
+    Parameters
+    ----------
+    w : Series
+        Non-negative, sums to ≤ 1.  Any negative entries are floored at zero.
+    max_w : float
+        Single-name upper bound (default 0.05 per PLAN §4.5).
+    tol : float
+        Numerical tolerance on the cap.
+    max_iter : int
+        Safety stop.
+
+    Returns
+    -------
+    Series
+        Weights satisfying ``0 ≤ w_i ≤ max_w`` and ``sum(w) ≤ 1``.
+    """
+    w = w.astype(float).clip(lower=0.0).copy()
+    if w.sum() <= 0:
+        return w
+    # Callers pass a weight vector that already sums to ≤ 1 (normalised leg
+    # weights).  We deliberately do *not* re-normalise here — that was the
+    # original bug — we just cap and redistribute while preserving total mass.
+    for _ in range(max_iter):
+        over = w > max_w + tol
+        if not over.any():
+            break
+        excess = float((w[over] - max_w).sum())
+        w.loc[over] = max_w
+        uncapped = (~over) & (w > 0)
+        if not uncapped.any():
+            # No room to redistribute: the universe is too small.  Return the
+            # capped weights and accept that sum < 1 (residual cash).
+            break
+        room = (max_w - w[uncapped]).clip(lower=0.0)
+        room_total = float(room.sum())
+        if room_total <= tol:
+            break
+        # Distribute excess proportionally to remaining head-room per name.
+        w.loc[uncapped] = w.loc[uncapped] + excess * (room / room_total)
+    # Final numerical safety: clip and floor, don't re-normalise (that's what
+    # reintroduced the bug in the first place).
+    return w.clip(lower=0.0, upper=max_w)
+
+
+# =============================================================================
 # Covariance estimators
 # =============================================================================
 def ledoit_wolf_cov(returns: pd.DataFrame) -> np.ndarray:
@@ -189,10 +248,12 @@ class PortfolioEngine:
             # Fallback: equal-weighted
             raw = pd.Series(1.0 / len(s), index=s.index)
         w = raw / raw.sum()
-        # Apply 5% cap and renormalise
-        w = w.clip(upper=max_w)
-        if w.sum() > 0:
-            w = w / w.sum()
+        # Iterative cap: clip-then-renormalise pushes capped weights back over the
+        # cap, so we redistribute excess mass to *uncapped* names and repeat until
+        # every weight satisfies w_i ≤ max_w (PLAN §4.5). If |s| < 1/max_w, every
+        # position hits the cap and the leg is held equal-weighted at max_w with
+        # residual cash — a legitimate sparse-universe outcome.
+        w = _iterative_cap(w, max_w)
         return w.reindex(leg_symbols, fill_value=0.0)
 
     def optimise_leg(
@@ -200,6 +261,7 @@ class PortfolioEngine:
         returns: pd.DataFrame,
         leg_symbols: list[str],
         previous_weights: Optional[pd.Series] = None,
+        construction_override: Optional[str] = None,
     ) -> pd.Series:
         """Build long-only weights for one leg using the configured construction.
 
@@ -211,6 +273,10 @@ class PortfolioEngine:
             Subset of returns columns to include.
         previous_weights : Series | None
             Previous rebalance's weights — used by turnover-penalty variant.
+        construction_override : str | None
+            Force a construction variant for this one call (e.g. ``"hrp"``) —
+            used by the backtest engine to produce the HRP side-run alongside
+            the primary score-weighted book (PLAN §5.3 robustness comparison).
 
         Returns
         -------
@@ -228,7 +294,7 @@ class PortfolioEngine:
         # Fill forward any remaining NaNs then drop remaining rows
         ret_leg = ret_leg.ffill().dropna(how="any")
 
-        construction = self.cfg.portfolio.construction
+        construction = construction_override or self.cfg.portfolio.construction
         if construction == "hrp":
             w = self._hrp(ret_leg)
         else:
@@ -294,12 +360,13 @@ class PortfolioEngine:
         if not res.success:
             logger.warning("MinVar SLSQP did not converge: %s. Falling back to equal-weight.", res.message)
             return w0
-        w = np.clip(res.x, min_w, max_w)
-        # Re-normalise because clipping can nudge off the simplex
-        s = w.sum()
-        if s <= 0:
-            return w0
-        return w / s
+        # SLSQP bounds can be violated by tiny floating-point slips, and
+        # renormalising after a naive clip reintroduces the same cap-violation
+        # bug found in score_weighted_leg.  Go through the iterative capper so
+        # MinVar, score-weighted and HRP all share one cap-enforcement path.
+        w_series = pd.Series(res.x, index=symbols).clip(lower=min_w, upper=None)
+        w_capped = _iterative_cap(w_series, max_w)
+        return w_capped.values
 
     # ------------------------------------------------------------------
     def _hrp(self, returns: pd.DataFrame) -> np.ndarray:
@@ -335,9 +402,15 @@ class PortfolioEngine:
                 w.loc[right] *= (1 - alpha)
                 new_clusters.extend([left, right])
             clusters = new_clusters
-        # Reindex back to original order
+        # Reindex back to original order.  HRP natively produces weights with
+        # no single-name cap, which can violate the 5% constraint on
+        # concentrated correlation clusters (López de Prado 2016 §3).
+        # Route through the iterative capper so all three constructions (MinVar,
+        # score-weighted, HRP) share one cap-enforcement path.
         w_arr = w.reindex(range(N)).fillna(0).values
-        return w_arr / w_arr.sum()
+        w_arr = w_arr / w_arr.sum() if w_arr.sum() > 0 else w_arr
+        max_w = self.cfg.portfolio.max_weight_per_stock
+        return _iterative_cap(pd.Series(w_arr), max_w).values
 
 
 # =============================================================================

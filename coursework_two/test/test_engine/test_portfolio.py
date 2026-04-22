@@ -6,9 +6,46 @@ import pytest
 
 from engine.portfolio import (
     PortfolioEngine,
+    _iterative_cap,
     denoised_ledoit_wolf_cov,
     ledoit_wolf_cov,
 )
+
+
+def test_iterative_cap_preserves_mass_when_feasible():
+    """50 names with a 5% cap has enough head-room: total mass preserved at 1."""
+    np.random.seed(0)
+    scores = np.abs(np.random.randn(50))
+    w = pd.Series(scores / scores.sum())
+    w2 = _iterative_cap(w, 0.05)
+    assert w2.max() <= 0.05 + 1e-9
+    assert abs(w2.sum() - 1.0) < 1e-8
+    assert (w2 >= -1e-12).all()
+
+
+def test_iterative_cap_sparse_universe_holds_cash():
+    """4 names with a 5% cap cannot use all the mass — residual cash is 0.8."""
+    w = pd.Series([0.40, 0.30, 0.20, 0.10])
+    w2 = _iterative_cap(w, 0.05)
+    assert w2.max() <= 0.05 + 1e-9
+    # Every name pinned at cap, so sum = 4 * 0.05 = 0.20
+    assert abs(w2.sum() - 0.20) < 1e-9
+
+
+def test_iterative_cap_no_op_when_all_below_cap():
+    """If every weight is already below the cap, the input is returned unchanged."""
+    w = pd.Series(np.ones(20) / 20)  # every name at 5%, cap 10% → no-op
+    w2 = _iterative_cap(w, 0.10)
+    assert np.allclose(w2.values, w.values)
+
+
+def test_iterative_cap_redistributes_single_spike():
+    """One over-cap name, the excess goes to the remaining uncapped names."""
+    w = pd.Series([0.20, 0.02, 0.02, 0.02, 0.02, 0.02])  # sums 0.30
+    w2 = _iterative_cap(w, 0.05)
+    assert w2.max() <= 0.05 + 1e-9
+    # Mass preserved (0.30 in, 0.30 out) because the cap-available headroom is enough
+    assert abs(w2.sum() - w.sum()) < 1e-9
 
 
 def test_lw_cov_psd(synthetic_returns):
