@@ -209,15 +209,61 @@ short_leg 32/32 non-zero.
   strategy; `no_value` cuts Sharpe by nearly half even though value's
   IC t-stat is only 1.00 in isolation.
 
-## CPCV sensitivity — still running
+## CPCV sensitivity — delivered
 
 `analytics/sensitivity.py::run_sensitivity_cpcv` — 15 γ × λ × 66 CPCV
-folds = 990 rows expected.  Will populate
-`output/sensitivity_grid.parquet` with deflated-Sharpe-adjusted metrics
-per fold for the Report §4.4 heatmap.  ETA ~30 more minutes.
+folds = 990 rows.  `output/sensitivity_grid.parquet` populated with the
+full fold-level Sharpe distribution and a per-(γ, λ) deflated Sharpe.
+Best grid point: (γ, λ) = (0.00, 0.05), mean Sharpe 1.88, deflated 0.56.
 
-Monte Carlo (10,000 paths) + regime performance already done on the
+Monte Carlo (10,000 paths) + regime performance also regenerated on
 fresh 2-factor outputs.
+
+## v0.3.2 update (2026-04-23, post-Lucian PR #6 review)
+
+Three additional fixes adopted after Lucian opened PR #6 on the team
+branch.  Extracted and reimplemented cleanly; commit did not merge the PR
+because it carried `Co-Authored-By: Claude` lines that the team branch
+deliberately excludes.
+
+1. **Cost-consistency bug** — real bug Lucian caught, now fixed.
+   `_recent_turnover` was returning ~1.0 every call (comparing new weights
+   to an empty Series); cost drag was over-reported in
+   `portfolio_returns.parquet` by ~30 %, even though the
+   `exposure_log.cost_drag_20bp` column used the correct calculation.
+   Post-fix: Dynamic Net 20bp Sharpe 1.316 → 1.404 (+0.088), Static
+   1.418 → 1.505 (+0.087).  Reconciliation gap
+   `(gross − net) − exposure_log.cost_drag_20bp` now 1.3 × 10⁻⁵ (was
+   8.6 × 10⁻⁴).
+
+2. **Bandit arm menu → 2-factor alignment.**  Old 12 arms spanned the
+   4-factor space we already rejected; new 8 arms span the (momentum,
+   value) split around the adopted 0.50 / 0.50 baseline.  Bandit Sharpe
+   +0.046 (now 0.824).
+
+3. **Optional PIT-lag.**  New `PitLagConfig(fundamentals_days=0,
+   ratios_days=0)` with default 0 that preserves PLAN §7.3 behaviour.
+   Properly plumbed through `build_context` → `load_fundamentals_pit` /
+   `load_ratios_pit` (the plumbing PR #6 missed).  Sensitivity:
+
+   | lag (days) | Dynamic Sharpe | Static Sharpe |
+   |---:|---:|---:|
+   | 0 | +1.404 | +1.505 |
+   | 30 | +1.415 | +1.442 |
+   | 45 | +1.415 | +1.442 |
+
+   Dynamic is essentially lag-invariant because momentum dominates the
+   2-factor composite and doesn't use fundamentals.  Lucian's earlier
+   v4 "0.79 → 0.37" drop was on the 4-factor composite where quality
+   heavily depended on lagged fundamentals — that exposure is gone in
+   the adopted 2-factor strategy, so the lag worry doesn't transfer.
+
+**Headline result, v0.3.2 final:**
+
+- Dynamic Net 20bp Sharpe **+1.404**  (ann. return 16.92 %)
+- Static  Net 20bp Sharpe **+1.505**  (ann. return 17.80 %)
+- HRP     Net 20bp Sharpe  +1.592     (ann. return 7.0 %, max DD −2.7 %)
+- Bandit  Net 20bp Sharpe  +0.824     (2F arm menu)
 
 ## Report narrative this supports
 

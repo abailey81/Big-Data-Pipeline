@@ -275,15 +275,24 @@ class DataLoader:
         ).sort_index()
 
     # ------------------------------------------------------------------
-    def load_fundamentals_pit(self, as_of: date, symbols: list[str]) -> pd.DataFrame:
+    def load_fundamentals_pit(
+        self,
+        as_of: date,
+        symbols: list[str],
+        pit_lag_days: int = 0,
+    ) -> pd.DataFrame:
         """Fundamentals EAV → pivoted most-recent value per (symbol, field).
 
-        PIT rule 1: ``report_date ≤ rebalance_date`` (not ``period_end``).
-        For each (symbol, field) we take the row with the maximum
-        ``report_date``.  This addresses the CW1 §5.1 look-ahead risk exactly.
+        PIT rule 1: ``report_date ≤ rebalance_date − pit_lag_days`` (not
+        ``period_end``).  ``pit_lag_days = 0`` is the CW1/PLAN §7.3 default
+        and reproduces the pre-v0.3.2 cutoff; positive values apply a
+        filing-delay proxy (US 10-Q SEC deadline for large accelerated
+        filers is 40 days) and are supplied by
+        ``PitLagConfig.fundamentals_days`` for sensitivity analysis only.
         """
         if not symbols:
             return pd.DataFrame()
+        pit_cutoff = as_of - timedelta(days=max(0, int(pit_lag_days)))
         q = text(
             f"""
             WITH ranked AS (
@@ -295,7 +304,7 @@ class DataLoader:
                     ) AS rn
                 FROM {self._schema}.fundamentals
                 WHERE symbol = ANY(:symbols)
-                  AND report_date <= :as_of
+                  AND report_date <= :pit_cutoff
                   AND period_type = 'quarterly'
                   AND field_value IS NOT NULL
             )
@@ -304,7 +313,7 @@ class DataLoader:
             WHERE rn = 1
             """
         )
-        df = pd.read_sql(q, self._engine, params={"symbols": symbols, "as_of": as_of})
+        df = pd.read_sql(q, self._engine, params={"symbols": symbols, "pit_cutoff": pit_cutoff})
         if df.empty:
             return pd.DataFrame()
         wide = df.pivot_table(index="symbol", columns="field_name", values="field_value")
@@ -337,10 +346,22 @@ class DataLoader:
         return pd.Series(df["sentiment_score"].values, index=df["symbol"], name="sentiment")
 
     # ------------------------------------------------------------------
-    def load_ratios_pit(self, as_of: date, symbols: list[str]) -> pd.DataFrame:
-        """Historical ratios from ``company_ratios`` (EAV) — most recent per (sym, field)."""
+    def load_ratios_pit(
+        self,
+        as_of: date,
+        symbols: list[str],
+        pit_lag_days: int = 0,
+    ) -> pd.DataFrame:
+        """Historical ratios from ``company_ratios`` (EAV) — most recent per (sym, field).
+
+        ``pit_lag_days`` shifts the cutoff to
+        ``snapshot_date ≤ as_of − pit_lag_days`` for filing-delay sensitivity
+        analysis.  Default 0 preserves PLAN §7.3 behaviour and is supplied
+        by ``PitLagConfig.ratios_days`` via ``build_context``.
+        """
         if not symbols:
             return pd.DataFrame()
+        pit_cutoff = as_of - timedelta(days=max(0, int(pit_lag_days)))
         q = text(
             f"""
             WITH ranked AS (
@@ -350,13 +371,13 @@ class DataLoader:
                            ORDER BY snapshot_date DESC
                        ) AS rn
                 FROM {self._schema}.company_ratios
-                WHERE symbol = ANY(:symbols) AND snapshot_date <= :as_of
+                WHERE symbol = ANY(:symbols) AND snapshot_date <= :pit_cutoff
             )
             SELECT symbol, field_name, field_value
             FROM ranked WHERE rn = 1
             """
         )
-        df = pd.read_sql(q, self._engine, params={"symbols": symbols, "as_of": as_of})
+        df = pd.read_sql(q, self._engine, params={"symbols": symbols, "pit_cutoff": pit_cutoff})
         if df.empty:
             return pd.DataFrame()
         return df.pivot_table(index="symbol", columns="field_name", values="field_value")
@@ -441,8 +462,14 @@ class DataLoader:
         returns_local = prices.pct_change().dropna(how="all")
         fx = self.load_fx(rebalance_date, price_lookback_days)
         returns_usd = self._convert_returns_to_usd(returns_local, fx, universe.currency_map)
-        fund = self.load_fundamentals_pit(rebalance_date, universe.symbols)
-        ratios = self.load_ratios_pit(rebalance_date, universe.symbols)
+        pit_fund = int(getattr(self.cfg.pit_lag, "fundamentals_days", 0))
+        pit_rat = int(getattr(self.cfg.pit_lag, "ratios_days", 0))
+        fund = self.load_fundamentals_pit(
+            rebalance_date, universe.symbols, pit_lag_days=pit_fund
+        )
+        ratios = self.load_ratios_pit(
+            rebalance_date, universe.symbols, pit_lag_days=pit_rat
+        )
         sent = self.load_sentiment_pit(rebalance_date, universe.symbols)
         vix = self.load_vix(rebalance_date, max(price_lookback_days, 400))
         rf = self.load_rf_rate(rebalance_date)

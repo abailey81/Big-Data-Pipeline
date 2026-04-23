@@ -7,12 +7,40 @@ from engine.bandit import BanditWeights, LinearThompsonSampler, build_arms
 
 
 def test_build_arms_shape():
+    """v0.3.2: 8 arms spanning momentum/value split (2-factor strategy)."""
     arms = build_arms()
-    assert len(arms) == 12
+    assert len(arms) == 8
     for a in arms:
         assert set(a.keys()) == {"momentum", "value", "quality", "sentiment"}
         assert abs(sum(a.values()) - 1.0) < 1e-6
         assert all(v >= 0 for v in a.values())
+
+
+def test_build_arms_are_2factor_only():
+    """All arms must concentrate on momentum + value; quality/sentiment = 0.
+
+    The adopted v0.3.0 strategy has zero weight on quality and sentiment
+    (FACTOR_REVIEW_2026-04-22.md).  A bandit arm that places positive
+    weight on those factors would be proposing a strategy we've already
+    empirically rejected.
+    """
+    arms = build_arms()
+    for a in arms:
+        assert a["quality"] == 0.0
+        assert a["sentiment"] == 0.0
+        assert a["momentum"] > 0
+        assert a["value"] > 0
+
+
+def test_build_arms_span_meaningful_range():
+    """Arms should include genuinely momentum-heavy, value-heavy, and neutral splits."""
+    arms = build_arms()
+    mom_weights = sorted(a["momentum"] for a in arms)
+    # Symmetric span: at least one arm ≤ 0.3 momentum, at least one ≥ 0.7.
+    assert min(mom_weights) <= 0.3
+    assert max(mom_weights) >= 0.7
+    # Baseline 0.5 / 0.5 must be present (adopted strategy).
+    assert any(abs(a["momentum"] - 0.5) < 1e-9 and abs(a["value"] - 0.5) < 1e-9 for a in arms)
 
 
 def test_linear_ts_converges_to_best_arm():

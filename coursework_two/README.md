@@ -12,21 +12,23 @@
 
 ---
 
-## Status — v0.3.0 (2026-04-22)
+## Status — v0.3.2 (2026-04-23)
 
 - **Final strategy:** 2-factor composite (momentum 0.50 + value 0.50) after
   post-fix IC diagnostic found quality IC to be nearly-significantly
   *negative* (t = −1.95, p = 0.06) and sentiment data to be structurally
   insufficient (< 10 articles/month for ≈ 90 % of backtest window).
+- **Three post-v0.3.0 fixes (PR #6 review):** cost-consistency bug in
+  `_recent_turnover` (+0.088 Sharpe), 2-factor bandit arm menu (8 arms),
+  optional PIT-lag sensitivity (default 0, properly plumbed). All unit-tested.
 - **All audit findings** either verified-and-fixed (weight cap, β, trade
-  ledger, HRP, long/short legs, CPCV, Monte Carlo, regime performance)
-  or rejected-with-reasoning (PIT filter, permutation scope, DB coupling,
-  bandit claim, Sharpe convention).
-- **Documentation trail:** see [AUDIT_FINDINGS_MATRIX.md](AUDIT_FINDINGS_MATRIX.md)
-  for every audit claim × brief × current-state,
-  [FACTOR_REVIEW_2026-04-22.md](FACTOR_REVIEW_2026-04-22.md) for the factor
-  decision with empirical backing, and
-  [CHANGELOG.md](CHANGELOG.md) §0.3.0 for the complete change log.
+  ledger, HRP, long/short legs, CPCV, Monte Carlo, regime performance,
+  cost consistency, bandit alignment, PIT-lag sensitivity) or rejected
+  with reasoning (PIT filter default, permutation scope, DB coupling,
+  bandit "never explored" claim, Sharpe convention).
+- **Documentation trail:** [AUDIT_FINDINGS_MATRIX.md](AUDIT_FINDINGS_MATRIX.md),
+  [FACTOR_REVIEW_2026-04-22.md](FACTOR_REVIEW_2026-04-22.md),
+  [CHANGELOG.md](CHANGELOG.md) §0.3.0 – §0.3.2 for the complete change log.
 
 ---
 
@@ -113,7 +115,7 @@ of the universe, or (b) introduce look-ahead bias (single-snapshot at
 cd coursework_two
 poetry install              # or use .venv with pip
 
-# Smoke test — 76 tests, ~7s
+# Smoke test — 87 tests (v0.3.2), ~8s
 poetry run pytest test/
 
 # Full backtest (full OOS 2023-07 → 2026-03, ~3 min)
@@ -161,28 +163,38 @@ boundary (PLAN §6, extended in v0.3.0).  Specialists read these only:
 
 ## Results (Real CW1 Data, 2023-07 → 2026-03, 32 months — v0.3.0)
 
-### Headline — 2-factor momentum + value composite
+### Headline — 2-factor momentum + value composite (v0.3.2, post cost fix)
 
-| Variant | Sharpe | Ann. Return | Max DD | Ann. Vol |
+| Variant | Sharpe | Ann. Return | Max DD | Notes |
 |---|---|---|---|---|
-| **Static Net 20bp** | **+1.418** | **+16.6%** | **−8.0%** | 11.7% |
-| **Dynamic Net 20bp** | **+1.316** | **+15.7%** | **−8.8%** | 12.5% |
-| HRP Net 20bp | +1.592 | +7.0% | **−2.7%** | 4.4% |
-| Bandit Net 20bp | +0.778 | +9.3% | −8.2% | 12.1% |
-| Benchmark EW (Universe) | +0.915 | +11.6% | −8.7% | 13.5% |
-| Benchmark ^GSPC (reference) | +1.206 | +14.7% | −7.8% | 12.1% |
+| **Static Net 20bp** | **+1.505** | **+17.8%** | −8.0% | |
+| **Dynamic Net 20bp** | **+1.404** | **+16.9%** | −8.8% | |
+| HRP Net 20bp | +1.592 | +7.0% | **−2.7%** | robustness comparison |
+| Bandit Net 20bp | +0.824 | +9.9% | −8.2% | 2F arm menu |
+| Benchmark EW (Universe) | +0.915 | +11.6% | −8.7% | |
+| Benchmark ^GSPC (reference) | +1.206 | +14.7% | −7.8% | |
+
+*v0.3.2 cost-consistency fix added ~0.09 Sharpe to Dynamic and Static
+vs v0.3.0/v0.3.1 — see CHANGELOG §0.3.2.*
 
 ### Ablation — 8 variants (see [analytics/ablation.py](analytics/ablation.py))
 
+v0.3.2 numbers (cost-consistency fix applied uniformly across variants):
+
 | Variant | Weights (mom/val/qual/sent) | Sharpe | Δ from full_4factor |
 |---|---|---|---|
-| **mom_val_only** (adopted) | 0.50 / 0.50 / 0.00 / 0.00 | **+1.418** | **+0.456** |
-| no_quality | 0.40 / 0.40 / 0.00 / 0.20 | +1.418 | +0.456 |
-| no_sentiment / no_sentiment_3factor | 0.35 / 0.35 / 0.30 / 0.00 | +0.983 | +0.021 |
-| full_4factor (CW1 default) | 0.30 / 0.30 / 0.25 / 0.15 | +0.962 | 0 |
-| mom_val_qual | 0.40 / 0.40 / 0.20 / 0.00 | +0.901 | −0.061 |
-| no_value | 0.44 / 0.00 / 0.35 / 0.21 | +0.480 | −0.482 |
-| no_momentum | 0.00 / 0.44 / 0.35 / 0.21 | −0.136 | −1.098 |
+| **mom_val_only** (adopted) | 0.50 / 0.50 / 0.00 / 0.00 | **+1.505** | **+0.451** |
+| no_quality | 0.40 / 0.40 / 0.00 / 0.20 | +1.505 | +0.451 |
+| no_sentiment / no_sentiment_3factor | 0.35 / 0.35 / 0.30 / 0.00 | +1.079 | +0.024 |
+| full_4factor (CW1 default) | 0.30 / 0.30 / 0.25 / 0.15 | +1.054 | 0 |
+| mom_val_qual | 0.40 / 0.40 / 0.20 / 0.00 | +0.987 | −0.067 |
+| no_value | 0.44 / 0.00 / 0.35 / 0.21 | +0.567 | −0.487 |
+| no_momentum | 0.00 / 0.44 / 0.35 / 0.21 | +0.043 | −1.011 |
+
+*Rank order is preserved vs the pre-fix (v0.3.1) table — the cost fix
+adds a roughly uniform +0.09 Sharpe uplift to every variant. The factor
+decision (drop quality + sentiment) is confirmed by the ablation under
+v0.3.2.*
 
 ### Factor IC diagnostic (final run — all 4 factors computed for report)
 
@@ -248,8 +260,12 @@ boundary (PLAN §6, extended in v0.3.0).  Specialists read these only:
 
 ```bash
 poetry run pytest test/ -v --cov=engine --cov=analytics --cov-report=term-missing
-# 76 tests, all green (17 DB-dependent PIT integration tests auto-skip without CW1 infra)
+# 87 tests, all green (14 DB-dependent PIT integration tests auto-skip without CW1 infra)
 ```
+
+v0.3.2 added 15 new tests across `test_bandit.py` (2F arm menu),
+`test_cost_consistency.py` (PR #6 Fix #2 regression) and `test_pit_lag.py`
+(config typing + build_context plumbing).
 
 ## Audit Remediation v0.3.0
 

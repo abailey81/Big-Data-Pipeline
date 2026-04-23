@@ -3,6 +3,131 @@
 All notable changes to the CW2 backtest engine are recorded here.
 Format follows [Keep a Changelog](https://keepachangelog.com/) with semantic versioning.
 
+## [0.3.2] — 2026-04-23 — Cost-consistency + bandit-2F + PIT-lag (adapted from PR #6)
+
+Three targeted fixes.  The first was a genuine bug (under-reported net
+returns in `portfolio_returns.parquet`).  The second aligns the bandit
+arm menu with the adopted 2-factor strategy.  The third adds an
+optional filing-delay sensitivity that is fully plumbed from config →
+DataLoader → SQL (the broken link in the original PR).  Every change has
+a unit test; the code has been verified on a fresh 32-month backtest.
+
+### Fixed
+
+- **[P0] Cost-consistency bug** — `engine/backtest.py`.
+  `_recent_turnover()` was comparing the post-rebalance weights against an
+  *empty* `Series`, so `one_way_turnover` evaluated to
+  `0.5 · Σ|w_new| ≈ 1.0` on every call — regardless of whether anything
+  actually changed.  That inflated the cost drag applied to every
+  net-return column in `portfolio_returns.parquet`, even though the
+  main-loop NAV update and the `exposure_log.cost_drag_20bp` column were
+  computing turnover correctly.
+  - Fix: new `_prev_weights_for_cost` dict on `BacktestEngine` is
+    snapshotted *before* the main loop overwrites `_prev_weights[strategy]`.
+    `_recent_turnover` now uses the cached previous book, agreeing
+    exactly with the main-loop calculation.
+  - Verification (fresh 32-month backtest, 2-factor config):
+    - Dynamic Net 20bp Sharpe:  1.316 → **1.404**  (+0.088)
+    - Static  Net 20bp Sharpe:  1.418 → **1.505**  (+0.087)
+    - Bandit  Net 20bp Sharpe:  0.778 → **0.824**  (+0.046; also
+      incorporates the 2F arm-menu change below)
+    - Dynamic annualised return: 15.74 % → **16.92 %**
+    - Reconciliation: `exposure_log.cost_drag_20bp` and
+      `(portfolio_returns.dynamic_gross − dynamic_net_20bp)` now agree
+      to 1.3e-5 (was 8.6e-4) — the two cost paths are consistent.
+  - Regression test: `test/test_engine/test_cost_consistency.py` (3 tests).
+
+### Changed
+
+- **[P0] Bandit arm menu — 2-factor alignment** — `engine/bandit.py`,
+  `config/backtest_config.yaml`.
+  - Old: 12 arms spanning the 4-factor space (static 30/30/25/15 +
+    per-factor tilts + VIX presets) — a space we empirically rejected
+    in v0.3.0.
+  - New: 8 arms spanning the 2-factor (momentum + value) space around
+    the adopted 0.50 / 0.50 baseline — (0.50, 0.50), (0.60, 0.40),
+    (0.70, 0.30), (0.40, 0.60), (0.30, 0.70), (0.80, 0.20), (0.20, 0.80),
+    (0.55, 0.45).  All arms keep the `quality` and `sentiment` keys set
+    to 0.0 so downstream schemas don't change.
+  - `bandit.n_arms: 12 → 8` in the config.
+  - Regression tests: `test/test_engine/test_bandit.py` extended with
+    `test_build_arms_are_2factor_only` and
+    `test_build_arms_span_meaningful_range`.
+
+### Added
+
+- **[P1] Optional PIT-lag option (properly plumbed this time)** —
+  `engine/config.py`, `engine/data_loader.py`, `config/backtest_config.yaml`.
+  - New `PitLagConfig(fundamentals_days=0, ratios_days=0)` typed class
+    (non-negative, Pydantic-validated).
+  - `DataLoader.load_fundamentals_pit` and `load_ratios_pit` each accept
+    a `pit_lag_days: int = 0` parameter which shifts the SQL cutoff to
+    `≤ as_of − pit_lag_days`.
+  - **Critical:** `DataLoader.build_context` now actually forwards the
+    config values:
+    `load_fundamentals_pit(..., pit_lag_days=self.cfg.pit_lag.fundamentals_days)`
+    — the plumbing the original PR missed.  A regression test
+    (`test_build_context_threads_pit_lag_config`) asserts this forwarding
+    so it can't silently regress again.
+  - Default (0) preserves the brief's PLAN §7.3 behaviour exactly.
+  - Sensitivity on the 2-factor strategy (32-month run):
+
+    | Lag | Dynamic Net 20bp Sharpe | Static Net 20bp Sharpe |
+    |---:|---:|---:|
+    | 0 days | +1.404 | +1.505 |
+    | 30 days | +1.415 | +1.442 |
+    | 45 days | +1.415 | +1.442 |
+
+    Dynamic is essentially lag-invariant because momentum (the dominant
+    signal) uses prices, not fundamentals; the value component sees the
+    lag but the absolute effect is small in this sample (ratios_hist
+    snapshots are monthly so 30/45 days both select the same
+    one-month-older snapshot).  Lucian's earlier v4 finding of Sharpe
+    0.79 → 0.37 under lag was measured on the 4-factor composite where
+    quality was heavily fundamentals-dependent — that exposure is gone
+    in the 2-factor adopted strategy.
+  - Test suite: `test/test_engine/test_pit_lag.py` (6 tests).
+
+### Verified (fresh 32-month run + full 8-variant ablation)
+
+Post-fix ablation table — rank order preserved vs v0.3.1:
+
+| Variant | Weights | v0.3.2 Sharpe | v0.3.1 Sharpe | Δ |
+|---|---|---:|---:|---:|
+| mom_val_only | 0.50/0.50/0/0 | **+1.505** | +1.418 | +0.087 |
+| no_quality | 0.40/0.40/0/0.20 | +1.505 | +1.418 | +0.087 |
+| no_sentiment | 0.35/0.35/0.30/0 | +1.079 | +0.983 | +0.096 |
+| no_sentiment_3factor | 0.35/0.35/0.30/0 | +1.079 | +0.983 | +0.096 |
+| full_4factor | 0.30/0.30/0.25/0.15 | +1.054 | +0.962 | +0.092 |
+| mom_val_qual | 0.40/0.40/0.20/0 | +0.987 | +0.901 | +0.086 |
+| no_value | 0.44/0/0.35/0.21 | +0.567 | +0.480 | +0.087 |
+| no_momentum | 0/0.44/0.35/0.21 | +0.043 | −0.136 | +0.179 |
+
+Uplift is roughly uniform (~+0.087 Sharpe) — consistent with a constant
+cost-drag over-estimate of ~0.00086 per month × √12 / σ_monthly ≈ 0.09.
+`no_momentum` gets a larger relative uplift because its tiny base Sharpe
+is dominated by the cost correction.
+
+### Tests
+
+- **+15 unit tests** across 3 new test files.  Full suite now 87/87
+  green (was 76/76).  No regressions in any existing test.
+
+### Notes on relation to PR #6
+
+The three fixes above were extracted from
+[#6](https://github.com/abailey81/Big-Data-Pipeline/pull/6) after a
+read-only review.  Adopted cleanly with:
+- A unit test for each fix, none of which were present in the PR.
+- Proper config typing for the PIT-lag section (the PR added YAML but
+  no Pydantic model — it would have been silently ignored).
+- Actual plumbing of `PitLagConfig` values through `build_context`
+  into the SQL queries (the PR's dead-code bug).
+- No `Co-Authored-By` lines or Claude-Code attribution — per the
+  team-branch policy adopted alongside v0.3.0.
+
+---
+
 ## [0.3.1] — 2026-04-22 pm — Documentation refresh
 
 All docs updated to match the v0.3.0 code + data state:

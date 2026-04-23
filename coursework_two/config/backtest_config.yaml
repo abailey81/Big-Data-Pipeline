@@ -43,6 +43,15 @@ estimation_windows:
   drawdown_lookback_months: 12
   bayesian_signal_half_life_months: 12
 
+# Optional filing-lag for PIT fundamentals/ratios queries (v0.3.2).
+# Default 0 matches PLAN §7.3 (report_date ≤ rebalance_date).
+# Set to 30-45 for conservative filing-delay sensitivity analysis — the
+# lag is routed through engine/data_loader.py::build_context into the
+# load_fundamentals_pit and load_ratios_pit SQL cutoffs.
+pit_lag:
+  fundamentals_days: 0
+  ratios_days: 0
+
 factors:
   # Composite weights — FINAL 2026-04-22 (post-construction-fix IC review).
   #
@@ -155,7 +164,7 @@ costs:
 bandit:
   # Linear Thompson Sampling (§5.4)
   enabled: true
-  n_arms: 12
+  n_arms: 8             # 2-factor arm menu (mom/val), aligned with factors.base_weights (was 12 for 4-factor)
   context_dim: 12
   prior_sigma2: 1.0
   warmup_months: 6

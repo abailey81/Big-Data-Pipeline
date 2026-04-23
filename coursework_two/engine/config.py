@@ -82,6 +82,24 @@ class EstimationWindowsConfig(BaseModel):
     bayesian_signal_half_life_months: int
 
 
+class PitLagConfig(BaseModel):
+    """Optional filing-lag for fundamentals / ratios PIT queries.
+
+    The brief (PLAN §7.3 rule 1) uses ``report_date ≤ rebalance_date`` as
+    the PIT cutoff.  ``report_date`` is the fiscal period-end, NOT the
+    public filing date — US large accelerated filers have a 40-day SEC
+    10-Q deadline, so setting a positive lag gives a conservative PIT
+    proxy for sensitivity analysis in Report §4 / §7 Limitations.
+
+    Default 0 days on both fields preserves the brief-compliant default
+    behaviour; any lag value ≥ 0 is routed through ``DataLoader``'s two
+    PIT loaders via ``build_context``.
+    """
+
+    fundamentals_days: int = Field(default=0, ge=0)
+    ratios_days: int = Field(default=0, ge=0)
+
+
 class FactorBaseWeights(BaseModel):
     momentum: float
     value: float
@@ -219,6 +237,7 @@ class Config(BaseModel):
     universe: UniverseConfig
     dates: DatesConfig
     estimation_windows: EstimationWindowsConfig
+    pit_lag: PitLagConfig = PitLagConfig()   # optional; defaults to 0/0
     factors: FactorConfig
     dynamic_weights: DynamicWeightsConfig
     portfolio: PortfolioConfig

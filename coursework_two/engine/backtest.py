@@ -152,6 +152,12 @@ class BacktestEngine:
     _ledger_rows: list[dict] = field(default_factory=list)
 
     _prev_weights: dict[Strategy, pd.Series] = field(default_factory=dict)
+    # Separate cache for cost-drag calculation in `_assemble_portfolio_returns_row`.
+    # The `_prev_weights` dict is mutated to the CURRENT weights before the
+    # assembler runs, so a turnover query against it would compare
+    # w_current to w_current (= 0).  We snapshot the pre-update weights here
+    # so `_recent_turnover` sees (new, old) not (new, empty).
+    _prev_weights_for_cost: dict[Strategy, pd.Series] = field(default_factory=dict)
     _prev_longs: dict[Strategy, list[str]] = field(default_factory=dict)
     _prev_shorts: dict[Strategy, list[str]] = field(default_factory=dict)
     _nav: dict[Strategy, float] = field(default_factory=dict)
@@ -436,7 +442,12 @@ class BacktestEngine:
                 self._nav[strategy] *= (1 + r_net_20)
                 rs.record_nav(pd.Timestamp(rb_date), self._nav[strategy])
 
-                # Store
+                # Store — snapshot the pre-update weights so the cost-drag
+                # calculation in _assemble_portfolio_returns_row sees the
+                # correct rebalance-to-rebalance turnover (PR-6 fix).
+                self._prev_weights_for_cost[strategy] = self._prev_weights.get(
+                    strategy, pd.Series(dtype=float)
+                ).copy()
                 self._prev_weights[strategy] = w_scaled
                 if strategy == Strategy.DYNAMIC_BANDIT:
                     bandit_engine.update_reward(r_net_20)
@@ -829,9 +840,25 @@ class BacktestEngine:
 
     # ------------------------------------------------------------------
     def _recent_turnover(self, strategy: Strategy) -> float:
-        # Use stored previous to new weights diff
+        """One-way turnover for the just-completed rebalance.
+
+        Called from ``_assemble_portfolio_returns_row`` to compute the
+        cost-drag component of the net-return columns in
+        ``portfolio_returns.parquet``.
+
+        **Bug fix (PR-6 / #2):** previously compared the new weights to an
+        empty ``Series``, which makes ``one_way_turnover`` equal to
+        ``0.5 × sum(|w|) ≈ 1.0`` for a dollar-neutral book.  That inflated
+        the cost drag in the net-return columns vs. the main-loop NAV
+        update (which correctly used the pre-update weights) and caused
+        the exposure-log ``turnover_1way`` (actual ~ 0.71) to diverge
+        from the cost implied by the net-return columns.  Now compares
+        the current weights against ``_prev_weights_for_cost`` (the
+        pre-update snapshot), matching the main-loop calculation exactly.
+        """
         w_new = self._prev_weights.get(strategy, pd.Series(dtype=float))
-        return self.cost_model.one_way_turnover(w_new, pd.Series(dtype=float))
+        w_prev = self._prev_weights_for_cost.get(strategy, pd.Series(dtype=float))
+        return self.cost_model.one_way_turnover(w_new, w_prev)
 
     # ------------------------------------------------------------------
     def _leg_alpha(self, leg_weights: pd.Series, ctx: PITContext, rb_date: date) -> float:
