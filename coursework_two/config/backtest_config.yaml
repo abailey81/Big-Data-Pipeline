@@ -164,7 +164,7 @@ costs:
 bandit:
   # Linear Thompson Sampling (§5.4)
   enabled: true
-  n_arms: 12
+  n_arms: 8             # Updated to match 2F arm menu (was 12 for 4F)
   context_dim: 12
   prior_sigma2: 1.0
   warmup_months: 6
