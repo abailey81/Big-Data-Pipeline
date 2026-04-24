@@ -67,3 +67,7 @@ coursework_two/docs/_build/
 coursework_two/.env
 coursework_two/.env.*
 !coursework_two/.env.example
+
+
+# Analysis scratch dirs (PR #7 cost-stress writes per-stress backtest outputs here)
+analysis/_cost_stress_output/
