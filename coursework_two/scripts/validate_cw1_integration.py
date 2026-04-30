@@ -73,7 +73,7 @@ def main() -> None:
             )
             actual = {r[0] for r in conn.execute(q, {"sch": cfg.database.schema_, "tbl": table}).all()}
             missing = expected - actual
-            status = "✅" if not missing else f"❌ missing {sorted(missing)}"
+            status = "OK" if not missing else f"MISSING {sorted(missing)}"
             lines.append(f"| `{table}` | {', '.join(sorted(expected))} | {status} |\n")
     lines.append("\n")
 
@@ -114,7 +114,7 @@ def main() -> None:
     lines.append("| Symbol | Expected | Inferred | OK |\n|---|---|---|---|\n")
     for sym, expected in parity:
         inferred = infer_currency(sym)
-        ok = "✅" if inferred == expected else "❌"
+        ok = "OK" if inferred == expected else "FAIL"
         lines.append(f"| `{sym}` | {expected} | {inferred} | {ok} |\n")
     lines.append("\n")
 
@@ -155,14 +155,14 @@ def main() -> None:
 
     # -------- Verdict --------
     lines.append("## 6 · Verdict\n\n")
-    lines.append("✅ CW1↔CW2 integration is **live and contract-valid**.  CW2 reads the CW1 schema "
-                 "in-place — no data duplication, no schema drift.\n")
+    lines.append("CW1 -> CW2 integration is live and contract-valid: CW2 reads the CW1 schema "
+                 "in-place with no data duplication and no schema drift.\n")
 
     output = report_dir / "cw1_integration.md"
     output.write_text("".join(lines))
     print(f"Wrote {output.relative_to(ROOT)}")
     # Echo concise summary to stdout for CI
-    print(f"Integration verdict: ✅ CW1 schema live; {sum(covers.values())} total symbol-coverage entries")
+    print(f"Integration verdict: CW1 schema live; {sum(covers.values())} total symbol-coverage entries")
 
 
 if __name__ == "__main__":

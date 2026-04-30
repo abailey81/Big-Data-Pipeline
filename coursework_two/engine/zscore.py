@@ -94,7 +94,9 @@ class ZScoreEngine:
     ) -> pd.Series:
         """Weighted sum composite z-score.
 
-        Defaults to the baseline 30/30/25/15 from config if ``weights`` None.
+        Defaults to ``cfg.factors.base_weights`` if ``weights`` is None
+        (the implemented composite is 50/50 momentum + value; quality and
+        sentiment carry zero weight per the IC-based factor reduction).
 
         **Sentinel-coverage safeguard**: if any factor has zero non-zero
         coverage across the universe (e.g. sentiment missing pre-snapshot),

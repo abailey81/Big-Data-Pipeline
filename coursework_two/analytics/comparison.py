@@ -1,7 +1,7 @@
 """Static vs dynamic head-to-head comparison (PLAN §10.3).
 
 Four variants:
-    (a) Static 30/30/25/15 baseline
+    (a) Static baseline (``cfg.factors.base_weights`` — 50/50 mom + val)
     (b) VIX-only tilting (γ=0, λ as tuned)
     (c) Dispersion-only scaling (γ as tuned, λ=0)
     (d) Combined (full dynamic model)

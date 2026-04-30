@@ -159,7 +159,7 @@ sequenceDiagram
   ZE-->>WE: orthogonalised z-scores + composite
 
   par Static
-    WE->>WE: 30/30/25/15 baseline
+    WE->>WE: 50/50 mom + value baseline
   and Dynamic Grid
     WE->>WE: regime × dispersion tilt
   and Bandit

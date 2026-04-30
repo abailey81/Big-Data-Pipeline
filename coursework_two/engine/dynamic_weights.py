@@ -107,7 +107,12 @@ def factor_dispersion(
 # =============================================================================
 @dataclass
 class StaticWeights:
-    """Baseline 30/30/25/15 composite weights (CW1 §3.4)."""
+    """Static composite weights from ``cfg.factors.base_weights``.
+
+    Implemented composite is 50/50 momentum + value (CW1's original
+    30/30/25/15 four-factor proposal was reduced to two factors based
+    on out-of-sample IC evidence — see report §§1.2, 2.2.1, 4.2).
+    """
 
     cfg: Config
 

@@ -458,7 +458,12 @@
 <a class="viewcode-back" href="../../api_engine.html#engine.dynamic_weights.StaticWeights">[docs]</a>
 <span class="nd">@dataclass</span>
 <span class="k">class</span><span class="w"> </span><span class="nc">StaticWeights</span><span class="p">:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Baseline 30/30/25/15 composite weights (CW1 §3.4).&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Static composite weights from ``cfg.factors.base_weights``.</span>
+
+<span class="sd">    Implemented composite is 50/50 momentum + value (CW1&#39;s original</span>
+<span class="sd">    30/30/25/15 four-factor proposal was reduced to two factors based</span>
+<span class="sd">    on out-of-sample IC evidence — see report §§1.2, 2.2.1, 4.2).</span>
+<span class="sd">    &quot;&quot;&quot;</span>
 
     <span class="n">cfg</span><span class="p">:</span> <span class="n">Config</span>
 

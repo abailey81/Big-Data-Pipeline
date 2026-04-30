@@ -444,7 +444,9 @@
     <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">pd</span><span class="o">.</span><span class="n">Series</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Weighted sum composite z-score.</span>
 
-<span class="sd">        Defaults to the baseline 30/30/25/15 from config if ``weights`` None.</span>
+<span class="sd">        Defaults to ``cfg.factors.base_weights`` if ``weights`` is None</span>
+<span class="sd">        (the implemented composite is 50/50 momentum + value; quality and</span>
+<span class="sd">        sentiment carry zero weight per the IC-based factor reduction).</span>
 
 <span class="sd">        **Sentinel-coverage safeguard**: if any factor has zero non-zero</span>
 <span class="sd">        coverage across the universe (e.g. sentiment missing pre-snapshot),</span>
