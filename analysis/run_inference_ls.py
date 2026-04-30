@@ -93,7 +93,12 @@ for col, label in LS_VARIANTS:
     print(f"  Hit rate:              {metrics['hit_rate']:+.1%}")
 
     print(f"\n  Statistical Inference\n  {'-'*42}")
-    bs = circular_block_bootstrap_sharpe(returns=ret, block_size=BLOCK_SIZE,
+    # Bootstrap CI on the EXCESS-return series — matches the convention
+    # used in the report's Table 11 ("Observed Excess SR" with bootstrap
+    # 95% CI).  Passing raw returns would shift the CI roughly +0.4 units
+    # higher and not match the headline figure.
+    excess_ret = ret - rf
+    bs = circular_block_bootstrap_sharpe(returns=excess_ret, block_size=BLOCK_SIZE,
                                           n_bootstrap=N_BOOTSTRAP, seed=SEED, ann=ANN)
     metrics["bootstrap_mean"] = bs["mean"]
     metrics["bootstrap_std"] = bs["std"]

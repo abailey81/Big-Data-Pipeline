@@ -50,7 +50,7 @@ flowchart TB
     A11[regime_performance.py<br/>§7.6 per-regime metrics]
   end
 
-  subgraph OUT["output/ — 17 Parquet files (Data Contract §6, v0.3.0)"]
+  subgraph OUT["output/ — 17 Parquet files (Data Contract §6)"]
     P1[portfolio_returns<br/>+ hrp_net_20bp + long/short_leg]
     P2[portfolio_weights<br/>5 % iterative cap]
     P3[factor_scores]

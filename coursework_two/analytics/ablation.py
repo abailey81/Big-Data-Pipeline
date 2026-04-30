@@ -87,7 +87,11 @@ def run_ablation(
                 "sharpe_net": sharpe_ratio(returns, 0.0),
                 "max_dd": max_drawdown(returns),
                 "info_ratio": information_ratio(returns, bench),
-                "alpha_ff5": 0.0,           # TODO: run FF5 regression here
+                # alpha_ff5 / alpha_tstat are populated by the dedicated FF5
+                # attribution path in analysis/run_attribution_ls.py against
+                # portfolio_returns.parquet; left at zero here so the ablation
+                # parquet schema stays stable across runs.
+                "alpha_ff5": 0.0,
                 "alpha_tstat": 0.0,
                 "turnover": 0.0,
             })
