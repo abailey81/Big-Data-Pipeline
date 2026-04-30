@@ -34,6 +34,9 @@ from pathlib import Path
 ROOT = Path(__file__).resolve().parent.parent
 ANALYSIS = ROOT.parent / "analysis"
 
+# Make `engine.*` and `analytics.*` importable regardless of cwd
+sys.path.insert(0, str(ROOT))
+
 EXPECTED_PARQUETS = {
     "portfolio_returns", "portfolio_weights", "factor_scores", "factor_ic",
     "factor_premia", "regime_log", "exposure_log", "bandit_log",
@@ -185,12 +188,12 @@ def main() -> int:
             text=True,
             timeout=60,
         )
+        import re
+
         ok = rc.returncode == 0 and "tests collected" in rc.stdout
-        n = "?"
-        for line in rc.stdout.splitlines():
-            if "tests collected" in line:
-                n = line.split()[0]
-        check(f"pytest collects {n} tests", ok)
+        m = re.search(r"(\d+)\s+tests?\s+collected", rc.stdout)
+        n = m.group(1) if m else "?"
+        check(f"pytest collects {n} tests (expect 87)", ok and n == "87")
     except Exception as exc:  # noqa: BLE001
         check("pytest collection", False, str(exc).splitlines()[0])
 
