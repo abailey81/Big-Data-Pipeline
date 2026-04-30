@@ -72,12 +72,18 @@ docker compose up -d --build                  # postgres_db_cw on localhost:5439
 cd coursework_two
 poetry install                                # ≈ 60 s
 
-# 3. Verify DB is reachable
+# 3. Register a Jupyter kernel that points at Poetry's Python.
+#    Required so nbconvert / `jupyter notebook` execute the tearsheet
+#    against the venv (Python 3.13 + scipy 1.17) rather than any
+#    pre-existing system kernel.
+poetry run python -m ipykernel install --user --name=cw2-poetry --display-name="CW2 (poetry venv)"
+
+# 4. Verify DB is reachable
 poetry run python -c "from engine.data_loader import DataLoader; \
     from engine.config import load_config; \
     print('DB reachable' if DataLoader(load_config()).health_check() else 'DB unreachable')"
 
-# 4. Continue with Path B
+# 5. Continue with Path B
 ```
 
 ### Path B — run CW2 only (CW1 DB already up)
@@ -108,10 +114,11 @@ poetry run python ../analysis/run_inference_ls.py       # ~ 30 s — Tables 11�
 poetry run python ../analysis/run_cost_stress_ls_v2.py  # ~  6 min — Table 14
 
 # Tearsheet — paths are relative to coursework_two/
-poetry run jupyter nbconvert --to notebook --execute \
+poetry run python -m jupyter nbconvert --to notebook --execute \
     notebooks/CW2_Tearsheet.ipynb --inplace \
+    --ExecutePreprocessor.kernel_name=cw2-poetry \
     --ExecutePreprocessor.timeout=900
-poetry run jupyter nbconvert --to html notebooks/CW2_Tearsheet.ipynb
+poetry run python -m jupyter nbconvert --to html notebooks/CW2_Tearsheet.ipynb
 ```
 
 **Headline-only fast path** (~ 8 min — skips sensitivity, ablation, cost stress, since those are committed in the repo):
@@ -124,8 +131,10 @@ poetry run python Main.py --mode monte_carlo && \
 poetry run python Main.py --mode regime_perf && \
 poetry run python ../analysis/run_attribution_ls.py && \
 poetry run python ../analysis/run_inference_ls.py && \
-poetry run jupyter nbconvert --to notebook --execute \
-    notebooks/CW2_Tearsheet.ipynb --inplace --ExecutePreprocessor.timeout=900
+poetry run python -m jupyter nbconvert --to notebook --execute \
+    notebooks/CW2_Tearsheet.ipynb --inplace \
+    --ExecutePreprocessor.kernel_name=cw2-poetry \
+    --ExecutePreprocessor.timeout=900
 ```
 
 ### Path C — tearsheet only (no DB required)
@@ -137,10 +146,17 @@ without touching Postgres:
 ```bash
 cd coursework_two
 poetry install
-poetry run jupyter nbconvert --to notebook --execute \
-    notebooks/CW2_Tearsheet.ipynb --inplace
-poetry run jupyter nbconvert --to html notebooks/CW2_Tearsheet.ipynb
+poetry run python -m ipykernel install --user --name=cw2-poetry --display-name="CW2 (poetry venv)"
+poetry run python -m jupyter nbconvert --to notebook --execute \
+    notebooks/CW2_Tearsheet.ipynb --inplace \
+    --ExecutePreprocessor.kernel_name=cw2-poetry \
+    --ExecutePreprocessor.timeout=900
+poetry run python -m jupyter nbconvert --to html notebooks/CW2_Tearsheet.ipynb
 ```
+
+The notebook ships with `kernelspec.name = "cw2-poetry"` so Jupyter Lab /
+Notebook / VS Code will auto-select the right interpreter once the
+kernel is registered.
 
 ### What each engine mode does
 
@@ -198,6 +214,8 @@ weight to momentum and value, and `factor_ic.parquet` records
 | `CW1 DB unreachable: psycopg2.OperationalError ... port 5439 ... Connection refused` | CW1 Docker is down.  From the repo root: `docker compose up -d --build`. |
 | `pyarrow ... Failed ... ModuleNotFoundError: No module named 'pkg_resources'` (on Python 3.13) | Old `poetry.lock` pinning pyarrow 15.  `poetry lock && poetry install` — the committed `pyproject.toml` requires pyarrow ≥ 18 which ships Py 3.13 wheels. |
 | `scipy TypeError ... _fitpack_impl.py` during pytest | `poetry run pytest` resolved a system-Python pytest from `PATH` instead of the venv's pytest (a known macOS issue when both Python 3.9 framework and Homebrew Python 3.13 are installed).  Use `poetry run python -m pytest test/` — invoking pytest as a module forces the venv's Python. |
+| `scipy TypeError ... _fitpack_impl.py` inside a notebook cell | The Jupyter kernel attached to the notebook is the system `python3` (Python 3.9), not Poetry's Python 3.13.  Register a venv-pointing kernel: `poetry run python -m ipykernel install --user --name=cw2-poetry --display-name="CW2 (poetry venv)"` and either select that kernel in Jupyter or pass `--ExecutePreprocessor.kernel_name=cw2-poetry` to nbconvert. |
+| `Cannot install scipy` / `Cannot install pandas-market-calendars` from `poetry install` | Poetry is targeting an externally-managed Python (Homebrew's `/usr/local/lib/python3.13/site-packages`) with a stale `dist-info` that blocks reinstall.  Force an in-project venv: `poetry config virtualenvs.in-project true && poetry env remove --all && poetry install`. |
 | Headline numbers differ slightly from the report | The CW1 snapshot has moved since the report was frozen.  The report's tables reference the snapshot whose hash is stamped in `output/backtest_metadata.parquet::data_snapshot_sha256`; current parquets reflect today's snapshot.  This is expected and the analysis CSVs always reflect the current run. |
 
 ## Data Contract

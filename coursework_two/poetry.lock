@@ -3232,4 +3232,4 @@ ml = ["hmmlearn", "lightgbm"]
 [metadata]
 lock-version = "2.1"
 python-versions = ">=3.10,<3.14"
-content-hash = "d292673163301a06ac131897ae0158490f3e2f9ad8090ebc44eb1b29765e57f2"
+content-hash = "9821fa42af5a911df1f6325923ce6a381ba7893269ff42a675ed306f45694d15"
