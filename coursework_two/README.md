@@ -46,30 +46,6 @@ the accompanying report.
 
 ## Quick Start
 
-### One-command marker run
-
-The repository includes a `run_marker.sh` wrapper that handles every
-known macOS / Poetry / Jupyter gotcha (Homebrew externally-managed
-Python, system-Python pytest shadowing, kernel registration, in-project
-venv configuration) and prints a 35-check PASS / FAIL summary at the
-end.  From `coursework_two/`:
-
-```bash
-chmod +x run_marker.sh
-./run_marker.sh tearsheet     # ~3 min  — renders the tearsheet from committed parquets, no DB required
-./run_marker.sh fast          # ~8 min  — runs full + stress + monte_carlo + analysis + tearsheet (needs CW1 DB)
-./run_marker.sh full          # ~40 min — adds sensitivity (~8 min) + ablation (~30 min) + cost stress (~6 min)
-```
-
-The wrapper exits non-zero on any check failure, with the failing checks
-listed first.  All three modes finish by running
-`scripts/verify_pipeline.py` which confirms 17 parquets, 3 analysis
-CSVs, the rendered notebook, all 23 engine + analytics modules importable,
-87 unit tests collectable, and headline numbers within tolerance of the
-report.
-
-### Manual paths (if you prefer to run step-by-step)
-
 CW2 reads the CW1 PostgreSQL schema directly — there is no separate
 CW2 data layer.  Pick the path that matches your starting state:
 
