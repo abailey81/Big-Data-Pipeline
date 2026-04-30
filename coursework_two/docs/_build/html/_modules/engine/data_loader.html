@@ -1,0 +1,1016 @@
+
+<!DOCTYPE html>
+
+
+<html lang="en" data-content_root="../../" >
+
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>engine.data_loader &#8212; CW2 Backtest Engine — Team Kolmogorov</title>
+  
+  
+  
+  <script data-cfasync="false">
+    document.documentElement.dataset.mode = localStorage.getItem("mode") || "";
+    document.documentElement.dataset.theme = localStorage.getItem("theme") || "";
+  </script>
+  <!--
+    this give us a css class that will be invisible only if js is disabled
+  -->
+  <noscript>
+    <style>
+      .pst-js-only { display: none !important; }
+
+    </style>
+  </noscript>
+  
+  <!-- Loaded before other Sphinx assets -->
+  <link href="../../_static/styles/theme.css?digest=8878045cc6db502f8baf" rel="stylesheet" />
+<link href="../../_static/styles/pydata-sphinx-theme.css?digest=8878045cc6db502f8baf" rel="stylesheet" />
+
+    <link rel="stylesheet" type="text/css" href="../../_static/pygments.css?v=8f2a1f02" />
+  
+  <!-- So that users can add custom icons -->
+  <script src="../../_static/scripts/fontawesome.js?digest=8878045cc6db502f8baf"></script>
+  <!-- Pre-loaded scripts that we'll load fully later -->
+  <link rel="preload" as="script" href="../../_static/scripts/bootstrap.js?digest=8878045cc6db502f8baf" />
+<link rel="preload" as="script" href="../../_static/scripts/pydata-sphinx-theme.js?digest=8878045cc6db502f8baf" />
+
+    <script src="../../_static/documentation_options.js?v=71d9d8e6"></script>
+    <script src="../../_static/doctools.js?v=9bcbadda"></script>
+    <script src="../../_static/sphinx_highlight.js?v=dc90522c"></script>
+    <script>DOCUMENTATION_OPTIONS.pagename = '_modules/engine/data_loader';</script>
+    <link rel="index" title="Index" href="../../genindex.html" />
+    <link rel="search" title="Search" href="../../search.html" />
+  <meta name="viewport" content="width=device-width, initial-scale=1"/>
+  <meta name="docsearch:language" content="en"/>
+  <meta name="docsearch:version" content="" />
+  </head>
+  
+  
+  <body data-bs-spy="scroll" data-bs-target=".bd-toc-nav" data-offset="180" data-bs-root-margin="0px 0px -60%" data-default-mode="">
+
+  
+  
+  <div id="pst-skip-link" class="skip-link d-print-none"><a href="#main-content">Skip to main content</a></div>
+  
+  <div id="pst-scroll-pixel-helper"></div>
+  
+  <button type="button" class="btn rounded-pill" id="pst-back-to-top">
+    <i class="fa-solid fa-arrow-up"></i>Back to top</button>
+
+  
+  <dialog id="pst-search-dialog">
+    
+<form class="bd-search d-flex align-items-center"
+      action="../../search.html"
+      method="get">
+  <i class="fa-solid fa-magnifying-glass"></i>
+  <input type="search"
+         class="form-control"
+         name="q"
+         placeholder="Search the docs ..."
+         aria-label="Search the docs ..."
+         autocomplete="off"
+         autocorrect="off"
+         autocapitalize="off"
+         spellcheck="false"/>
+  <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd>K</kbd></span>
+</form>
+  </dialog>
+
+  <div class="pst-async-banner-revealer d-none">
+  <aside id="bd-header-version-warning" class="d-none d-print-none" aria-label="Version warning"></aside>
+</div>
+
+  
+    <header class="bd-header navbar navbar-expand-lg bd-navbar d-print-none">
+<div class="bd-header__inner bd-page-width">
+  <button class="pst-navbar-icon sidebar-toggle primary-toggle" aria-label="Site navigation">
+    <span class="fa-solid fa-bars"></span>
+  </button>
+  
+  
+  <div class="col-lg-3 navbar-header-items__start">
+    
+      <div class="navbar-item">
+
+  
+    
+  
+
+<a class="navbar-brand logo" href="../../index.html">
+  
+  
+  
+  
+  
+  
+    <p class="title logo__title">CW2 Backtest Engine — Team Kolmogorov</p>
+  
+</a></div>
+    
+  </div>
+  
+  <div class="col-lg-9 navbar-header-items">
+    
+    <div class="me-auto navbar-header-items__center">
+      
+        <div class="navbar-item">
+<nav>
+  <ul class="bd-navbar-elements navbar-nav">
+    
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../installation.html">
+    Installation
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../architecture.html">
+    Architecture
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../usage.html">
+    Usage
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../api_engine.html">
+    Engine API Reference
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../api_analytics.html">
+    Analytics API Reference
+  </a>
+</li>
+
+  </ul>
+</nav></div>
+      
+    </div>
+    
+    
+    <div class="navbar-header-items__end">
+      
+        <div class="navbar-item navbar-persistent--container">
+          
+
+<button class="btn search-button-field search-button__button pst-js-only" title="Search" aria-label="Search" data-bs-placement="bottom" data-bs-toggle="tooltip">
+ <i class="fa-solid fa-magnifying-glass"></i>
+ <span class="search-button__default-text">Search</span>
+ <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd class="kbd-shortcut__modifier">K</kbd></span>
+</button>
+        </div>
+      
+      
+        <div class="navbar-item">
+
+<button class="btn btn-sm nav-link pst-navbar-icon theme-switch-button pst-js-only" aria-label="Color mode" data-bs-title="Color mode"  data-bs-placement="bottom" data-bs-toggle="tooltip">
+  <i class="theme-switch fa-solid fa-sun                fa-lg" data-mode="light" title="Light"></i>
+  <i class="theme-switch fa-solid fa-moon               fa-lg" data-mode="dark"  title="Dark"></i>
+  <i class="theme-switch fa-solid fa-circle-half-stroke fa-lg" data-mode="auto"  title="System Settings"></i>
+</button></div>
+      
+    </div>
+    
+  </div>
+  
+  
+    <div class="navbar-persistent--mobile">
+
+<button class="btn search-button-field search-button__button pst-js-only" title="Search" aria-label="Search" data-bs-placement="bottom" data-bs-toggle="tooltip">
+ <i class="fa-solid fa-magnifying-glass"></i>
+ <span class="search-button__default-text">Search</span>
+ <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd class="kbd-shortcut__modifier">K</kbd></span>
+</button>
+    </div>
+  
+
+  
+</div>
+
+    </header>
+  
+
+  <div class="bd-container">
+    <div class="bd-container__inner bd-page-width">
+      
+      
+      
+        
+      
+      <dialog id="pst-primary-sidebar-modal"></dialog>
+      <div id="pst-primary-sidebar" class="bd-sidebar-primary bd-sidebar hide-on-wide">
+        
+
+  
+  <div class="sidebar-header-items sidebar-primary__section">
+    
+    
+      <div class="sidebar-header-items__center">
+        
+          
+          
+            <div class="navbar-item">
+<nav>
+  <ul class="bd-navbar-elements navbar-nav">
+    
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../installation.html">
+    Installation
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../architecture.html">
+    Architecture
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../usage.html">
+    Usage
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../api_engine.html">
+    Engine API Reference
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../api_analytics.html">
+    Analytics API Reference
+  </a>
+</li>
+
+  </ul>
+</nav></div>
+          
+        
+      </div>
+    
+    
+    
+      <div class="sidebar-header-items__end">
+        
+          <div class="navbar-item">
+
+<button class="btn btn-sm nav-link pst-navbar-icon theme-switch-button pst-js-only" aria-label="Color mode" data-bs-title="Color mode"  data-bs-placement="bottom" data-bs-toggle="tooltip">
+  <i class="theme-switch fa-solid fa-sun                fa-lg" data-mode="light" title="Light"></i>
+  <i class="theme-switch fa-solid fa-moon               fa-lg" data-mode="dark"  title="Dark"></i>
+  <i class="theme-switch fa-solid fa-circle-half-stroke fa-lg" data-mode="auto"  title="System Settings"></i>
+</button></div>
+        
+      </div>
+    
+  </div>
+  
+  
+  <div class="sidebar-primary-items__end sidebar-primary__section">
+      <div class="sidebar-primary-item">
+<div id="ethical-ad-placement"
+      class="flat"
+      data-ea-publisher="readthedocs"
+      data-ea-type="readthedocs-sidebar"
+      data-ea-manual="true">
+</div></div>
+  </div>
+
+
+      </div>
+      
+      <main id="main-content" class="bd-main" role="main">
+        
+        
+          <div class="bd-content">
+            <div class="bd-article-container">
+              
+              <div class="bd-header-article d-print-none">
+<div class="header-article-items header-article__inner">
+  
+    <div class="header-article-items__start">
+      
+        <div class="header-article-item">
+
+<nav aria-label="Breadcrumb" class="d-print-none">
+  <ul class="bd-breadcrumbs">
+    
+    <li class="breadcrumb-item breadcrumb-home">
+      <a href="../../index.html" class="nav-link" aria-label="Home">
+        <i class="fa-solid fa-home"></i>
+      </a>
+    </li>
+    
+    <li class="breadcrumb-item"><a href="../index.html" class="nav-link">Module code</a></li>
+    
+    <li class="breadcrumb-item active" aria-current="page"><span class="ellipsis">engine.data_loader</span></li>
+  </ul>
+</nav>
+</div>
+      
+    </div>
+  
+  
+</div>
+</div>
+              
+              
+              
+                
+<div id="searchbox"></div>
+                <article class="bd-article">
+                  
+  <h1>Source code for engine.data_loader</h1><div class="highlight"><pre>
+<span></span><span class="sd">&quot;&quot;&quot;Point-in-time data loader querying the CW1 PostgreSQL schema directly.</span>
+
+<span class="sd">CW2 is a natural continuation of CW1: we do **not** duplicate CW1 data.  We</span>
+<span class="sd">query the live ``systematic_equity`` schema (port 5439, fift DB) at each</span>
+<span class="sd">rebalance date, enforcing the seven PIT rules (PLAN.md §7.3) via SQL</span>
+<span class="sd">``WHERE`` clauses.</span>
+
+<span class="sd">CW1↔CW2 tight coupling</span>
+<span class="sd">----------------------</span>
+<span class="sd">- CW1 table names are used verbatim: ``daily_prices``, ``fundamentals`` (EAV),</span>
+<span class="sd">  ``fx_rates``, ``vix_data``, ``risk_free_rate``, ``benchmark_index``,</span>
+<span class="sd">  ``news_sentiment``, ``company_static``, ``company_ratios``.</span>
+<span class="sd">- Currency-mapping rules mirror CW1 ``modules/processing/ticker_utils.py``:</span>
+<span class="sd">  `.L → GBP`, `.PA/.AS/.DE/.MC/.MI → EUR`, `.TO → CAD`, `.S / .SW → CHF`,</span>
+<span class="sd">  default USD.  We read ``company_static.currency`` when available.</span>
+<span class="sd">- Return conversion formula follows CW1 report §2.5:</span>
+<span class="sd">  ``R^USD_t = (1 + R^local_t)·(FX_t/FX_{t-1}) - 1``.</span>
+
+<span class="sd">Key PIT guarantees</span>
+<span class="sd">------------------</span>
+<span class="sd">1. ``fundamentals`` filter uses ``report_date ≤ rebalance_date`` (NOT</span>
+<span class="sd">   ``period_end``) — CW1 §5.1 flagged this as a look-ahead-bias trap.</span>
+<span class="sd">2. News sentiment: ``cob_date ≤ rebalance_date``.</span>
+<span class="sd">3. VIX regime: only trailing 252 days to ``rebalance_date - 1``.</span>
+<span class="sd">4. Prices: close of ``rebalance_date − 1`` for both signal and return.</span>
+
+<span class="sd">References</span>
+<span class="sd">----------</span>
+<span class="sd">CW1 report §§2.3, 2.5, 5.1; Korajczyk &amp; Sadka (2004); Diether-Lee-Werner (2009).</span>
+<span class="sd">&quot;&quot;&quot;</span>
+
+<span class="kn">from</span><span class="w"> </span><span class="nn">__future__</span><span class="w"> </span><span class="kn">import</span> <span class="n">annotations</span>
+
+<span class="kn">import</span><span class="w"> </span><span class="nn">logging</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">dataclasses</span><span class="w"> </span><span class="kn">import</span> <span class="n">dataclass</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">datetime</span><span class="w"> </span><span class="kn">import</span> <span class="n">date</span><span class="p">,</span> <span class="n">timedelta</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">typing</span><span class="w"> </span><span class="kn">import</span> <span class="n">Optional</span>
+
+<span class="kn">import</span><span class="w"> </span><span class="nn">numpy</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">np</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">pandas</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">pd</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">sqlalchemy</span><span class="w"> </span><span class="kn">import</span> <span class="n">create_engine</span><span class="p">,</span> <span class="n">text</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">sqlalchemy.engine</span><span class="w"> </span><span class="kn">import</span> <span class="n">Engine</span>
+
+<span class="kn">from</span><span class="w"> </span><span class="nn">engine.config</span><span class="w"> </span><span class="kn">import</span> <span class="n">Config</span><span class="p">,</span> <span class="n">DatabaseConfig</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">engine.types</span><span class="w"> </span><span class="kn">import</span> <span class="n">UniverseSnapshot</span>
+
+<span class="n">logger</span> <span class="o">=</span> <span class="n">logging</span><span class="o">.</span><span class="n">getLogger</span><span class="p">(</span><span class="vm">__name__</span><span class="p">)</span>
+
+
+<span class="c1"># =============================================================================</span>
+<span class="c1"># CW1↔CW2 shared conventions</span>
+<span class="c1"># =============================================================================</span>
+<span class="n">_CW1_CURRENCY_MAP</span> <span class="o">=</span> <span class="p">{</span>
+    <span class="s2">&quot;.L&quot;</span><span class="p">:</span> <span class="s2">&quot;GBP&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;.PA&quot;</span><span class="p">:</span> <span class="s2">&quot;EUR&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;.AS&quot;</span><span class="p">:</span> <span class="s2">&quot;EUR&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;.DE&quot;</span><span class="p">:</span> <span class="s2">&quot;EUR&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;.MC&quot;</span><span class="p">:</span> <span class="s2">&quot;EUR&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;.MI&quot;</span><span class="p">:</span> <span class="s2">&quot;EUR&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;.TO&quot;</span><span class="p">:</span> <span class="s2">&quot;CAD&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;.S&quot;</span><span class="p">:</span> <span class="s2">&quot;CHF&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;.SW&quot;</span><span class="p">:</span> <span class="s2">&quot;CHF&quot;</span><span class="p">,</span>
+<span class="p">}</span>
+<span class="n">_CW1_DEFAULT_CURRENCY</span> <span class="o">=</span> <span class="s2">&quot;USD&quot;</span>
+
+
+<div class="viewcode-block" id="infer_currency">
+<a class="viewcode-back" href="../../api_engine.html#engine.data_loader.infer_currency">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">infer_currency</span><span class="p">(</span><span class="n">symbol</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Currency inference replicating CW1 ``ticker_utils.infer_currency()``.&quot;&quot;&quot;</span>
+    <span class="k">for</span> <span class="n">suffix</span><span class="p">,</span> <span class="n">ccy</span> <span class="ow">in</span> <span class="n">_CW1_CURRENCY_MAP</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+        <span class="k">if</span> <span class="n">symbol</span><span class="o">.</span><span class="n">endswith</span><span class="p">(</span><span class="n">suffix</span><span class="p">):</span>
+            <span class="k">return</span> <span class="n">ccy</span>
+    <span class="k">return</span> <span class="n">_CW1_DEFAULT_CURRENCY</span></div>
+
+
+
+<div class="viewcode-block" id="currency_to_fx_pair">
+<a class="viewcode-back" href="../../api_engine.html#engine.data_loader.currency_to_fx_pair">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">currency_to_fx_pair</span><span class="p">(</span><span class="n">ccy</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Map ISO currency to CW1 FX pair name. USD maps to None (sentinel).&quot;&quot;&quot;</span>
+    <span class="k">if</span> <span class="n">ccy</span> <span class="o">==</span> <span class="s2">&quot;USD&quot;</span><span class="p">:</span>
+        <span class="k">return</span> <span class="kc">None</span>  <span class="c1"># type: ignore</span>
+    <span class="k">return</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">ccy</span><span class="si">}</span><span class="s2">USD=X&quot;</span></div>
+
+
+
+<span class="c1"># =============================================================================</span>
+<span class="c1"># Engine-facing API</span>
+<span class="c1"># =============================================================================</span>
+<div class="viewcode-block" id="PITContext">
+<a class="viewcode-back" href="../../api_engine.html#engine.data_loader.PITContext">[docs]</a>
+<span class="nd">@dataclass</span><span class="p">(</span><span class="n">frozen</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+<span class="k">class</span><span class="w"> </span><span class="nc">PITContext</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;All data needed at a single rebalance date, post-PIT cutoff.&quot;&quot;&quot;</span>
+
+    <span class="n">rebalance_date</span><span class="p">:</span> <span class="n">date</span>
+    <span class="n">universe</span><span class="p">:</span> <span class="n">UniverseSnapshot</span>
+    <span class="n">prices</span><span class="p">:</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span>          <span class="c1"># (date × symbol) adjusted close, trailing lookback</span>
+    <span class="n">returns_local</span><span class="p">:</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span>   <span class="c1"># (date × symbol) local-currency log-returns</span>
+    <span class="n">returns_usd</span><span class="p">:</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span>     <span class="c1"># (date × symbol) USD-converted returns</span>
+    <span class="n">fundamentals</span><span class="p">:</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span>    <span class="c1"># (symbol × field) pivoted EAV of most recent</span>
+    <span class="n">ratios</span><span class="p">:</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span>          <span class="c1"># (symbol × field) pivoted CW1 company_ratios</span>
+    <span class="n">sentiment</span><span class="p">:</span> <span class="n">pd</span><span class="o">.</span><span class="n">Series</span>          <span class="c1"># symbol → composite sentiment_score</span>
+    <span class="n">fx_rates</span><span class="p">:</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span>        <span class="c1"># (date × pair) FX rates</span>
+    <span class="n">vix</span><span class="p">:</span> <span class="n">pd</span><span class="o">.</span><span class="n">Series</span>                <span class="c1"># VIX daily close over lookback</span>
+    <span class="n">rf_rate</span><span class="p">:</span> <span class="nb">float</span>                <span class="c1"># last DGS3MO (decimal)</span>
+    <span class="n">benchmark</span><span class="p">:</span> <span class="n">pd</span><span class="o">.</span><span class="n">Series</span>          <span class="c1"># ^GSPC daily close over lookback</span>
+    <span class="n">avg_dollar_volume</span><span class="p">:</span> <span class="n">pd</span><span class="o">.</span><span class="n">Series</span>  <span class="c1"># symbol → trailing 30d avg $-volume</span></div>
+
+
+
+<div class="viewcode-block" id="DataLoader">
+<a class="viewcode-back" href="../../api_engine.html#engine.data_loader.DataLoader">[docs]</a>
+<span class="k">class</span><span class="w"> </span><span class="nc">DataLoader</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;SQL-backed, PIT-disciplined context loader.</span>
+
+<span class="sd">    All methods respect the seven PIT rules from PLAN.md §7.3.  Heavy queries</span>
+<span class="sd">    are paramterised (SQLAlchemy :text binds) — no string interpolation.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+<div class="viewcode-block" id="DataLoader.__init__">
+<a class="viewcode-back" href="../../api_engine.html#engine.data_loader.DataLoader.__init__">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">cfg</span><span class="p">:</span> <span class="n">Config</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">cfg</span> <span class="o">=</span> <span class="n">cfg</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_engine</span><span class="p">:</span> <span class="n">Engine</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_build_engine</span><span class="p">(</span><span class="n">cfg</span><span class="o">.</span><span class="n">database</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_schema</span> <span class="o">=</span> <span class="n">cfg</span><span class="o">.</span><span class="n">database</span><span class="o">.</span><span class="n">schema_</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_data_snapshot_sha256</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span></div>
+
+
+    <span class="c1"># ------------------------------------------------------------------</span>
+    <span class="nd">@staticmethod</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">_build_engine</span><span class="p">(</span><span class="n">db</span><span class="p">:</span> <span class="n">DatabaseConfig</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Engine</span><span class="p">:</span>
+        <span class="c1"># URL-encode credential fields per security audit finding #2 — handles</span>
+        <span class="c1"># passwords containing special characters safely.</span>
+        <span class="kn">from</span><span class="w"> </span><span class="nn">sqlalchemy.engine</span><span class="w"> </span><span class="kn">import</span> <span class="n">URL</span>
+
+        <span class="n">url</span> <span class="o">=</span> <span class="n">URL</span><span class="o">.</span><span class="n">create</span><span class="p">(</span>
+            <span class="n">drivername</span><span class="o">=</span><span class="s2">&quot;postgresql+psycopg2&quot;</span><span class="p">,</span>
+            <span class="n">username</span><span class="o">=</span><span class="n">db</span><span class="o">.</span><span class="n">user</span><span class="p">,</span>
+            <span class="n">password</span><span class="o">=</span><span class="n">db</span><span class="o">.</span><span class="n">password</span><span class="p">,</span>
+            <span class="n">host</span><span class="o">=</span><span class="n">db</span><span class="o">.</span><span class="n">host</span><span class="p">,</span>
+            <span class="n">port</span><span class="o">=</span><span class="n">db</span><span class="o">.</span><span class="n">port</span><span class="p">,</span>
+            <span class="n">database</span><span class="o">=</span><span class="n">db</span><span class="o">.</span><span class="n">name</span><span class="p">,</span>
+        <span class="p">)</span>
+        <span class="k">return</span> <span class="n">create_engine</span><span class="p">(</span><span class="n">url</span><span class="p">,</span> <span class="n">pool_pre_ping</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">future</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+
+    <span class="c1"># ------------------------------------------------------------------</span>
+<div class="viewcode-block" id="DataLoader.health_check">
+<a class="viewcode-back" href="../../api_engine.html#engine.data_loader.DataLoader.health_check">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">health_check</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="k">with</span> <span class="bp">self</span><span class="o">.</span><span class="n">_engine</span><span class="o">.</span><span class="n">connect</span><span class="p">()</span> <span class="k">as</span> <span class="n">conn</span><span class="p">:</span>
+                <span class="n">n</span> <span class="o">=</span> <span class="n">conn</span><span class="o">.</span><span class="n">execute</span><span class="p">(</span>
+                    <span class="n">text</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;SELECT COUNT(*) FROM </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">_schema</span><span class="si">}</span><span class="s2">.company_static&quot;</span><span class="p">)</span>
+                <span class="p">)</span><span class="o">.</span><span class="n">scalar</span><span class="p">()</span>
+            <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;CW1 DB healthy: </span><span class="si">%d</span><span class="s2"> symbols in company_static&quot;</span><span class="p">,</span> <span class="n">n</span><span class="p">)</span>
+            <span class="k">return</span> <span class="kc">True</span>
+        <span class="k">except</span> <span class="ne">Exception</span> <span class="k">as</span> <span class="n">exc</span><span class="p">:</span>
+            <span class="n">logger</span><span class="o">.</span><span class="n">error</span><span class="p">(</span><span class="s2">&quot;CW1 DB unreachable: </span><span class="si">%s</span><span class="s2">&quot;</span><span class="p">,</span> <span class="n">exc</span><span class="p">)</span>
+            <span class="k">return</span> <span class="kc">False</span></div>
+
+
+    <span class="c1"># ------------------------------------------------------------------</span>
+<div class="viewcode-block" id="DataLoader.load_universe">
+<a class="viewcode-back" href="../../api_engine.html#engine.data_loader.DataLoader.load_universe">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">load_universe</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">as_of</span><span class="p">:</span> <span class="n">date</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">UniverseSnapshot</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Load universe with GICS + currency mapping.</span>
+
+<span class="sd">        CW1 ``company_static`` has no currency column; we join against</span>
+<span class="sd">        ``daily_prices`` (which carries per-row currency) to get the mode</span>
+<span class="sd">        currency per symbol, with suffix-rule fallback for symbols lacking</span>
+<span class="sd">        price rows.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">q</span> <span class="o">=</span> <span class="n">text</span><span class="p">(</span>
+            <span class="sa">f</span><span class="s2">&quot;&quot;&quot;</span>
+<span class="s2">            WITH ccy AS (</span>
+<span class="s2">                SELECT DISTINCT ON (symbol) symbol, currency</span>
+<span class="s2">                FROM </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">_schema</span><span class="si">}</span><span class="s2">.daily_prices</span>
+<span class="s2">                ORDER BY symbol, cob_date DESC</span>
+<span class="s2">            )</span>
+<span class="s2">            SELECT TRIM(cs.symbol) AS symbol,</span>
+<span class="s2">                   cs.gics_sector,</span>
+<span class="s2">                   cs.country,</span>
+<span class="s2">                   ccy.currency</span>
+<span class="s2">            FROM </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">_schema</span><span class="si">}</span><span class="s2">.company_static cs</span>
+<span class="s2">            LEFT JOIN ccy ON ccy.symbol = TRIM(cs.symbol)</span>
+<span class="s2">            WHERE cs.symbol IS NOT NULL</span>
+<span class="s2">            &quot;&quot;&quot;</span>
+        <span class="p">)</span>
+        <span class="n">df</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">read_sql</span><span class="p">(</span><span class="n">q</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_engine</span><span class="p">)</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">cfg</span><span class="o">.</span><span class="n">universe</span><span class="o">.</span><span class="n">variant</span> <span class="o">==</span> <span class="s2">&quot;us_only&quot;</span><span class="p">:</span>
+            <span class="n">df</span> <span class="o">=</span> <span class="n">df</span><span class="p">[</span><span class="n">df</span><span class="p">[</span><span class="s2">&quot;country&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">str</span><span class="o">.</span><span class="n">strip</span><span class="p">()</span><span class="o">.</span><span class="n">str</span><span class="o">.</span><span class="n">upper</span><span class="p">()</span> <span class="o">==</span> <span class="s2">&quot;USA&quot;</span><span class="p">]</span>
+        <span class="n">df</span><span class="p">[</span><span class="s2">&quot;currency&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">df</span><span class="o">.</span><span class="n">apply</span><span class="p">(</span>
+            <span class="k">lambda</span> <span class="n">r</span><span class="p">:</span> <span class="n">r</span><span class="p">[</span><span class="s2">&quot;currency&quot;</span><span class="p">]</span> <span class="k">if</span> <span class="n">pd</span><span class="o">.</span><span class="n">notnull</span><span class="p">(</span><span class="n">r</span><span class="p">[</span><span class="s2">&quot;currency&quot;</span><span class="p">])</span> <span class="k">else</span> <span class="n">infer_currency</span><span class="p">(</span><span class="n">r</span><span class="p">[</span><span class="s2">&quot;symbol&quot;</span><span class="p">]),</span>
+            <span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span>
+        <span class="p">)</span>
+        <span class="n">df</span><span class="p">[</span><span class="s2">&quot;gics_sector&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">df</span><span class="p">[</span><span class="s2">&quot;gics_sector&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">fillna</span><span class="p">(</span><span class="s2">&quot;Unknown&quot;</span><span class="p">)</span>
+        <span class="n">symbols</span> <span class="o">=</span> <span class="n">df</span><span class="p">[</span><span class="s2">&quot;symbol&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">tolist</span><span class="p">()</span>
+        <span class="k">return</span> <span class="n">UniverseSnapshot</span><span class="p">(</span>
+            <span class="n">date</span><span class="o">=</span><span class="n">as_of</span><span class="p">,</span>
+            <span class="n">symbols</span><span class="o">=</span><span class="n">symbols</span><span class="p">,</span>
+            <span class="n">gics_map</span><span class="o">=</span><span class="nb">dict</span><span class="p">(</span><span class="nb">zip</span><span class="p">(</span><span class="n">df</span><span class="p">[</span><span class="s2">&quot;symbol&quot;</span><span class="p">],</span> <span class="n">df</span><span class="p">[</span><span class="s2">&quot;gics_sector&quot;</span><span class="p">])),</span>
+            <span class="n">currency_map</span><span class="o">=</span><span class="nb">dict</span><span class="p">(</span><span class="nb">zip</span><span class="p">(</span><span class="n">df</span><span class="p">[</span><span class="s2">&quot;symbol&quot;</span><span class="p">],</span> <span class="n">df</span><span class="p">[</span><span class="s2">&quot;currency&quot;</span><span class="p">])),</span>
+        <span class="p">)</span></div>
+
+
+    <span class="c1"># ------------------------------------------------------------------</span>
+<div class="viewcode-block" id="DataLoader.load_prices">
+<a class="viewcode-back" href="../../api_engine.html#engine.data_loader.DataLoader.load_prices">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">load_prices</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">as_of</span><span class="p">:</span> <span class="n">date</span><span class="p">,</span> <span class="n">lookback_days</span><span class="p">:</span> <span class="nb">int</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Adjusted close prices for all symbols, trailing lookback.</span>
+
+<span class="sd">        PIT rule 4: close of ``as_of - 1`` is the latest row included.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">start</span> <span class="o">=</span> <span class="n">as_of</span> <span class="o">-</span> <span class="n">timedelta</span><span class="p">(</span><span class="n">days</span><span class="o">=</span><span class="n">lookback_days</span><span class="p">)</span>
+        <span class="n">q</span> <span class="o">=</span> <span class="n">text</span><span class="p">(</span>
+            <span class="sa">f</span><span class="s2">&quot;&quot;&quot;</span>
+<span class="s2">            SELECT cob_date, symbol, adj_close_price AS adj_close</span>
+<span class="s2">            FROM </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">_schema</span><span class="si">}</span><span class="s2">.daily_prices</span>
+<span class="s2">            WHERE cob_date &gt;= :start AND cob_date &lt; :as_of</span>
+<span class="s2">              AND adj_close_price IS NOT NULL</span>
+<span class="s2">            &quot;&quot;&quot;</span>
+        <span class="p">)</span>
+        <span class="n">df</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">read_sql</span><span class="p">(</span><span class="n">q</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_engine</span><span class="p">,</span> <span class="n">params</span><span class="o">=</span><span class="p">{</span><span class="s2">&quot;start&quot;</span><span class="p">:</span> <span class="n">start</span><span class="p">,</span> <span class="s2">&quot;as_of&quot;</span><span class="p">:</span> <span class="n">as_of</span><span class="p">})</span>
+        <span class="n">wide</span> <span class="o">=</span> <span class="n">df</span><span class="o">.</span><span class="n">pivot_table</span><span class="p">(</span><span class="n">index</span><span class="o">=</span><span class="s2">&quot;cob_date&quot;</span><span class="p">,</span> <span class="n">columns</span><span class="o">=</span><span class="s2">&quot;symbol&quot;</span><span class="p">,</span> <span class="n">values</span><span class="o">=</span><span class="s2">&quot;adj_close&quot;</span><span class="p">)</span>
+        <span class="n">wide</span><span class="o">.</span><span class="n">index</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">to_datetime</span><span class="p">(</span><span class="n">wide</span><span class="o">.</span><span class="n">index</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">wide</span><span class="o">.</span><span class="n">sort_index</span><span class="p">()</span></div>
+
+
+    <span class="c1"># ------------------------------------------------------------------</span>
+<div class="viewcode-block" id="DataLoader.load_fx">
+<a class="viewcode-back" href="../../api_engine.html#engine.data_loader.DataLoader.load_fx">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">load_fx</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">as_of</span><span class="p">:</span> <span class="n">date</span><span class="p">,</span> <span class="n">lookback_days</span><span class="p">:</span> <span class="nb">int</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">:</span>
+        <span class="n">start</span> <span class="o">=</span> <span class="n">as_of</span> <span class="o">-</span> <span class="n">timedelta</span><span class="p">(</span><span class="n">days</span><span class="o">=</span><span class="n">lookback_days</span><span class="p">)</span>
+        <span class="n">q</span> <span class="o">=</span> <span class="n">text</span><span class="p">(</span>
+            <span class="sa">f</span><span class="s2">&quot;&quot;&quot;</span>
+<span class="s2">            SELECT cob_date, currency_pair, close_rate</span>
+<span class="s2">            FROM </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">_schema</span><span class="si">}</span><span class="s2">.fx_rates</span>
+<span class="s2">            WHERE cob_date &gt;= :start AND cob_date &lt; :as_of</span>
+<span class="s2">              AND close_rate IS NOT NULL</span>
+<span class="s2">            &quot;&quot;&quot;</span>
+        <span class="p">)</span>
+        <span class="n">df</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">read_sql</span><span class="p">(</span><span class="n">q</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_engine</span><span class="p">,</span> <span class="n">params</span><span class="o">=</span><span class="p">{</span><span class="s2">&quot;start&quot;</span><span class="p">:</span> <span class="n">start</span><span class="p">,</span> <span class="s2">&quot;as_of&quot;</span><span class="p">:</span> <span class="n">as_of</span><span class="p">})</span>
+        <span class="n">wide</span> <span class="o">=</span> <span class="n">df</span><span class="o">.</span><span class="n">pivot_table</span><span class="p">(</span><span class="n">index</span><span class="o">=</span><span class="s2">&quot;cob_date&quot;</span><span class="p">,</span> <span class="n">columns</span><span class="o">=</span><span class="s2">&quot;currency_pair&quot;</span><span class="p">,</span> <span class="n">values</span><span class="o">=</span><span class="s2">&quot;close_rate&quot;</span><span class="p">)</span>
+        <span class="n">wide</span><span class="o">.</span><span class="n">index</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">to_datetime</span><span class="p">(</span><span class="n">wide</span><span class="o">.</span><span class="n">index</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">wide</span><span class="o">.</span><span class="n">sort_index</span><span class="p">()</span><span class="o">.</span><span class="n">ffill</span><span class="p">()</span></div>
+
+
+    <span class="c1"># ------------------------------------------------------------------</span>
+<div class="viewcode-block" id="DataLoader.load_vix">
+<a class="viewcode-back" href="../../api_engine.html#engine.data_loader.DataLoader.load_vix">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">load_vix</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">as_of</span><span class="p">:</span> <span class="n">date</span><span class="p">,</span> <span class="n">lookback_days</span><span class="p">:</span> <span class="nb">int</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">pd</span><span class="o">.</span><span class="n">Series</span><span class="p">:</span>
+        <span class="n">start</span> <span class="o">=</span> <span class="n">as_of</span> <span class="o">-</span> <span class="n">timedelta</span><span class="p">(</span><span class="n">days</span><span class="o">=</span><span class="n">lookback_days</span><span class="p">)</span>
+        <span class="n">q</span> <span class="o">=</span> <span class="n">text</span><span class="p">(</span>
+            <span class="sa">f</span><span class="s2">&quot;&quot;&quot;</span>
+<span class="s2">            SELECT cob_date, close_price</span>
+<span class="s2">            FROM </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">_schema</span><span class="si">}</span><span class="s2">.vix_data</span>
+<span class="s2">            WHERE cob_date &gt;= :start AND cob_date &lt; :as_of</span>
+<span class="s2">              AND close_price IS NOT NULL</span>
+<span class="s2">            &quot;&quot;&quot;</span>
+        <span class="p">)</span>
+        <span class="n">df</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">read_sql</span><span class="p">(</span><span class="n">q</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_engine</span><span class="p">,</span> <span class="n">params</span><span class="o">=</span><span class="p">{</span><span class="s2">&quot;start&quot;</span><span class="p">:</span> <span class="n">start</span><span class="p">,</span> <span class="s2">&quot;as_of&quot;</span><span class="p">:</span> <span class="n">as_of</span><span class="p">})</span>
+        <span class="n">s</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">Series</span><span class="p">(</span>
+            <span class="n">df</span><span class="p">[</span><span class="s2">&quot;close_price&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="nb">float</span><span class="p">)</span><span class="o">.</span><span class="n">values</span><span class="p">,</span>
+            <span class="n">index</span><span class="o">=</span><span class="n">pd</span><span class="o">.</span><span class="n">to_datetime</span><span class="p">(</span><span class="n">df</span><span class="p">[</span><span class="s2">&quot;cob_date&quot;</span><span class="p">]),</span>
+            <span class="n">name</span><span class="o">=</span><span class="s2">&quot;vix&quot;</span><span class="p">,</span>
+        <span class="p">)</span>
+        <span class="k">return</span> <span class="n">s</span><span class="o">.</span><span class="n">sort_index</span><span class="p">()</span></div>
+
+
+    <span class="c1"># ------------------------------------------------------------------</span>
+<div class="viewcode-block" id="DataLoader.load_rf_rate">
+<a class="viewcode-back" href="../../api_engine.html#engine.data_loader.DataLoader.load_rf_rate">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">load_rf_rate</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">as_of</span><span class="p">:</span> <span class="n">date</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">float</span><span class="p">:</span>
+        <span class="n">q</span> <span class="o">=</span> <span class="n">text</span><span class="p">(</span>
+            <span class="sa">f</span><span class="s2">&quot;&quot;&quot;</span>
+<span class="s2">            SELECT rate_pct</span>
+<span class="s2">            FROM </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">_schema</span><span class="si">}</span><span class="s2">.risk_free_rate</span>
+<span class="s2">            WHERE cob_date &lt; :as_of AND rate_pct IS NOT NULL</span>
+<span class="s2">            ORDER BY cob_date DESC</span>
+<span class="s2">            LIMIT 1</span>
+<span class="s2">            &quot;&quot;&quot;</span>
+        <span class="p">)</span>
+        <span class="k">with</span> <span class="bp">self</span><span class="o">.</span><span class="n">_engine</span><span class="o">.</span><span class="n">connect</span><span class="p">()</span> <span class="k">as</span> <span class="n">conn</span><span class="p">:</span>
+            <span class="n">res</span> <span class="o">=</span> <span class="n">conn</span><span class="o">.</span><span class="n">execute</span><span class="p">(</span><span class="n">q</span><span class="p">,</span> <span class="p">{</span><span class="s2">&quot;as_of&quot;</span><span class="p">:</span> <span class="n">as_of</span><span class="p">})</span><span class="o">.</span><span class="n">scalar</span><span class="p">()</span>
+        <span class="c1"># FRED DGS3MO is percent annualised (e.g. 5.3 = 5.3%)</span>
+        <span class="k">return</span> <span class="nb">float</span><span class="p">(</span><span class="n">res</span><span class="p">)</span> <span class="o">/</span> <span class="mf">100.0</span> <span class="k">if</span> <span class="n">res</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="k">else</span> <span class="mf">0.0</span></div>
+
+
+    <span class="c1"># ------------------------------------------------------------------</span>
+<div class="viewcode-block" id="DataLoader.load_benchmark">
+<a class="viewcode-back" href="../../api_engine.html#engine.data_loader.DataLoader.load_benchmark">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">load_benchmark</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">as_of</span><span class="p">:</span> <span class="n">date</span><span class="p">,</span> <span class="n">lookback_days</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span> <span class="n">symbol</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;^GSPC&quot;</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">pd</span><span class="o">.</span><span class="n">Series</span><span class="p">:</span>
+        <span class="n">start</span> <span class="o">=</span> <span class="n">as_of</span> <span class="o">-</span> <span class="n">timedelta</span><span class="p">(</span><span class="n">days</span><span class="o">=</span><span class="n">lookback_days</span><span class="p">)</span>
+        <span class="n">q</span> <span class="o">=</span> <span class="n">text</span><span class="p">(</span>
+            <span class="sa">f</span><span class="s2">&quot;&quot;&quot;</span>
+<span class="s2">            SELECT cob_date, adj_close_price</span>
+<span class="s2">            FROM </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">_schema</span><span class="si">}</span><span class="s2">.benchmark_index</span>
+<span class="s2">            WHERE cob_date &gt;= :start AND cob_date &lt; :as_of</span>
+<span class="s2">              AND symbol = :bench AND adj_close_price IS NOT NULL</span>
+<span class="s2">            &quot;&quot;&quot;</span>
+        <span class="p">)</span>
+        <span class="n">df</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">read_sql</span><span class="p">(</span><span class="n">q</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_engine</span><span class="p">,</span> <span class="n">params</span><span class="o">=</span><span class="p">{</span><span class="s2">&quot;start&quot;</span><span class="p">:</span> <span class="n">start</span><span class="p">,</span> <span class="s2">&quot;as_of&quot;</span><span class="p">:</span> <span class="n">as_of</span><span class="p">,</span> <span class="s2">&quot;bench&quot;</span><span class="p">:</span> <span class="n">symbol</span><span class="p">})</span>
+        <span class="k">return</span> <span class="n">pd</span><span class="o">.</span><span class="n">Series</span><span class="p">(</span>
+            <span class="n">df</span><span class="p">[</span><span class="s2">&quot;adj_close_price&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="nb">float</span><span class="p">)</span><span class="o">.</span><span class="n">values</span><span class="p">,</span>
+            <span class="n">index</span><span class="o">=</span><span class="n">pd</span><span class="o">.</span><span class="n">to_datetime</span><span class="p">(</span><span class="n">df</span><span class="p">[</span><span class="s2">&quot;cob_date&quot;</span><span class="p">]),</span>
+            <span class="n">name</span><span class="o">=</span><span class="s2">&quot;benchmark&quot;</span><span class="p">,</span>
+        <span class="p">)</span><span class="o">.</span><span class="n">sort_index</span><span class="p">()</span></div>
+
+
+    <span class="c1"># ------------------------------------------------------------------</span>
+<div class="viewcode-block" id="DataLoader.load_fundamentals_pit">
+<a class="viewcode-back" href="../../api_engine.html#engine.data_loader.DataLoader.load_fundamentals_pit">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">load_fundamentals_pit</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span>
+        <span class="n">as_of</span><span class="p">:</span> <span class="n">date</span><span class="p">,</span>
+        <span class="n">symbols</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="nb">str</span><span class="p">],</span>
+        <span class="n">pit_lag_days</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">0</span><span class="p">,</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Fundamentals EAV → pivoted most-recent value per (symbol, field).</span>
+
+<span class="sd">        PIT rule 1: ``report_date ≤ rebalance_date − pit_lag_days`` (not</span>
+<span class="sd">        ``period_end``).  ``pit_lag_days = 0`` is the CW1/PLAN §7.3 default</span>
+<span class="sd">        and reproduces the pre-v0.3.2 cutoff; positive values apply a</span>
+<span class="sd">        filing-delay proxy (US 10-Q SEC deadline for large accelerated</span>
+<span class="sd">        filers is 40 days) and are supplied by</span>
+<span class="sd">        ``PitLagConfig.fundamentals_days`` for sensitivity analysis only.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">symbols</span><span class="p">:</span>
+            <span class="k">return</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">()</span>
+        <span class="n">pit_cutoff</span> <span class="o">=</span> <span class="n">as_of</span> <span class="o">-</span> <span class="n">timedelta</span><span class="p">(</span><span class="n">days</span><span class="o">=</span><span class="nb">max</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="nb">int</span><span class="p">(</span><span class="n">pit_lag_days</span><span class="p">)))</span>
+        <span class="n">q</span> <span class="o">=</span> <span class="n">text</span><span class="p">(</span>
+            <span class="sa">f</span><span class="s2">&quot;&quot;&quot;</span>
+<span class="s2">            WITH ranked AS (</span>
+<span class="s2">                SELECT</span>
+<span class="s2">                    symbol, field_name, field_value, report_date,</span>
+<span class="s2">                    ROW_NUMBER() OVER (</span>
+<span class="s2">                        PARTITION BY symbol, field_name</span>
+<span class="s2">                        ORDER BY report_date DESC</span>
+<span class="s2">                    ) AS rn</span>
+<span class="s2">                FROM </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">_schema</span><span class="si">}</span><span class="s2">.fundamentals</span>
+<span class="s2">                WHERE symbol = ANY(:symbols)</span>
+<span class="s2">                  AND report_date &lt;= :pit_cutoff</span>
+<span class="s2">                  AND period_type = &#39;quarterly&#39;</span>
+<span class="s2">                  AND field_value IS NOT NULL</span>
+<span class="s2">            )</span>
+<span class="s2">            SELECT symbol, field_name, field_value, report_date</span>
+<span class="s2">            FROM ranked</span>
+<span class="s2">            WHERE rn = 1</span>
+<span class="s2">            &quot;&quot;&quot;</span>
+        <span class="p">)</span>
+        <span class="n">df</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">read_sql</span><span class="p">(</span><span class="n">q</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_engine</span><span class="p">,</span> <span class="n">params</span><span class="o">=</span><span class="p">{</span><span class="s2">&quot;symbols&quot;</span><span class="p">:</span> <span class="n">symbols</span><span class="p">,</span> <span class="s2">&quot;pit_cutoff&quot;</span><span class="p">:</span> <span class="n">pit_cutoff</span><span class="p">})</span>
+        <span class="k">if</span> <span class="n">df</span><span class="o">.</span><span class="n">empty</span><span class="p">:</span>
+            <span class="k">return</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">()</span>
+        <span class="n">wide</span> <span class="o">=</span> <span class="n">df</span><span class="o">.</span><span class="n">pivot_table</span><span class="p">(</span><span class="n">index</span><span class="o">=</span><span class="s2">&quot;symbol&quot;</span><span class="p">,</span> <span class="n">columns</span><span class="o">=</span><span class="s2">&quot;field_name&quot;</span><span class="p">,</span> <span class="n">values</span><span class="o">=</span><span class="s2">&quot;field_value&quot;</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">wide</span></div>
+
+
+    <span class="c1"># ------------------------------------------------------------------</span>
+<div class="viewcode-block" id="DataLoader.load_sentiment_pit">
+<a class="viewcode-back" href="../../api_engine.html#engine.data_loader.DataLoader.load_sentiment_pit">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">load_sentiment_pit</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">as_of</span><span class="p">:</span> <span class="n">date</span><span class="p">,</span> <span class="n">symbols</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="nb">str</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="n">pd</span><span class="o">.</span><span class="n">Series</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Most recent sentiment_score per symbol, strict ``cob_date ≤ as_of``.&quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">symbols</span><span class="p">:</span>
+            <span class="k">return</span> <span class="n">pd</span><span class="o">.</span><span class="n">Series</span><span class="p">(</span><span class="n">dtype</span><span class="o">=</span><span class="nb">float</span><span class="p">)</span>
+        <span class="n">q</span> <span class="o">=</span> <span class="n">text</span><span class="p">(</span>
+            <span class="sa">f</span><span class="s2">&quot;&quot;&quot;</span>
+<span class="s2">            WITH ranked AS (</span>
+<span class="s2">                SELECT symbol, sentiment_score, cob_date,</span>
+<span class="s2">                       ROW_NUMBER() OVER (</span>
+<span class="s2">                           PARTITION BY symbol</span>
+<span class="s2">                           ORDER BY cob_date DESC</span>
+<span class="s2">                       ) AS rn</span>
+<span class="s2">                FROM </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">_schema</span><span class="si">}</span><span class="s2">.news_sentiment</span>
+<span class="s2">                WHERE symbol = ANY(:symbols)</span>
+<span class="s2">                  AND cob_date &lt;= :as_of</span>
+<span class="s2">                  AND sentiment_score IS NOT NULL</span>
+<span class="s2">            )</span>
+<span class="s2">            SELECT symbol, sentiment_score</span>
+<span class="s2">            FROM ranked</span>
+<span class="s2">            WHERE rn = 1</span>
+<span class="s2">            &quot;&quot;&quot;</span>
+        <span class="p">)</span>
+        <span class="n">df</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">read_sql</span><span class="p">(</span><span class="n">q</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_engine</span><span class="p">,</span> <span class="n">params</span><span class="o">=</span><span class="p">{</span><span class="s2">&quot;symbols&quot;</span><span class="p">:</span> <span class="n">symbols</span><span class="p">,</span> <span class="s2">&quot;as_of&quot;</span><span class="p">:</span> <span class="n">as_of</span><span class="p">})</span>
+        <span class="k">return</span> <span class="n">pd</span><span class="o">.</span><span class="n">Series</span><span class="p">(</span><span class="n">df</span><span class="p">[</span><span class="s2">&quot;sentiment_score&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">values</span><span class="p">,</span> <span class="n">index</span><span class="o">=</span><span class="n">df</span><span class="p">[</span><span class="s2">&quot;symbol&quot;</span><span class="p">],</span> <span class="n">name</span><span class="o">=</span><span class="s2">&quot;sentiment&quot;</span><span class="p">)</span></div>
+
+
+    <span class="c1"># ------------------------------------------------------------------</span>
+<div class="viewcode-block" id="DataLoader.load_ratios_pit">
+<a class="viewcode-back" href="../../api_engine.html#engine.data_loader.DataLoader.load_ratios_pit">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">load_ratios_pit</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span>
+        <span class="n">as_of</span><span class="p">:</span> <span class="n">date</span><span class="p">,</span>
+        <span class="n">symbols</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="nb">str</span><span class="p">],</span>
+        <span class="n">pit_lag_days</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">0</span><span class="p">,</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Historical ratios from ``company_ratios`` (EAV) — most recent per (sym, field).</span>
+
+<span class="sd">        ``pit_lag_days`` shifts the cutoff to</span>
+<span class="sd">        ``snapshot_date ≤ as_of − pit_lag_days`` for filing-delay sensitivity</span>
+<span class="sd">        analysis.  Default 0 preserves PLAN §7.3 behaviour and is supplied</span>
+<span class="sd">        by ``PitLagConfig.ratios_days`` via ``build_context``.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">symbols</span><span class="p">:</span>
+            <span class="k">return</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">()</span>
+        <span class="n">pit_cutoff</span> <span class="o">=</span> <span class="n">as_of</span> <span class="o">-</span> <span class="n">timedelta</span><span class="p">(</span><span class="n">days</span><span class="o">=</span><span class="nb">max</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="nb">int</span><span class="p">(</span><span class="n">pit_lag_days</span><span class="p">)))</span>
+        <span class="n">q</span> <span class="o">=</span> <span class="n">text</span><span class="p">(</span>
+            <span class="sa">f</span><span class="s2">&quot;&quot;&quot;</span>
+<span class="s2">            WITH ranked AS (</span>
+<span class="s2">                SELECT symbol, field_name, field_value, snapshot_date,</span>
+<span class="s2">                       ROW_NUMBER() OVER (</span>
+<span class="s2">                           PARTITION BY symbol, field_name</span>
+<span class="s2">                           ORDER BY snapshot_date DESC</span>
+<span class="s2">                       ) AS rn</span>
+<span class="s2">                FROM </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">_schema</span><span class="si">}</span><span class="s2">.company_ratios</span>
+<span class="s2">                WHERE symbol = ANY(:symbols) AND snapshot_date &lt;= :pit_cutoff</span>
+<span class="s2">            )</span>
+<span class="s2">            SELECT symbol, field_name, field_value</span>
+<span class="s2">            FROM ranked WHERE rn = 1</span>
+<span class="s2">            &quot;&quot;&quot;</span>
+        <span class="p">)</span>
+        <span class="n">df</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">read_sql</span><span class="p">(</span><span class="n">q</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_engine</span><span class="p">,</span> <span class="n">params</span><span class="o">=</span><span class="p">{</span><span class="s2">&quot;symbols&quot;</span><span class="p">:</span> <span class="n">symbols</span><span class="p">,</span> <span class="s2">&quot;pit_cutoff&quot;</span><span class="p">:</span> <span class="n">pit_cutoff</span><span class="p">})</span>
+        <span class="k">if</span> <span class="n">df</span><span class="o">.</span><span class="n">empty</span><span class="p">:</span>
+            <span class="k">return</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">()</span>
+        <span class="k">return</span> <span class="n">df</span><span class="o">.</span><span class="n">pivot_table</span><span class="p">(</span><span class="n">index</span><span class="o">=</span><span class="s2">&quot;symbol&quot;</span><span class="p">,</span> <span class="n">columns</span><span class="o">=</span><span class="s2">&quot;field_name&quot;</span><span class="p">,</span> <span class="n">values</span><span class="o">=</span><span class="s2">&quot;field_value&quot;</span><span class="p">)</span></div>
+
+
+    <span class="c1"># ------------------------------------------------------------------</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">_convert_returns_to_usd</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span> <span class="n">returns_local</span><span class="p">:</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">,</span> <span class="n">fx_rates</span><span class="p">:</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">,</span> <span class="n">currency_map</span><span class="p">:</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">str</span><span class="p">]</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Apply CW1 Eq. (2.5): R^USD = (1 + R_local)(FX_t/FX_{t-1}) - 1.&quot;&quot;&quot;</span>
+        <span class="n">out</span> <span class="o">=</span> <span class="n">returns_local</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
+        <span class="k">for</span> <span class="n">symbol</span> <span class="ow">in</span> <span class="n">out</span><span class="o">.</span><span class="n">columns</span><span class="p">:</span>
+            <span class="n">ccy</span> <span class="o">=</span> <span class="n">currency_map</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">symbol</span><span class="p">,</span> <span class="s2">&quot;USD&quot;</span><span class="p">)</span>
+            <span class="k">if</span> <span class="n">ccy</span> <span class="o">==</span> <span class="s2">&quot;USD&quot;</span><span class="p">:</span>
+                <span class="k">continue</span>
+            <span class="n">pair</span> <span class="o">=</span> <span class="n">currency_to_fx_pair</span><span class="p">(</span><span class="n">ccy</span><span class="p">)</span>
+            <span class="k">if</span> <span class="n">pair</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">fx_rates</span><span class="o">.</span><span class="n">columns</span><span class="p">:</span>
+                <span class="k">continue</span>
+            <span class="n">fx</span> <span class="o">=</span> <span class="n">fx_rates</span><span class="p">[</span><span class="n">pair</span><span class="p">]</span><span class="o">.</span><span class="n">reindex</span><span class="p">(</span><span class="n">out</span><span class="o">.</span><span class="n">index</span><span class="p">,</span> <span class="n">method</span><span class="o">=</span><span class="s2">&quot;ffill&quot;</span><span class="p">)</span>
+            <span class="n">fx_ret</span> <span class="o">=</span> <span class="n">fx</span><span class="o">.</span><span class="n">pct_change</span><span class="p">()</span>
+            <span class="n">out</span><span class="p">[</span><span class="n">symbol</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span><span class="mf">1.0</span> <span class="o">+</span> <span class="n">out</span><span class="p">[</span><span class="n">symbol</span><span class="p">])</span> <span class="o">*</span> <span class="p">(</span><span class="mf">1.0</span> <span class="o">+</span> <span class="n">fx_ret</span><span class="p">)</span> <span class="o">-</span> <span class="mf">1.0</span>
+        <span class="k">return</span> <span class="n">out</span>
+
+    <span class="c1"># ------------------------------------------------------------------</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">_compute_adv</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">as_of</span><span class="p">:</span> <span class="n">date</span><span class="p">,</span> <span class="n">symbols</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="nb">str</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="n">pd</span><span class="o">.</span><span class="n">Series</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Trailing 30-day average daily dollar-volume per symbol (USD equivalent).&quot;&quot;&quot;</span>
+        <span class="n">start</span> <span class="o">=</span> <span class="n">as_of</span> <span class="o">-</span> <span class="n">timedelta</span><span class="p">(</span><span class="n">days</span><span class="o">=</span><span class="mi">45</span><span class="p">)</span>
+        <span class="n">q</span> <span class="o">=</span> <span class="n">text</span><span class="p">(</span>
+            <span class="sa">f</span><span class="s2">&quot;&quot;&quot;</span>
+<span class="s2">            SELECT symbol, AVG(adj_close_price * volume) AS adv</span>
+<span class="s2">            FROM </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">_schema</span><span class="si">}</span><span class="s2">.daily_prices</span>
+<span class="s2">            WHERE cob_date &gt;= :start AND cob_date &lt; :as_of</span>
+<span class="s2">              AND symbol = ANY(:symbols)</span>
+<span class="s2">              AND volume IS NOT NULL AND adj_close_price IS NOT NULL</span>
+<span class="s2">            GROUP BY symbol</span>
+<span class="s2">            &quot;&quot;&quot;</span>
+        <span class="p">)</span>
+        <span class="n">df</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">read_sql</span><span class="p">(</span><span class="n">q</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_engine</span><span class="p">,</span> <span class="n">params</span><span class="o">=</span><span class="p">{</span><span class="s2">&quot;start&quot;</span><span class="p">:</span> <span class="n">start</span><span class="p">,</span> <span class="s2">&quot;as_of&quot;</span><span class="p">:</span> <span class="n">as_of</span><span class="p">,</span> <span class="s2">&quot;symbols&quot;</span><span class="p">:</span> <span class="n">symbols</span><span class="p">})</span>
+        <span class="k">return</span> <span class="n">pd</span><span class="o">.</span><span class="n">Series</span><span class="p">(</span><span class="n">df</span><span class="p">[</span><span class="s2">&quot;adv&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="nb">float</span><span class="p">)</span><span class="o">.</span><span class="n">values</span><span class="p">,</span> <span class="n">index</span><span class="o">=</span><span class="n">df</span><span class="p">[</span><span class="s2">&quot;symbol&quot;</span><span class="p">],</span> <span class="n">name</span><span class="o">=</span><span class="s2">&quot;adv_usd&quot;</span><span class="p">)</span>
+
+    <span class="c1"># ------------------------------------------------------------------</span>
+<div class="viewcode-block" id="DataLoader.apply_liquidity_filter">
+<a class="viewcode-back" href="../../api_engine.html#engine.data_loader.DataLoader.apply_liquidity_filter">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">apply_liquidity_filter</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span> <span class="n">universe</span><span class="p">:</span> <span class="n">UniverseSnapshot</span><span class="p">,</span> <span class="n">adv</span><span class="p">:</span> <span class="n">pd</span><span class="o">.</span><span class="n">Series</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">tuple</span><span class="p">[</span><span class="n">UniverseSnapshot</span><span class="p">,</span> <span class="nb">int</span><span class="p">]:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;§5.15 Liquidity filter — exclude bottom-percentile &amp; &lt; min_adv_usd.&quot;&quot;&quot;</span>
+        <span class="n">cfg</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">cfg</span><span class="o">.</span><span class="n">universe</span>
+        <span class="k">if</span> <span class="n">adv</span><span class="o">.</span><span class="n">empty</span><span class="p">:</span>
+            <span class="k">return</span> <span class="n">universe</span><span class="p">,</span> <span class="mi">0</span>
+        <span class="n">min_adv</span> <span class="o">=</span> <span class="n">cfg</span><span class="o">.</span><span class="n">min_adv_usd</span>
+        <span class="n">pct_cut</span> <span class="o">=</span> <span class="n">adv</span><span class="o">.</span><span class="n">quantile</span><span class="p">(</span><span class="n">cfg</span><span class="o">.</span><span class="n">bottom_pct_filter</span><span class="p">)</span>
+        <span class="n">threshold</span> <span class="o">=</span> <span class="nb">max</span><span class="p">(</span><span class="n">min_adv</span><span class="p">,</span> <span class="n">pct_cut</span><span class="p">)</span>
+        <span class="n">keep_mask</span> <span class="o">=</span> <span class="n">adv</span> <span class="o">&gt;=</span> <span class="n">threshold</span>
+        <span class="n">keep</span> <span class="o">=</span> <span class="nb">set</span><span class="p">(</span><span class="n">adv</span><span class="p">[</span><span class="n">keep_mask</span><span class="p">]</span><span class="o">.</span><span class="n">index</span><span class="o">.</span><span class="n">tolist</span><span class="p">())</span>
+        <span class="n">filtered</span> <span class="o">=</span> <span class="p">[</span><span class="n">s</span> <span class="k">for</span> <span class="n">s</span> <span class="ow">in</span> <span class="n">universe</span><span class="o">.</span><span class="n">symbols</span> <span class="k">if</span> <span class="n">s</span> <span class="ow">in</span> <span class="n">keep</span><span class="p">]</span>
+        <span class="n">n_removed</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">universe</span><span class="o">.</span><span class="n">symbols</span><span class="p">)</span> <span class="o">-</span> <span class="nb">len</span><span class="p">(</span><span class="n">filtered</span><span class="p">)</span>
+        <span class="n">snap</span> <span class="o">=</span> <span class="n">UniverseSnapshot</span><span class="p">(</span>
+            <span class="n">date</span><span class="o">=</span><span class="n">universe</span><span class="o">.</span><span class="n">date</span><span class="p">,</span>
+            <span class="n">symbols</span><span class="o">=</span><span class="n">filtered</span><span class="p">,</span>
+            <span class="n">gics_map</span><span class="o">=</span><span class="p">{</span><span class="n">s</span><span class="p">:</span> <span class="n">universe</span><span class="o">.</span><span class="n">gics_map</span><span class="p">[</span><span class="n">s</span><span class="p">]</span> <span class="k">for</span> <span class="n">s</span> <span class="ow">in</span> <span class="n">filtered</span> <span class="k">if</span> <span class="n">s</span> <span class="ow">in</span> <span class="n">universe</span><span class="o">.</span><span class="n">gics_map</span><span class="p">},</span>
+            <span class="n">currency_map</span><span class="o">=</span><span class="p">{</span><span class="n">s</span><span class="p">:</span> <span class="n">universe</span><span class="o">.</span><span class="n">currency_map</span><span class="p">[</span><span class="n">s</span><span class="p">]</span> <span class="k">for</span> <span class="n">s</span> <span class="ow">in</span> <span class="n">filtered</span> <span class="k">if</span> <span class="n">s</span> <span class="ow">in</span> <span class="n">universe</span><span class="o">.</span><span class="n">currency_map</span><span class="p">},</span>
+        <span class="p">)</span>
+        <span class="k">return</span> <span class="n">snap</span><span class="p">,</span> <span class="n">n_removed</span></div>
+
+
+    <span class="c1"># ------------------------------------------------------------------</span>
+<div class="viewcode-block" id="DataLoader.build_context">
+<a class="viewcode-back" href="../../api_engine.html#engine.data_loader.DataLoader.build_context">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">build_context</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span>
+        <span class="n">rebalance_date</span><span class="p">:</span> <span class="n">date</span><span class="p">,</span>
+        <span class="n">price_lookback_days</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">756</span><span class="p">,</span>
+        <span class="n">apply_liquidity_filter</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">,</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">PITContext</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Build a full PIT-safe context for one rebalance date.</span>
+
+<span class="sd">        This is the engine&#39;s single entry point; returns a frozen ``PITContext``</span>
+<span class="sd">        that downstream modules can treat as read-only.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">universe</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">load_universe</span><span class="p">(</span><span class="n">rebalance_date</span><span class="p">)</span>
+        <span class="n">adv</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_compute_adv</span><span class="p">(</span><span class="n">rebalance_date</span><span class="p">,</span> <span class="n">universe</span><span class="o">.</span><span class="n">symbols</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">apply_liquidity_filter</span><span class="p">:</span>
+            <span class="n">universe</span><span class="p">,</span> <span class="n">n_filtered</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">apply_liquidity_filter</span><span class="p">(</span><span class="n">universe</span><span class="p">,</span> <span class="n">adv</span><span class="p">)</span>
+            <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;Liquidity filter removed </span><span class="si">%d</span><span class="s2"> / </span><span class="si">%d</span><span class="s2"> names&quot;</span><span class="p">,</span> <span class="n">n_filtered</span><span class="p">,</span> <span class="n">n_filtered</span> <span class="o">+</span> <span class="nb">len</span><span class="p">(</span><span class="n">universe</span><span class="o">.</span><span class="n">symbols</span><span class="p">))</span>
+        <span class="n">prices</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">load_prices</span><span class="p">(</span><span class="n">rebalance_date</span><span class="p">,</span> <span class="n">price_lookback_days</span><span class="p">)</span>
+        <span class="n">prices</span> <span class="o">=</span> <span class="n">prices</span><span class="p">[[</span><span class="n">c</span> <span class="k">for</span> <span class="n">c</span> <span class="ow">in</span> <span class="n">prices</span><span class="o">.</span><span class="n">columns</span> <span class="k">if</span> <span class="n">c</span> <span class="ow">in</span> <span class="n">universe</span><span class="o">.</span><span class="n">symbols</span><span class="p">]]</span>
+        <span class="n">returns_local</span> <span class="o">=</span> <span class="n">prices</span><span class="o">.</span><span class="n">pct_change</span><span class="p">()</span><span class="o">.</span><span class="n">dropna</span><span class="p">(</span><span class="n">how</span><span class="o">=</span><span class="s2">&quot;all&quot;</span><span class="p">)</span>
+        <span class="n">fx</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">load_fx</span><span class="p">(</span><span class="n">rebalance_date</span><span class="p">,</span> <span class="n">price_lookback_days</span><span class="p">)</span>
+        <span class="n">returns_usd</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_convert_returns_to_usd</span><span class="p">(</span><span class="n">returns_local</span><span class="p">,</span> <span class="n">fx</span><span class="p">,</span> <span class="n">universe</span><span class="o">.</span><span class="n">currency_map</span><span class="p">)</span>
+        <span class="n">pit_fund</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="nb">getattr</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">cfg</span><span class="o">.</span><span class="n">pit_lag</span><span class="p">,</span> <span class="s2">&quot;fundamentals_days&quot;</span><span class="p">,</span> <span class="mi">0</span><span class="p">))</span>
+        <span class="n">pit_rat</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="nb">getattr</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">cfg</span><span class="o">.</span><span class="n">pit_lag</span><span class="p">,</span> <span class="s2">&quot;ratios_days&quot;</span><span class="p">,</span> <span class="mi">0</span><span class="p">))</span>
+        <span class="n">fund</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">load_fundamentals_pit</span><span class="p">(</span>
+            <span class="n">rebalance_date</span><span class="p">,</span> <span class="n">universe</span><span class="o">.</span><span class="n">symbols</span><span class="p">,</span> <span class="n">pit_lag_days</span><span class="o">=</span><span class="n">pit_fund</span>
+        <span class="p">)</span>
+        <span class="n">ratios</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">load_ratios_pit</span><span class="p">(</span>
+            <span class="n">rebalance_date</span><span class="p">,</span> <span class="n">universe</span><span class="o">.</span><span class="n">symbols</span><span class="p">,</span> <span class="n">pit_lag_days</span><span class="o">=</span><span class="n">pit_rat</span>
+        <span class="p">)</span>
+        <span class="n">sent</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">load_sentiment_pit</span><span class="p">(</span><span class="n">rebalance_date</span><span class="p">,</span> <span class="n">universe</span><span class="o">.</span><span class="n">symbols</span><span class="p">)</span>
+        <span class="n">vix</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">load_vix</span><span class="p">(</span><span class="n">rebalance_date</span><span class="p">,</span> <span class="nb">max</span><span class="p">(</span><span class="n">price_lookback_days</span><span class="p">,</span> <span class="mi">400</span><span class="p">))</span>
+        <span class="n">rf</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">load_rf_rate</span><span class="p">(</span><span class="n">rebalance_date</span><span class="p">)</span>
+        <span class="n">bench</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">load_benchmark</span><span class="p">(</span><span class="n">rebalance_date</span><span class="p">,</span> <span class="n">price_lookback_days</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">PITContext</span><span class="p">(</span>
+            <span class="n">rebalance_date</span><span class="o">=</span><span class="n">rebalance_date</span><span class="p">,</span>
+            <span class="n">universe</span><span class="o">=</span><span class="n">universe</span><span class="p">,</span>
+            <span class="n">prices</span><span class="o">=</span><span class="n">prices</span><span class="p">,</span>
+            <span class="n">returns_local</span><span class="o">=</span><span class="n">returns_local</span><span class="p">,</span>
+            <span class="n">returns_usd</span><span class="o">=</span><span class="n">returns_usd</span><span class="p">,</span>
+            <span class="n">fundamentals</span><span class="o">=</span><span class="n">fund</span><span class="p">,</span>
+            <span class="n">ratios</span><span class="o">=</span><span class="n">ratios</span><span class="p">,</span>
+            <span class="n">sentiment</span><span class="o">=</span><span class="n">sent</span><span class="p">,</span>
+            <span class="n">fx_rates</span><span class="o">=</span><span class="n">fx</span><span class="p">,</span>
+            <span class="n">vix</span><span class="o">=</span><span class="n">vix</span><span class="p">,</span>
+            <span class="n">rf_rate</span><span class="o">=</span><span class="n">rf</span><span class="p">,</span>
+            <span class="n">benchmark</span><span class="o">=</span><span class="n">bench</span><span class="p">,</span>
+            <span class="n">avg_dollar_volume</span><span class="o">=</span><span class="n">adv</span><span class="p">,</span>
+        <span class="p">)</span></div>
+
+
+    <span class="c1"># ------------------------------------------------------------------</span>
+<div class="viewcode-block" id="DataLoader.data_snapshot_sha256">
+<a class="viewcode-back" href="../../api_engine.html#engine.data_loader.DataLoader.data_snapshot_sha256">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">data_snapshot_sha256</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Content-sensitive SHA-256 of the live CW1 DB state (§7.12).</span>
+
+<span class="sd">        Second-pass audit finding: the prior implementation hashed only row</span>
+<span class="sd">        counts and max-dates, which would collide silently if CW1 fixed a</span>
+<span class="sd">        single cell (e.g. corrected AAPL&#39;s 2023-05-01 close) without</span>
+<span class="sd">        changing counts or date range.  This version mixes in an MD5</span>
+<span class="sd">        aggregate of the actual daily_prices payload (symbol||date||price)</span>
+<span class="sd">        so any content mutation changes the hash.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="kn">import</span><span class="w"> </span><span class="nn">hashlib</span>
+
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_data_snapshot_sha256</span><span class="p">:</span>
+            <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_data_snapshot_sha256</span>
+        <span class="n">q</span> <span class="o">=</span> <span class="n">text</span><span class="p">(</span>
+            <span class="sa">f</span><span class="s2">&quot;&quot;&quot;</span>
+<span class="s2">            WITH daily_agg AS (</span>
+<span class="s2">                SELECT MD5(STRING_AGG(symbol || &#39;|&#39; || cob_date || &#39;|&#39; ||</span>
+<span class="s2">                       COALESCE(adj_close_price::text, &#39;NULL&#39;),</span>
+<span class="s2">                       &#39;/&#39; ORDER BY symbol, cob_date)) AS payload_md5</span>
+<span class="s2">                FROM </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">_schema</span><span class="si">}</span><span class="s2">.daily_prices</span>
+<span class="s2">                WHERE cob_date &gt;= CURRENT_DATE - INTERVAL &#39;90 days&#39;</span>
+<span class="s2">            ),</span>
+<span class="s2">            fund_agg AS (</span>
+<span class="s2">                SELECT MD5(STRING_AGG(symbol || &#39;|&#39; || report_date || &#39;|&#39; ||</span>
+<span class="s2">                       field_name || &#39;|&#39; || COALESCE(field_value::text, &#39;NULL&#39;),</span>
+<span class="s2">                       &#39;/&#39; ORDER BY symbol, report_date, field_name)) AS payload_md5</span>
+<span class="s2">                FROM </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">_schema</span><span class="si">}</span><span class="s2">.fundamentals</span>
+<span class="s2">                WHERE report_date &gt;= CURRENT_DATE - INTERVAL &#39;180 days&#39;</span>
+<span class="s2">                  AND period_type = &#39;quarterly&#39;</span>
+<span class="s2">            )</span>
+<span class="s2">            SELECT</span>
+<span class="s2">                (SELECT COUNT(*) FROM </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">_schema</span><span class="si">}</span><span class="s2">.daily_prices),</span>
+<span class="s2">                (SELECT MAX(cob_date) FROM </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">_schema</span><span class="si">}</span><span class="s2">.daily_prices),</span>
+<span class="s2">                (SELECT COUNT(*) FROM </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">_schema</span><span class="si">}</span><span class="s2">.fundamentals),</span>
+<span class="s2">                (SELECT COUNT(*) FROM </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">_schema</span><span class="si">}</span><span class="s2">.news_sentiment),</span>
+<span class="s2">                (SELECT COUNT(*) FROM </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">_schema</span><span class="si">}</span><span class="s2">.vix_data),</span>
+<span class="s2">                (SELECT COUNT(*) FROM </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">_schema</span><span class="si">}</span><span class="s2">.company_static),</span>
+<span class="s2">                (SELECT payload_md5 FROM daily_agg),</span>
+<span class="s2">                (SELECT payload_md5 FROM fund_agg)</span>
+<span class="s2">            &quot;&quot;&quot;</span>
+        <span class="p">)</span>
+        <span class="k">with</span> <span class="bp">self</span><span class="o">.</span><span class="n">_engine</span><span class="o">.</span><span class="n">connect</span><span class="p">()</span> <span class="k">as</span> <span class="n">conn</span><span class="p">:</span>
+            <span class="n">row</span> <span class="o">=</span> <span class="n">conn</span><span class="o">.</span><span class="n">execute</span><span class="p">(</span><span class="n">q</span><span class="p">)</span><span class="o">.</span><span class="n">one</span><span class="p">()</span>
+        <span class="n">payload</span> <span class="o">=</span> <span class="nb">repr</span><span class="p">(</span><span class="nb">tuple</span><span class="p">(</span><span class="nb">str</span><span class="p">(</span><span class="n">v</span><span class="p">)</span> <span class="k">for</span> <span class="n">v</span> <span class="ow">in</span> <span class="n">row</span><span class="p">))</span><span class="o">.</span><span class="n">encode</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_data_snapshot_sha256</span> <span class="o">=</span> <span class="n">hashlib</span><span class="o">.</span><span class="n">sha256</span><span class="p">(</span><span class="n">payload</span><span class="p">)</span><span class="o">.</span><span class="n">hexdigest</span><span class="p">()</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_data_snapshot_sha256</span></div>
+</div>
+
+
+
+<span class="n">__all__</span> <span class="o">=</span> <span class="p">[</span>
+    <span class="s2">&quot;DataLoader&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;PITContext&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;currency_to_fx_pair&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;infer_currency&quot;</span><span class="p">,</span>
+<span class="p">]</span>
+</pre></div>
+
+                </article>
+              
+              
+              
+              
+              
+                <footer class="prev-next-footer d-print-none">
+                  
+<div class="prev-next-area">
+</div>
+                </footer>
+              
+            </div>
+            
+            
+              
+            
+          </div>
+          <footer class="bd-footer-content">
+            
+          </footer>
+        
+      </main>
+    </div>
+  </div>
+  
+  <!-- Scripts loaded after <body> so the DOM is not blocked -->
+  <script defer src="../../_static/scripts/bootstrap.js?digest=8878045cc6db502f8baf"></script>
+<script defer src="../../_static/scripts/pydata-sphinx-theme.js?digest=8878045cc6db502f8baf"></script>
+
+  <footer class="bd-footer">
+<div class="bd-footer__inner bd-page-width">
+  
+    <div class="footer-items__start">
+      
+        <div class="footer-item">
+
+  <p class="copyright">
+    
+      © Copyright 2026, Team Kolmogorov.
+      <br/>
+    
+  </p>
+</div>
+      
+        <div class="footer-item">
+
+  <p class="sphinx-version">
+    Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 8.2.3.
+    <br/>
+  </p>
+</div>
+      
+    </div>
+  
+  
+  
+    <div class="footer-items__end">
+      
+        <div class="footer-item">
+<p class="theme-version">
+  <!-- # L10n: Setting the PST URL as an argument as this does not need to be localized -->
+  Built with the <a href="https://pydata-sphinx-theme.readthedocs.io/en/stable/index.html">PyData Sphinx Theme</a> 0.16.1.
+</p></div>
+      
+    </div>
+  
+</div>
+
+  </footer>
+  </body>
+</html>

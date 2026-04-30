@@ -1,0 +1,1913 @@
+
+<!DOCTYPE html>
+
+
+<html lang="en" data-content_root="./" >
+
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Index &#8212; CW2 Backtest Engine — Team Kolmogorov</title>
+  
+  
+  
+  <script data-cfasync="false">
+    document.documentElement.dataset.mode = localStorage.getItem("mode") || "";
+    document.documentElement.dataset.theme = localStorage.getItem("theme") || "";
+  </script>
+  <!--
+    this give us a css class that will be invisible only if js is disabled
+  -->
+  <noscript>
+    <style>
+      .pst-js-only { display: none !important; }
+
+    </style>
+  </noscript>
+  
+  <!-- Loaded before other Sphinx assets -->
+  <link href="_static/styles/theme.css?digest=8878045cc6db502f8baf" rel="stylesheet" />
+<link href="_static/styles/pydata-sphinx-theme.css?digest=8878045cc6db502f8baf" rel="stylesheet" />
+
+    <link rel="stylesheet" type="text/css" href="_static/pygments.css?v=8f2a1f02" />
+  
+  <!-- So that users can add custom icons -->
+  <script src="_static/scripts/fontawesome.js?digest=8878045cc6db502f8baf"></script>
+  <!-- Pre-loaded scripts that we'll load fully later -->
+  <link rel="preload" as="script" href="_static/scripts/bootstrap.js?digest=8878045cc6db502f8baf" />
+<link rel="preload" as="script" href="_static/scripts/pydata-sphinx-theme.js?digest=8878045cc6db502f8baf" />
+
+    <script src="_static/documentation_options.js?v=71d9d8e6"></script>
+    <script src="_static/doctools.js?v=9bcbadda"></script>
+    <script src="_static/sphinx_highlight.js?v=dc90522c"></script>
+    <script>DOCUMENTATION_OPTIONS.pagename = 'genindex';</script>
+    <link rel="index" title="Index" href="#" />
+    <link rel="search" title="Search" href="search.html" />
+  <meta name="viewport" content="width=device-width, initial-scale=1"/>
+  <meta name="docsearch:language" content="en"/>
+  <meta name="docsearch:version" content="" />
+  </head>
+  
+  
+  <body data-bs-spy="scroll" data-bs-target=".bd-toc-nav" data-offset="180" data-bs-root-margin="0px 0px -60%" data-default-mode="">
+
+  
+  
+  <div id="pst-skip-link" class="skip-link d-print-none"><a href="#main-content">Skip to main content</a></div>
+  
+  <div id="pst-scroll-pixel-helper"></div>
+  
+  <button type="button" class="btn rounded-pill" id="pst-back-to-top">
+    <i class="fa-solid fa-arrow-up"></i>Back to top</button>
+
+  
+  <dialog id="pst-search-dialog">
+    
+<form class="bd-search d-flex align-items-center"
+      action="search.html"
+      method="get">
+  <i class="fa-solid fa-magnifying-glass"></i>
+  <input type="search"
+         class="form-control"
+         name="q"
+         placeholder="Search the docs ..."
+         aria-label="Search the docs ..."
+         autocomplete="off"
+         autocorrect="off"
+         autocapitalize="off"
+         spellcheck="false"/>
+  <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd>K</kbd></span>
+</form>
+  </dialog>
+
+  <div class="pst-async-banner-revealer d-none">
+  <aside id="bd-header-version-warning" class="d-none d-print-none" aria-label="Version warning"></aside>
+</div>
+
+  
+    <header class="bd-header navbar navbar-expand-lg bd-navbar d-print-none">
+<div class="bd-header__inner bd-page-width">
+  <button class="pst-navbar-icon sidebar-toggle primary-toggle" aria-label="Site navigation">
+    <span class="fa-solid fa-bars"></span>
+  </button>
+  
+  
+  <div class="col-lg-3 navbar-header-items__start">
+    
+      <div class="navbar-item">
+
+  
+    
+  
+
+<a class="navbar-brand logo" href="index.html">
+  
+  
+  
+  
+  
+  
+    <p class="title logo__title">CW2 Backtest Engine — Team Kolmogorov</p>
+  
+</a></div>
+    
+  </div>
+  
+  <div class="col-lg-9 navbar-header-items">
+    
+    <div class="me-auto navbar-header-items__center">
+      
+        <div class="navbar-item">
+<nav>
+  <ul class="bd-navbar-elements navbar-nav">
+    
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="installation.html">
+    Installation
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="architecture.html">
+    Architecture
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="usage.html">
+    Usage
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="api_engine.html">
+    Engine API Reference
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="api_analytics.html">
+    Analytics API Reference
+  </a>
+</li>
+
+  </ul>
+</nav></div>
+      
+    </div>
+    
+    
+    <div class="navbar-header-items__end">
+      
+        <div class="navbar-item navbar-persistent--container">
+          
+
+<button class="btn search-button-field search-button__button pst-js-only" title="Search" aria-label="Search" data-bs-placement="bottom" data-bs-toggle="tooltip">
+ <i class="fa-solid fa-magnifying-glass"></i>
+ <span class="search-button__default-text">Search</span>
+ <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd class="kbd-shortcut__modifier">K</kbd></span>
+</button>
+        </div>
+      
+      
+        <div class="navbar-item">
+
+<button class="btn btn-sm nav-link pst-navbar-icon theme-switch-button pst-js-only" aria-label="Color mode" data-bs-title="Color mode"  data-bs-placement="bottom" data-bs-toggle="tooltip">
+  <i class="theme-switch fa-solid fa-sun                fa-lg" data-mode="light" title="Light"></i>
+  <i class="theme-switch fa-solid fa-moon               fa-lg" data-mode="dark"  title="Dark"></i>
+  <i class="theme-switch fa-solid fa-circle-half-stroke fa-lg" data-mode="auto"  title="System Settings"></i>
+</button></div>
+      
+    </div>
+    
+  </div>
+  
+  
+    <div class="navbar-persistent--mobile">
+
+<button class="btn search-button-field search-button__button pst-js-only" title="Search" aria-label="Search" data-bs-placement="bottom" data-bs-toggle="tooltip">
+ <i class="fa-solid fa-magnifying-glass"></i>
+ <span class="search-button__default-text">Search</span>
+ <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd class="kbd-shortcut__modifier">K</kbd></span>
+</button>
+    </div>
+  
+
+  
+</div>
+
+    </header>
+  
+
+  <div class="bd-container">
+    <div class="bd-container__inner bd-page-width">
+      
+      
+      
+        
+      
+      <dialog id="pst-primary-sidebar-modal"></dialog>
+      <div id="pst-primary-sidebar" class="bd-sidebar-primary bd-sidebar hide-on-wide">
+        
+
+  
+  <div class="sidebar-header-items sidebar-primary__section">
+    
+    
+      <div class="sidebar-header-items__center">
+        
+          
+          
+            <div class="navbar-item">
+<nav>
+  <ul class="bd-navbar-elements navbar-nav">
+    
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="installation.html">
+    Installation
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="architecture.html">
+    Architecture
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="usage.html">
+    Usage
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="api_engine.html">
+    Engine API Reference
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="api_analytics.html">
+    Analytics API Reference
+  </a>
+</li>
+
+  </ul>
+</nav></div>
+          
+        
+      </div>
+    
+    
+    
+      <div class="sidebar-header-items__end">
+        
+          <div class="navbar-item">
+
+<button class="btn btn-sm nav-link pst-navbar-icon theme-switch-button pst-js-only" aria-label="Color mode" data-bs-title="Color mode"  data-bs-placement="bottom" data-bs-toggle="tooltip">
+  <i class="theme-switch fa-solid fa-sun                fa-lg" data-mode="light" title="Light"></i>
+  <i class="theme-switch fa-solid fa-moon               fa-lg" data-mode="dark"  title="Dark"></i>
+  <i class="theme-switch fa-solid fa-circle-half-stroke fa-lg" data-mode="auto"  title="System Settings"></i>
+</button></div>
+        
+      </div>
+    
+  </div>
+  
+  
+  <div class="sidebar-primary-items__end sidebar-primary__section">
+      <div class="sidebar-primary-item">
+<div id="ethical-ad-placement"
+      class="flat"
+      data-ea-publisher="readthedocs"
+      data-ea-type="readthedocs-sidebar"
+      data-ea-manual="true">
+</div></div>
+  </div>
+
+
+      </div>
+      
+      <main id="main-content" class="bd-main" role="main">
+        
+        
+          <div class="bd-content">
+            <div class="bd-article-container">
+              
+              <div class="bd-header-article d-print-none"></div>
+              
+              
+              
+                
+<div id="searchbox"></div>
+                <article class="bd-article">
+                  
+
+<h1 id="index">Index</h1>
+
+<div class="genindex-jumpbox">
+ <a href="#_"><strong>_</strong></a>
+ | <a href="#A"><strong>A</strong></a>
+ | <a href="#B"><strong>B</strong></a>
+ | <a href="#C"><strong>C</strong></a>
+ | <a href="#D"><strong>D</strong></a>
+ | <a href="#E"><strong>E</strong></a>
+ | <a href="#F"><strong>F</strong></a>
+ | <a href="#G"><strong>G</strong></a>
+ | <a href="#H"><strong>H</strong></a>
+ | <a href="#I"><strong>I</strong></a>
+ | <a href="#L"><strong>L</strong></a>
+ | <a href="#M"><strong>M</strong></a>
+ | <a href="#N"><strong>N</strong></a>
+ | <a href="#O"><strong>O</strong></a>
+ | <a href="#P"><strong>P</strong></a>
+ | <a href="#Q"><strong>Q</strong></a>
+ | <a href="#R"><strong>R</strong></a>
+ | <a href="#S"><strong>S</strong></a>
+ | <a href="#T"><strong>T</strong></a>
+ | <a href="#U"><strong>U</strong></a>
+ | <a href="#V"><strong>V</strong></a>
+ | <a href="#W"><strong>W</strong></a>
+ | <a href="#Z"><strong>Z</strong></a>
+ 
+</div>
+<h2 id="_">_</h2>
+<table style="width: 100%" class="indextable genindextable"><tr>
+  <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="api_analytics.html#analytics.validation.ValidationResult.__init__">__init__() (analytics.validation.ValidationResult method)</a>
+
+      <ul>
+        <li><a href="api_engine.html#engine.attribution.CapacityEstimator.__init__">(engine.attribution.CapacityEstimator method)</a>
+</li>
+        <li><a href="api_engine.html#engine.backtest.BacktestEngine.__init__">(engine.backtest.BacktestEngine method)</a>
+</li>
+        <li><a href="api_engine.html#engine.backtest.BacktestResult.__init__">(engine.backtest.BacktestResult method)</a>
+</li>
+        <li><a href="api_engine.html#engine.bandit.BanditWeights.__init__">(engine.bandit.BanditWeights method)</a>
+</li>
+        <li><a href="api_engine.html#engine.bandit.LinearThompsonSampler.__init__">(engine.bandit.LinearThompsonSampler method)</a>
+</li>
+        <li><a href="api_engine.html#engine.benchmark.CashMarketBlend.__init__">(engine.benchmark.CashMarketBlend method)</a>
+</li>
+        <li><a href="api_engine.html#engine.benchmark.EqualWeightBenchmark.__init__">(engine.benchmark.EqualWeightBenchmark method)</a>
+</li>
+        <li><a href="api_engine.html#engine.benchmark.SPXBenchmark.__init__">(engine.benchmark.SPXBenchmark method)</a>
+</li>
+        <li><a href="api_engine.html#engine.costs.CostModel.__init__">(engine.costs.CostModel method)</a>
+</li>
+        <li><a href="api_engine.html#engine.data_loader.DataLoader.__init__">(engine.data_loader.DataLoader method)</a>
+</li>
+        <li><a href="api_engine.html#engine.data_loader.PITContext.__init__">(engine.data_loader.PITContext method)</a>
+</li>
+        <li><a href="api_engine.html#engine.dynamic_weights.DynamicGridWeights.__init__">(engine.dynamic_weights.DynamicGridWeights method)</a>
+</li>
+        <li><a href="api_engine.html#engine.dynamic_weights.StaticWeights.__init__">(engine.dynamic_weights.StaticWeights method)</a>
+</li>
+        <li><a href="api_engine.html#engine.factors.FactorEngine.__init__">(engine.factors.FactorEngine method)</a>
+</li>
+        <li><a href="api_engine.html#engine.portfolio.PortfolioEngine.__init__">(engine.portfolio.PortfolioEngine method)</a>
+</li>
+        <li><a href="api_engine.html#engine.risk_scaler.CompositeRiskScaler.__init__">(engine.risk_scaler.CompositeRiskScaler method)</a>
+</li>
+        <li><a href="api_engine.html#engine.zscore.ZScoreEngine.__init__">(engine.zscore.ZScoreEngine method)</a>
+</li>
+      </ul></li>
+  </ul></td>
+</tr></table>
+
+<h2 id="A">A</h2>
+<table style="width: 100%" class="indextable genindextable"><tr>
+  <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="api_engine.html#engine.bandit.LinearThompsonSampler.A">A (engine.bandit.LinearThompsonSampler attribute)</a>
+</li>
+      <li><a href="api_engine.html#engine.types.AblationRow">AblationRow (class in engine.types)</a>
+</li>
+      <li><a href="api_engine.html#engine.config.DynamicWeightsConfig.absolute_momentum_filter">absolute_momentum_filter (engine.config.DynamicWeightsConfig attribute)</a>
+</li>
+      <li><a href="api_engine.html#engine.types.TradeLedgerRow.action">action (engine.types.TradeLedgerRow attribute)</a>
+</li>
+      <li><a href="api_engine.html#engine.benchmark.active_return">active_return() (in module engine.benchmark)</a>
+</li>
+      <li><a href="api_engine.html#engine.types.AblationRow.alpha_ff5">alpha_ff5 (engine.types.AblationRow attribute)</a>
+</li>
+      <li><a href="api_engine.html#engine.types.AblationRow.alpha_tstat">alpha_tstat (engine.types.AblationRow attribute)</a>
+</li>
+      <li><a href="api_engine.html#engine.attribution.amihud_illiquidity">amihud_illiquidity() (in module engine.attribution)</a>
+</li>
+      <li>
+    analytics.ablation
+
+      <ul>
+        <li><a href="api_analytics.html#module-analytics.ablation">module</a>
+</li>
+      </ul></li>
+      <li>
+    analytics.attribution_analysis
+
+      <ul>
+        <li><a href="api_analytics.html#module-analytics.attribution_analysis">module</a>
+</li>
+      </ul></li>
+      <li>
+    analytics.charts
+
+      <ul>
+        <li><a href="api_analytics.html#module-analytics.charts">module</a>
+</li>
+      </ul></li>
+      <li>
+    analytics.comparison
+
+      <ul>
+        <li><a href="api_analytics.html#module-analytics.comparison">module</a>
+</li>
+      </ul></li>
+      <li>
+    analytics.performance
+
+      <ul>
+        <li><a href="api_analytics.html#module-analytics.performance">module</a>
+</li>
+      </ul></li>
+  </ul></td>
+  <td style="width: 33%; vertical-align: top;"><ul>
+      <li>
+    analytics.sensitivity
+
+      <ul>
+        <li><a href="api_analytics.html#module-analytics.sensitivity">module</a>
+</li>
+      </ul></li>
+      <li>
+    analytics.stress
+
+      <ul>
+        <li><a href="api_analytics.html#module-analytics.stress">module</a>
+</li>
+      </ul></li>
+      <li>
+    analytics.validation
+
+      <ul>
+        <li><a href="api_analytics.html#module-analytics.validation">module</a>
+</li>
+      </ul></li>
+      <li><a href="api_analytics.html#analytics.performance.annualised_return">annualised_return() (in module analytics.performance)</a>
+</li>
+      <li><a href="api_analytics.html#analytics.performance.annualised_turnover">annualised_turnover() (in module analytics.performance)</a>
+</li>
+      <li><a href="api_analytics.html#analytics.performance.annualised_volatility">annualised_volatility() (in module analytics.performance)</a>
+</li>
+      <li><a href="api_engine.html#engine.risk_scaler.CompositeRiskScaler.apply">apply() (engine.risk_scaler.CompositeRiskScaler method)</a>
+</li>
+      <li><a href="api_engine.html#engine.data_loader.DataLoader.apply_liquidity_filter">apply_liquidity_filter() (engine.data_loader.DataLoader method)</a>
+</li>
+      <li><a href="api_engine.html#engine.zscore.ZScoreEngine.apply_orthogonalisation">apply_orthogonalisation() (engine.zscore.ZScoreEngine method)</a>
+</li>
+      <li><a href="api_engine.html#engine.types.BanditLogRow.arm_posterior_mean_json">arm_posterior_mean_json (engine.types.BanditLogRow attribute)</a>
+</li>
+      <li><a href="api_engine.html#engine.types.BanditLogRow.arm_posterior_std_json">arm_posterior_std_json (engine.types.BanditLogRow attribute)</a>
+</li>
+      <li><a href="api_engine.html#engine.types.BanditLogRow.arm_selected">arm_selected (engine.types.BanditLogRow attribute)</a>
+</li>
+      <li><a href="api_engine.html#engine.bandit.BanditWeights.arms">arms (engine.bandit.BanditWeights attribute)</a>
+</li>
+      <li><a href="api_engine.html#engine.data_loader.PITContext.avg_dollar_volume">avg_dollar_volume (engine.data_loader.PITContext attribute)</a>
+</li>
+  </ul></td>
+</tr></table>
+
+<h2 id="B">B</h2>
+<table style="width: 100%" class="indextable genindextable"><tr>
+  <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="api_engine.html#engine.config.Config.backtest">backtest (engine.config.Config attribute)</a>
+</li>
+      <li><a href="api_engine.html#engine.config.BacktestConfig">BacktestConfig (class in engine.config)</a>
+</li>
+      <li><a href="api_engine.html#engine.backtest.BacktestEngine">BacktestEngine (class in engine.backtest)</a>
+</li>
+      <li><a href="api_engine.html#engine.backtest.BacktestResult">BacktestResult (class in engine.backtest)</a>
+</li>
+      <li><a href="api_engine.html#engine.config.Config.bandit">bandit (engine.config.Config attribute)</a>
+</li>
+      <li><a href="api_engine.html#engine.backtest.BacktestResult.bandit_log">bandit_log (engine.backtest.BacktestResult attribute)</a>
+</li>
+      <li><a href="api_engine.html#engine.types.PortfolioReturnsRow.bandit_net_20bp">bandit_net_20bp (engine.types.PortfolioReturnsRow attribute)</a>
+</li>
+      <li><a href="api_engine.html#engine.config.BanditConfig">BanditConfig (class in engine.config)</a>
+</li>
+      <li><a href="api_engine.html#engine.types.BanditLogRow">BanditLogRow (class in engine.types)</a>
+</li>
+      <li><a href="api_engine.html#engine.bandit.BanditWeights">BanditWeights (class in engine.bandit)</a>
+</li>
+  </ul></td>
+  <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="api_engine.html#engine.config.FactorConfig.base_weights">base_weights (engine.config.FactorConfig attribute)</a>
+</li>
+      <li><a href="api_engine.html#engine.config.EstimationWindowsConfig.bayesian_signal_half_life_months">bayesian_signal_half_life_months (engine.config.EstimationWindowsConfig attribute)</a>
+</li>
+      <li><a href="api_engine.html#engine.data_loader.PITContext.benchmark">benchmark (engine.data_loader.PITContext attribute)</a>
+</li>
+      <li><a href="api_engine.html#engine.types.PortfolioReturnsRow.benchmark_cash_market_50_50">benchmark_cash_market_50_50 (engine.types.PortfolioReturnsRow attribute)</a>
+</li>
+      <li><a href="api_engine.html#engine.types.PortfolioReturnsRow.benchmark_ew">benchmark_ew (engine.types.PortfolioReturnsRow attribute)</a>
+</li>
+      <li><a href="api_engine.html#engine.types.PortfolioReturnsRow.benchmark_spx">benchmark_spx (engine.types.PortfolioReturnsRow attribute)</a>
+</li>
+      <li><a href="api_analytics.html#analytics.performance.best_month">best_month() (in module analytics.performance)</a>
+</li>
+      <li><a href="api_engine.html#engine.config.UniverseConfig.bottom_pct_filter">bottom_pct_filter (engine.config.UniverseConfig attribute)</a>
+</li>
+      <li><a href="api_analytics.html#analytics.attribution_analysis.brinson_fachler">brinson_fachler() (in module analytics.attribution_analysis)</a>
+</li>
+      <li><a href="api_engine.html#engine.bandit.build_arms">build_arms() (in module engine.bandit)</a>
+</li>
+      <li><a href="api_engine.html#engine.data_loader.DataLoader.build_context">build_context() (engine.data_loader.DataLoader method)</a>
+</li>
+  </ul></td>
+</tr></table>
+
+<h2 id="C">C</h2>
+<table style="width: 100%" class="indextable genindextable"><tr>
+  <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="api_analytics.html#analytics.performance.calmar_ratio">calmar_ratio() (in module analytics.performance)</a>
+</li>
+      <li><a href="api_engine.html#engine.attribution.capacity_bps_per_aum">capacity_bps_per_aum() (in module engine.attribution)</a>
+</li>
+      <li><a href="api_engine.html#engine.attribution.CapacityEstimator">CapacityEstimator (class in engine.attribution)</a>
+</li>
+      <li><a href="api_engine.html#engine.benchmark.CashMarketBlend.cash_weight">cash_weight (engine.benchmark.CashMarketBlend attribute)</a>
+</li>
+      <li><a href="api_engine.html#engine.benchmark.CashMarketBlend">CashMarketBlend (class in engine.benchmark)</a>
+</li>
+      <li><a href="api_engine.html#engine.backtest.BacktestEngine.cfg">cfg (engine.backtest.BacktestEngine attribute)</a>
+
+      <ul>
+        <li><a href="api_engine.html#engine.bandit.BanditWeights.cfg">(engine.bandit.BanditWeights attribute)</a>
+</li>
+        <li><a href="api_engine.html#engine.benchmark.CashMarketBlend.cfg">(engine.benchmark.CashMarketBlend attribute)</a>
+</li>
+        <li><a href="api_engine.html#engine.benchmark.EqualWeightBenchmark.cfg">(engine.benchmark.EqualWeightBenchmark attribute)</a>
+</li>
+        <li><a href="api_engine.html#engine.benchmark.SPXBenchmark.cfg">(engine.benchmark.SPXBenchmark attribute)</a>
+</li>
+        <li><a href="api_engine.html#engine.costs.CostModel.cfg">(engine.costs.CostModel attribute)</a>
+</li>
+        <li><a href="api_engine.html#engine.dynamic_weights.DynamicGridWeights.cfg">(engine.dynamic_weights.DynamicGridWeights attribute)</a>
+</li>
+        <li><a href="api_engine.html#engine.dynamic_weights.StaticWeights.cfg">(engine.dynamic_weights.StaticWeights attribute)</a>
+</li>
+        <li><a href="api_engine.html#engine.factors.FactorEngine.cfg">(engine.factors.FactorEngine attribute)</a>
+</li>
+        <li><a href="api_engine.html#engine.portfolio.PortfolioEngine.cfg">(engine.portfolio.PortfolioEngine attribute)</a>
+</li>
+        <li><a href="api_engine.html#engine.risk_scaler.CompositeRiskScaler.cfg">(engine.risk_scaler.CompositeRiskScaler attribute)</a>
+</li>
+        <li><a href="api_engine.html#engine.zscore.ZScoreEngine.cfg">(engine.zscore.ZScoreEngine attribute)</a>
+</li>
+      </ul></li>
+      <li><a href="api_engine.html#engine.config.OutputsConfig.charts_dir">charts_dir (engine.config.OutputsConfig attribute)</a>
+</li>
+      <li><a href="api_analytics.html#analytics.performance.circular_block_bootstrap_sharpe">circular_block_bootstrap_sharpe() (in module analytics.performance)</a>
+</li>
+      <li><a href="api_engine.html#engine.dynamic_weights.classify_regime_hmm">classify_regime_hmm() (in module engine.dynamic_weights)</a>
+</li>
+      <li><a href="api_engine.html#engine.dynamic_weights.classify_regime_percentile">classify_regime_percentile() (in module engine.dynamic_weights)</a>
+</li>
+      <li><a href="api_engine.html#engine.zscore.ZScoreEngine.composite">composite() (engine.zscore.ZScoreEngine method)</a>
+</li>
+      <li><a href="api_engine.html#engine.types.FactorScoresRow.composite_z">composite_z (engine.types.FactorScoresRow attribute)</a>
+</li>
+      <li><a href="api_engine.html#engine.risk_scaler.CompositeRiskScaler">CompositeRiskScaler (class in engine.risk_scaler)</a>
+</li>
+      <li><a href="api_engine.html#engine.dynamic_weights.DynamicGridWeights.compute">compute() (engine.dynamic_weights.DynamicGridWeights method)</a>
+
+      <ul>
+        <li><a href="api_engine.html#engine.dynamic_weights.StaticWeights.compute">(engine.dynamic_weights.StaticWeights method)</a>
+</li>
+      </ul></li>
+      <li><a href="api_engine.html#engine.factors.FactorEngine.compute_all">compute_all() (engine.factors.FactorEngine method)</a>
+</li>
+      <li><a href="api_analytics.html#analytics.performance.compute_headline_metrics">compute_headline_metrics() (in module analytics.performance)</a>
+</li>
+      <li><a href="api_analytics.html#analytics.attribution_analysis.compute_ic_statistics">compute_ic_statistics() (in module analytics.attribution_analysis)</a>
+</li>
+  </ul></td>
+  <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="api_engine.html#engine.factors.FactorEngine.compute_momentum">compute_momentum() (engine.factors.FactorEngine method)</a>
+</li>
+      <li><a href="api_engine.html#engine.factors.FactorEngine.compute_quality">compute_quality() (engine.factors.FactorEngine method)</a>
+</li>
+      <li><a href="api_engine.html#engine.factors.FactorEngine.compute_sentiment">compute_sentiment() (engine.factors.FactorEngine method)</a>
+</li>
+      <li><a href="api_engine.html#engine.factors.FactorEngine.compute_value">compute_value() (engine.factors.FactorEngine method)</a>
+</li>
+      <li><a href="api_engine.html#engine.config.Config">Config (class in engine.config)</a>
+</li>
+      <li><a href="api_engine.html#engine.backtest.BacktestResult.config_hash">config_hash (engine.backtest.BacktestResult attribute)</a>
+</li>
+      <li><a href="api_engine.html#engine.config.Config.config_hash">config_hash() (engine.config.Config method)</a>
+</li>
+      <li><a href="api_engine.html#engine.config.PortfolioConfig.construction">construction (engine.config.PortfolioConfig attribute)</a>
+</li>
+      <li><a href="api_engine.html#engine.bandit.LinearThompsonSampler.context_dim">context_dim (engine.bandit.LinearThompsonSampler attribute)</a>
+
+      <ul>
+        <li><a href="api_engine.html#engine.config.BanditConfig.context_dim">(engine.config.BanditConfig attribute)</a>
+</li>
+      </ul></li>
+      <li><a href="api_engine.html#engine.types.BanditLogRow.context_vector_json">context_vector_json (engine.types.BanditLogRow attribute)</a>
+</li>
+      <li><a href="api_engine.html#engine.costs.CostModel.cost_drag">cost_drag() (engine.costs.CostModel method)</a>
+</li>
+      <li><a href="api_engine.html#engine.types.ExposureLogRow.cost_drag_20bp">cost_drag_20bp (engine.types.ExposureLogRow attribute)</a>
+</li>
+      <li><a href="api_engine.html#engine.types.ExposureLogRow.cost_drag_30bp">cost_drag_30bp (engine.types.ExposureLogRow attribute)</a>
+</li>
+      <li><a href="api_engine.html#engine.backtest.BacktestEngine.cost_model">cost_model (engine.backtest.BacktestEngine attribute)</a>
+</li>
+      <li><a href="api_engine.html#engine.config.CostsConfig.cost_per_side_bp_headline">cost_per_side_bp_headline (engine.config.CostsConfig attribute)</a>
+</li>
+      <li><a href="api_engine.html#engine.config.CostsConfig.cost_per_side_bp_sensitivity">cost_per_side_bp_sensitivity (engine.config.CostsConfig attribute)</a>
+</li>
+      <li><a href="api_engine.html#engine.costs.CostModel">CostModel (class in engine.costs)</a>
+</li>
+      <li><a href="api_engine.html#engine.config.Config.costs">costs (engine.config.Config attribute)</a>
+</li>
+      <li><a href="api_engine.html#engine.config.CostsConfig">CostsConfig (class in engine.config)</a>
+</li>
+      <li><a href="api_engine.html#engine.config.EstimationWindowsConfig.covariance_days">covariance_days (engine.config.EstimationWindowsConfig attribute)</a>
+</li>
+      <li><a href="api_engine.html#engine.config.StressWindowsConfig.covid_2020">covid_2020 (engine.config.StressWindowsConfig attribute)</a>
+</li>
+      <li><a href="api_engine.html#engine.config.BacktestConfig.cpcv_embargo_months">cpcv_embargo_months (engine.config.BacktestConfig attribute)</a>
+</li>
+      <li><a href="api_engine.html#engine.config.BacktestConfig.cpcv_n_groups">cpcv_n_groups (engine.config.BacktestConfig attribute)</a>
+</li>
+      <li><a href="api_engine.html#engine.config.BacktestConfig.cpcv_purge_months">cpcv_purge_months (engine.config.BacktestConfig attribute)</a>
+</li>
+      <li><a href="api_engine.html#engine.config.BacktestConfig.cpcv_test_groups">cpcv_test_groups (engine.config.BacktestConfig attribute)</a>
+</li>
+      <li><a href="api_engine.html#engine.types.UniverseSnapshot.currency_map">currency_map (engine.types.UniverseSnapshot attribute)</a>
+</li>
+      <li><a href="api_engine.html#engine.data_loader.currency_to_fx_pair">currency_to_fx_pair() (in module engine.data_loader)</a>
+</li>
+      <li><a href="api_engine.html#engine.types.SensitivityGridRow.cv_fold">cv_fold (engine.types.SensitivityGridRow attribute)</a>
+</li>
+  </ul></td>
+</tr></table>
+
+<h2 id="D">D</h2>
+<table style="width: 100%" class="indextable genindextable"><tr>
+  <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="api_engine.html#engine.backtest.BacktestEngine.data_loader">data_loader (engine.backtest.BacktestEngine attribute)</a>
+
+      <ul>
+        <li><a href="api_engine.html#engine.benchmark.CashMarketBlend.data_loader">(engine.benchmark.CashMarketBlend attribute)</a>
+</li>
+        <li><a href="api_engine.html#engine.benchmark.EqualWeightBenchmark.data_loader">(engine.benchmark.EqualWeightBenchmark attribute)</a>
+</li>
+        <li><a href="api_engine.html#engine.benchmark.SPXBenchmark.data_loader">(engine.benchmark.SPXBenchmark attribute)</a>
+</li>
+      </ul></li>
+      <li><a href="api_engine.html#engine.backtest.BacktestResult.data_snapshot_sha256">data_snapshot_sha256 (engine.backtest.BacktestResult attribute)</a>
+
+      <ul>
+        <li><a href="api_engine.html#engine.types.TradeLedgerRow.data_snapshot_sha256">(engine.types.TradeLedgerRow attribute)</a>
+</li>
+      </ul></li>
+      <li><a href="api_engine.html#engine.data_loader.DataLoader.data_snapshot_sha256">data_snapshot_sha256() (engine.data_loader.DataLoader method)</a>
+</li>
+      <li><a href="api_engine.html#engine.config.Config.database">database (engine.config.Config attribute)</a>
+</li>
+      <li><a href="api_engine.html#engine.config.DatabaseConfig">DatabaseConfig (class in engine.config)</a>
+</li>
+      <li><a href="api_engine.html#engine.data_loader.DataLoader">DataLoader (class in engine.data_loader)</a>
+</li>
+      <li><a href="api_engine.html#engine.types.BanditLogRow.date">date (engine.types.BanditLogRow attribute)</a>
+
+      <ul>
+        <li><a href="api_engine.html#engine.types.ExposureLogRow.date">(engine.types.ExposureLogRow attribute)</a>
+</li>
+        <li><a href="api_engine.html#engine.types.FactorICRow.date">(engine.types.FactorICRow attribute)</a>
+</li>
+        <li><a href="api_engine.html#engine.types.FactorPayload.date">(engine.types.FactorPayload attribute)</a>
+</li>
+        <li><a href="api_engine.html#engine.types.FactorPremiaRow.date">(engine.types.FactorPremiaRow attribute)</a>
+</li>
+        <li><a href="api_engine.html#engine.types.FactorScoresRow.date">(engine.types.FactorScoresRow attribute)</a>
+</li>
+        <li><a href="api_engine.html#engine.types.MonteCarloRow.date">(engine.types.MonteCarloRow attribute)</a>
+</li>
+        <li><a href="api_engine.html#engine.types.PortfolioReturnsRow.date">(engine.types.PortfolioReturnsRow attribute)</a>
+</li>
+        <li><a href="api_engine.html#engine.types.PortfolioWeightsRow.date">(engine.types.PortfolioWeightsRow attribute)</a>
+</li>
+        <li><a href="api_engine.html#engine.types.RegimeLogRow.date">(engine.types.RegimeLogRow attribute)</a>
+</li>
+        <li><a href="api_engine.html#engine.types.TradeLedgerRow.date">(engine.types.TradeLedgerRow attribute)</a>
+</li>
+        <li><a href="api_engine.html#engine.types.UniverseSnapshot.date">(engine.types.UniverseSnapshot attribute)</a>
+</li>
+      </ul></li>
+      <li><a href="api_engine.html#engine.config.Config.dates">dates (engine.config.Config attribute)</a>
+</li>
+      <li><a href="api_engine.html#engine.config.DatesConfig">DatesConfig (class in engine.config)</a>
+</li>
+      <li><a href="api_engine.html#engine.config.RiskScalerConfig.dd_control_enabled">dd_control_enabled (engine.config.RiskScalerConfig attribute)</a>
+</li>
+      <li><a href="api_engine.html#engine.types.ExposureLogRow.dd_control_scalar">dd_control_scalar (engine.types.ExposureLogRow attribute)</a>
+</li>
+  </ul></td>
+  <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="api_engine.html#engine.config.RiskScalerConfig.dd_recover_threshold">dd_recover_threshold (engine.config.RiskScalerConfig attribute)</a>
+</li>
+      <li><a href="api_engine.html#engine.risk_scaler.CompositeRiskScaler.dd_scalar">dd_scalar() (engine.risk_scaler.CompositeRiskScaler method)</a>
+</li>
+      <li><a href="api_engine.html#engine.config.RiskScalerConfig.dd_scalar_hard">dd_scalar_hard (engine.config.RiskScalerConfig attribute)</a>
+</li>
+      <li><a href="api_engine.html#engine.config.RiskScalerConfig.dd_scalar_soft">dd_scalar_soft (engine.config.RiskScalerConfig attribute)</a>
+</li>
+      <li><a href="api_engine.html#engine.config.RiskScalerConfig.dd_threshold_hard">dd_threshold_hard (engine.config.RiskScalerConfig attribute)</a>
+</li>
+      <li><a href="api_engine.html#engine.config.RiskScalerConfig.dd_threshold_soft">dd_threshold_soft (engine.config.RiskScalerConfig attribute)</a>
+</li>
+      <li><a href="api_analytics.html#analytics.performance.deflated_sharpe_ratio">deflated_sharpe_ratio() (in module analytics.performance)</a>
+</li>
+      <li><a href="api_engine.html#engine.config.PortfolioConfig.denoise_enabled">denoise_enabled (engine.config.PortfolioConfig attribute)</a>
+</li>
+      <li><a href="api_engine.html#engine.portfolio.denoised_ledoit_wolf_cov">denoised_ledoit_wolf_cov() (in module engine.portfolio)</a>
+</li>
+      <li><a href="api_analytics.html#analytics.validation.ValidationResult.details">details (analytics.validation.ValidationResult attribute)</a>
+</li>
+      <li><a href="api_engine.html#engine.types.RegimeLogRow.dispersion_momentum">dispersion_momentum (engine.types.RegimeLogRow attribute)</a>
+</li>
+      <li><a href="api_engine.html#engine.types.RegimeLogRow.dispersion_quality">dispersion_quality (engine.types.RegimeLogRow attribute)</a>
+</li>
+      <li><a href="api_engine.html#engine.types.RegimeLogRow.dispersion_sentiment">dispersion_sentiment (engine.types.RegimeLogRow attribute)</a>
+</li>
+      <li><a href="api_engine.html#engine.types.RegimeLogRow.dispersion_value">dispersion_value (engine.types.RegimeLogRow attribute)</a>
+</li>
+      <li><a href="api_analytics.html#analytics.performance.downside_deviation">downside_deviation() (in module analytics.performance)</a>
+</li>
+      <li><a href="api_engine.html#engine.types.ExposureLogRow.drawdown_12m">drawdown_12m (engine.types.ExposureLogRow attribute)</a>
+</li>
+      <li><a href="api_analytics.html#analytics.performance.drawdown_duration_months">drawdown_duration_months() (in module analytics.performance)</a>
+</li>
+      <li><a href="api_engine.html#engine.config.EstimationWindowsConfig.drawdown_lookback_months">drawdown_lookback_months (engine.config.EstimationWindowsConfig attribute)</a>
+</li>
+      <li><a href="api_analytics.html#analytics.performance.drawdown_series">drawdown_series() (in module analytics.performance)</a>
+</li>
+      <li><a href="api_engine.html#engine.types.Strategy.DYNAMIC_BANDIT">DYNAMIC_BANDIT (engine.types.Strategy attribute)</a>
+</li>
+      <li><a href="api_engine.html#engine.types.Strategy.DYNAMIC_GRID">DYNAMIC_GRID (engine.types.Strategy attribute)</a>
+</li>
+      <li><a href="api_engine.html#engine.types.PortfolioReturnsRow.dynamic_gross">dynamic_gross (engine.types.PortfolioReturnsRow attribute)</a>
+</li>
+      <li><a href="api_engine.html#engine.types.PortfolioReturnsRow.dynamic_net_20bp">dynamic_net_20bp (engine.types.PortfolioReturnsRow attribute)</a>
+</li>
+      <li><a href="api_engine.html#engine.types.PortfolioReturnsRow.dynamic_net_30bp">dynamic_net_30bp (engine.types.PortfolioReturnsRow attribute)</a>
+</li>
+      <li><a href="api_engine.html#engine.config.Config.dynamic_weights">dynamic_weights (engine.config.Config attribute)</a>
+</li>
+      <li><a href="api_engine.html#engine.dynamic_weights.DynamicGridWeights">DynamicGridWeights (class in engine.dynamic_weights)</a>
+</li>
+      <li><a href="api_engine.html#engine.config.DynamicWeightsConfig">DynamicWeightsConfig (class in engine.config)</a>
+</li>
+  </ul></td>
+</tr></table>
+
+<h2 id="E">E</h2>
+<table style="width: 100%" class="indextable genindextable"><tr>
+  <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="api_engine.html#engine.config.BanditConfig.enabled">enabled (engine.config.BanditConfig attribute)</a>
+
+      <ul>
+        <li><a href="api_engine.html#engine.config.MLEnhancerConfig.enabled">(engine.config.MLEnhancerConfig attribute)</a>
+</li>
+      </ul></li>
+      <li>
+    engine.attribution
+
+      <ul>
+        <li><a href="api_engine.html#module-engine.attribution">module</a>
+</li>
+      </ul></li>
+      <li>
+    engine.backtest
+
+      <ul>
+        <li><a href="api_engine.html#module-engine.backtest">module</a>
+</li>
+      </ul></li>
+      <li>
+    engine.bandit
+
+      <ul>
+        <li><a href="api_engine.html#module-engine.bandit">module</a>
+</li>
+      </ul></li>
+      <li>
+    engine.benchmark
+
+      <ul>
+        <li><a href="api_engine.html#module-engine.benchmark">module</a>
+</li>
+      </ul></li>
+      <li>
+    engine.config
+
+      <ul>
+        <li><a href="api_engine.html#module-engine.config">module</a>
+</li>
+      </ul></li>
+      <li>
+    engine.costs
+
+      <ul>
+        <li><a href="api_engine.html#module-engine.costs">module</a>
+</li>
+      </ul></li>
+      <li>
+    engine.data_loader
+
+      <ul>
+        <li><a href="api_engine.html#module-engine.data_loader">module</a>
+</li>
+      </ul></li>
+      <li>
+    engine.dynamic_weights
+
+      <ul>
+        <li><a href="api_engine.html#module-engine.dynamic_weights">module</a>
+</li>
+      </ul></li>
+      <li>
+    engine.factors
+
+      <ul>
+        <li><a href="api_engine.html#module-engine.factors">module</a>
+</li>
+      </ul></li>
+  </ul></td>
+  <td style="width: 33%; vertical-align: top;"><ul>
+      <li>
+    engine.portfolio
+
+      <ul>
+        <li><a href="api_engine.html#module-engine.portfolio">module</a>
+</li>
+      </ul></li>
+      <li>
+    engine.risk_scaler
+
+      <ul>
+        <li><a href="api_engine.html#module-engine.risk_scaler">module</a>
+</li>
+      </ul></li>
+      <li>
+    engine.types
+
+      <ul>
+        <li><a href="api_engine.html#module-engine.types">module</a>
+</li>
+      </ul></li>
+      <li>
+    engine.zscore
+
+      <ul>
+        <li><a href="api_engine.html#module-engine.zscore">module</a>
+</li>
+      </ul></li>
+      <li><a href="api_engine.html#engine.benchmark.EqualWeightBenchmark">EqualWeightBenchmark (class in engine.benchmark)</a>
+</li>
+      <li><a href="api_engine.html#engine.types.ExposureLogRow.es_99">es_99 (engine.types.ExposureLogRow attribute)</a>
+</li>
+      <li><a href="api_engine.html#engine.attribution.CapacityEstimator.estimate">estimate() (engine.attribution.CapacityEstimator method)</a>
+</li>
+      <li><a href="api_engine.html#engine.config.Config.estimation_windows">estimation_windows (engine.config.Config attribute)</a>
+</li>
+      <li><a href="api_engine.html#engine.config.EstimationWindowsConfig">EstimationWindowsConfig (class in engine.config)</a>
+</li>
+      <li><a href="api_analytics.html#analytics.performance.excess_kurtosis">excess_kurtosis() (in module analytics.performance)</a>
+</li>
+      <li><a href="api_analytics.html#analytics.performance.expected_shortfall">expected_shortfall() (in module analytics.performance)</a>
+</li>
+      <li><a href="api_engine.html#engine.backtest.BacktestResult.exposure_log">exposure_log (engine.backtest.BacktestResult attribute)</a>
+</li>
+      <li><a href="api_engine.html#engine.types.ExposureLogRow">ExposureLogRow (class in engine.types)</a>
+</li>
+      <li><a href="api_engine.html#engine.config.DatesConfig.extended_oos_end">extended_oos_end (engine.config.DatesConfig attribute)</a>
+</li>
+  </ul></td>
+</tr></table>
+
+<h2 id="F">F</h2>
+<table style="width: 100%" class="indextable genindextable"><tr>
+  <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="api_engine.html#engine.types.FactorICRow.factor">factor (engine.types.FactorICRow attribute)</a>
+
+      <ul>
+        <li><a href="api_engine.html#engine.types.FactorPremiaRow.factor">(engine.types.FactorPremiaRow attribute)</a>
+</li>
+      </ul></li>
+      <li><a href="api_engine.html#engine.dynamic_weights.factor_dispersion">factor_dispersion() (in module engine.dynamic_weights)</a>
+</li>
+      <li><a href="api_engine.html#engine.backtest.BacktestEngine.factor_engine">factor_engine (engine.backtest.BacktestEngine attribute)</a>
+</li>
+      <li><a href="api_engine.html#engine.backtest.BacktestResult.factor_ic">factor_ic (engine.backtest.BacktestResult attribute)</a>
+</li>
+      <li><a href="api_engine.html#engine.zscore.ZScoreEngine.factor_ic">factor_ic() (engine.zscore.ZScoreEngine method)</a>
+</li>
+      <li><a href="api_analytics.html#analytics.performance.factor_ic_ir">factor_ic_ir() (in module analytics.performance)</a>
+</li>
+      <li><a href="api_engine.html#engine.backtest.BacktestResult.factor_premia">factor_premia (engine.backtest.BacktestResult attribute)</a>
+</li>
+      <li><a href="api_engine.html#engine.backtest.BacktestResult.factor_scores">factor_scores (engine.backtest.BacktestResult attribute)</a>
+</li>
+      <li><a href="api_engine.html#engine.config.FactorConfig">FactorConfig (class in engine.config)</a>
+</li>
+      <li><a href="api_engine.html#engine.factors.FactorEngine">FactorEngine (class in engine.factors)</a>
+</li>
+      <li><a href="api_engine.html#engine.types.FactorICRow">FactorICRow (class in engine.types)</a>
+</li>
+  </ul></td>
+  <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="api_engine.html#engine.types.FactorName">FactorName (class in engine.types)</a>
+</li>
+      <li><a href="api_engine.html#engine.types.FactorPayload">FactorPayload (class in engine.types)</a>
+</li>
+      <li><a href="api_engine.html#engine.types.FactorPremiaRow">FactorPremiaRow (class in engine.types)</a>
+</li>
+      <li><a href="api_engine.html#engine.config.Config.factors">factors (engine.config.Config attribute)</a>
+</li>
+      <li><a href="api_engine.html#engine.types.FactorScoresRow">FactorScoresRow (class in engine.types)</a>
+</li>
+      <li><a href="api_engine.html#engine.types.FactorPremiaRow.fama_macbeth_beta">fama_macbeth_beta (engine.types.FactorPremiaRow attribute)</a>
+</li>
+      <li><a href="api_engine.html#engine.attribution.fama_macbeth_one_date">fama_macbeth_one_date() (in module engine.attribution)</a>
+</li>
+      <li><a href="api_engine.html#engine.attribution.fama_macbeth_t_stat">fama_macbeth_t_stat() (in module engine.attribution)</a>
+</li>
+      <li><a href="api_analytics.html#analytics.validation.ValidationResult.flags">flags (analytics.validation.ValidationResult attribute)</a>
+</li>
+      <li><a href="api_engine.html#engine.types.FactorICRow.forward_return">forward_return (engine.types.FactorICRow attribute)</a>
+</li>
+      <li><a href="api_engine.html#engine.data_loader.PITContext.fundamentals">fundamentals (engine.data_loader.PITContext attribute)</a>
+</li>
+      <li><a href="api_engine.html#engine.data_loader.PITContext.fx_rates">fx_rates (engine.data_loader.PITContext attribute)</a>
+</li>
+  </ul></td>
+</tr></table>
+
+<h2 id="G">G</h2>
+<table style="width: 100%" class="indextable genindextable"><tr>
+  <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="api_engine.html#engine.config.DynamicWeightsConfig.gamma">gamma (engine.config.DynamicWeightsConfig attribute)</a>
+
+      <ul>
+        <li><a href="api_engine.html#engine.types.SensitivityGridRow.gamma">(engine.types.SensitivityGridRow attribute)</a>
+</li>
+      </ul></li>
+      <li><a href="api_engine.html#engine.config.BacktestConfig.gamma_grid">gamma_grid (engine.config.BacktestConfig attribute)</a>
+</li>
+      <li><a href="api_engine.html#engine.dynamic_weights.DynamicGridWeights.gamma_override">gamma_override (engine.dynamic_weights.DynamicGridWeights attribute)</a>
+</li>
+      <li><a href="api_engine.html#engine.config.MLEnhancerConfig.gate_min_oos_ic">gate_min_oos_ic (engine.config.MLEnhancerConfig attribute)</a>
+</li>
+      <li><a href="api_engine.html#engine.config.MLEnhancerConfig.gate_min_sharpe_improvement">gate_min_sharpe_improvement (engine.config.MLEnhancerConfig attribute)</a>
+</li>
+  </ul></td>
+  <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="api_engine.html#engine.types.UniverseSnapshot.gics_map">gics_map (engine.types.UniverseSnapshot attribute)</a>
+</li>
+      <li><a href="api_engine.html#engine.types.FactorScoresRow.gics_sector">gics_sector (engine.types.FactorScoresRow attribute)</a>
+</li>
+      <li><a href="api_engine.html#engine.backtest.BacktestResult.git_sha">git_sha (engine.backtest.BacktestResult attribute)</a>
+</li>
+      <li><a href="api_engine.html#engine.config.Config.git_sha">git_sha() (engine.config.Config static method)</a>
+</li>
+      <li><a href="api_engine.html#engine.types.ExposureLogRow.gross_exposure">gross_exposure (engine.types.ExposureLogRow attribute)</a>
+</li>
+      <li><a href="api_analytics.html#analytics.performance.gross_exposure">gross_exposure() (in module analytics.performance)</a>
+</li>
+  </ul></td>
+</tr></table>
+
+<h2 id="H">H</h2>
+<table style="width: 100%" class="indextable genindextable"><tr>
+  <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="api_engine.html#engine.costs.CostModel.headline_drag">headline_drag() (engine.costs.CostModel method)</a>
+</li>
+      <li><a href="api_engine.html#engine.data_loader.DataLoader.health_check">health_check() (engine.data_loader.DataLoader method)</a>
+</li>
+      <li><a href="api_engine.html#engine.types.ExposureLogRow.hhi_concentration">hhi_concentration (engine.types.ExposureLogRow attribute)</a>
+</li>
+      <li><a href="api_engine.html#engine.types.Regime.HIGH">HIGH (engine.types.Regime attribute)</a>
+</li>
+      <li><a href="api_engine.html#engine.risk_scaler.historical_es_99">historical_es_99() (in module engine.risk_scaler)</a>
+</li>
+      <li><a href="api_analytics.html#analytics.performance.historical_var">historical_var() (in module analytics.performance)</a>
+</li>
+      <li><a href="api_engine.html#engine.risk_scaler.historical_var_99">historical_var_99() (in module engine.risk_scaler)</a>
+</li>
+  </ul></td>
+  <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="api_engine.html#engine.bandit.BanditWeights.history">history (engine.bandit.BanditWeights attribute)</a>
+</li>
+      <li><a href="api_engine.html#engine.types.RegimeLogRow.hmm_prob_high">hmm_prob_high (engine.types.RegimeLogRow attribute)</a>
+</li>
+      <li><a href="api_engine.html#engine.config.DatabaseConfig.host">host (engine.config.DatabaseConfig attribute)</a>
+</li>
+      <li><a href="api_engine.html#engine.types.Strategy.HRP">HRP (engine.types.Strategy attribute)</a>
+</li>
+      <li><a href="api_engine.html#engine.types.PortfolioReturnsRow.hrp_net_20bp">hrp_net_20bp (engine.types.PortfolioReturnsRow attribute)</a>
+</li>
+      <li><a href="api_engine.html#engine.config.RiskScalerConfig.hvar_confidence">hvar_confidence (engine.config.RiskScalerConfig attribute)</a>
+</li>
+      <li><a href="api_engine.html#engine.config.RiskScalerConfig.hvar_target_budget">hvar_target_budget (engine.config.RiskScalerConfig attribute)</a>
+</li>
+  </ul></td>
+</tr></table>
+
+<h2 id="I">I</h2>
+<table style="width: 100%" class="indextable genindextable"><tr>
+  <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="api_engine.html#engine.types.FactorICRow.ic_pearson">ic_pearson (engine.types.FactorICRow attribute)</a>
+</li>
+      <li><a href="api_engine.html#engine.types.FactorICRow.ic_spearman">ic_spearman (engine.types.FactorICRow attribute)</a>
+</li>
+      <li><a href="api_engine.html#engine.config.DatesConfig.in_sample_end">in_sample_end (engine.config.DatesConfig attribute)</a>
+</li>
+      <li><a href="api_engine.html#engine.config.DatesConfig.in_sample_start">in_sample_start (engine.config.DatesConfig attribute)</a>
+</li>
+  </ul></td>
+  <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="api_engine.html#engine.data_loader.infer_currency">infer_currency() (in module engine.data_loader)</a>
+</li>
+      <li><a href="api_engine.html#engine.types.AblationRow.info_ratio">info_ratio (engine.types.AblationRow attribute)</a>
+
+      <ul>
+        <li><a href="api_engine.html#engine.types.SensitivityGridRow.info_ratio">(engine.types.SensitivityGridRow attribute)</a>
+</li>
+      </ul></li>
+      <li><a href="api_analytics.html#analytics.performance.information_ratio">information_ratio() (in module analytics.performance)</a>
+</li>
+      <li><a href="api_engine.html#engine.config.BacktestConfig.initial_nav">initial_nav (engine.config.BacktestConfig attribute)</a>
+</li>
+  </ul></td>
+</tr></table>
+
+<h2 id="L">L</h2>
+<table style="width: 100%" class="indextable genindextable"><tr>
+  <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="api_engine.html#engine.types.SensitivityGridRow.lambda_magnitude">lambda_magnitude (engine.types.SensitivityGridRow attribute)</a>
+</li>
+      <li><a href="api_engine.html#engine.config.BacktestConfig.lambda_magnitude_grid">lambda_magnitude_grid (engine.config.BacktestConfig attribute)</a>
+</li>
+      <li><a href="api_engine.html#engine.dynamic_weights.DynamicGridWeights.lambda_scale_override">lambda_scale_override (engine.dynamic_weights.DynamicGridWeights attribute)</a>
+</li>
+      <li><a href="api_engine.html#engine.bandit.BanditWeights.last_arm">last_arm (engine.bandit.BanditWeights attribute)</a>
+</li>
+      <li><a href="api_engine.html#engine.bandit.BanditWeights.last_context">last_context (engine.bandit.BanditWeights attribute)</a>
+</li>
+      <li><a href="api_engine.html#engine.portfolio.ledoit_wolf_cov">ledoit_wolf_cov() (in module engine.portfolio)</a>
+</li>
+      <li><a href="api_engine.html#engine.types.Leg">Leg (class in engine.types)</a>
+</li>
+      <li><a href="api_engine.html#engine.types.PortfolioWeightsRow.leg">leg (engine.types.PortfolioWeightsRow attribute)</a>
+</li>
+      <li><a href="api_engine.html#engine.types.TradeLedgerRow.leg_id">leg_id (engine.types.TradeLedgerRow attribute)</a>
+</li>
+      <li><a href="api_engine.html#engine.config.LoggingConfig.level">level (engine.config.LoggingConfig attribute)</a>
+</li>
+      <li><a href="api_engine.html#engine.bandit.LinearThompsonSampler">LinearThompsonSampler (class in engine.bandit)</a>
+</li>
+      <li><a href="api_engine.html#engine.data_loader.DataLoader.load_benchmark">load_benchmark() (engine.data_loader.DataLoader method)</a>
+</li>
+      <li><a href="api_engine.html#engine.config.load_config">load_config() (in module engine.config)</a>
+</li>
+      <li><a href="api_engine.html#engine.data_loader.DataLoader.load_fundamentals_pit">load_fundamentals_pit() (engine.data_loader.DataLoader method)</a>
+</li>
+  </ul></td>
+  <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="api_engine.html#engine.data_loader.DataLoader.load_fx">load_fx() (engine.data_loader.DataLoader method)</a>
+</li>
+      <li><a href="api_engine.html#engine.data_loader.DataLoader.load_prices">load_prices() (engine.data_loader.DataLoader method)</a>
+</li>
+      <li><a href="api_engine.html#engine.data_loader.DataLoader.load_ratios_pit">load_ratios_pit() (engine.data_loader.DataLoader method)</a>
+</li>
+      <li><a href="api_engine.html#engine.data_loader.DataLoader.load_rf_rate">load_rf_rate() (engine.data_loader.DataLoader method)</a>
+</li>
+      <li><a href="api_engine.html#engine.data_loader.DataLoader.load_sentiment_pit">load_sentiment_pit() (engine.data_loader.DataLoader method)</a>
+</li>
+      <li><a href="api_engine.html#engine.data_loader.DataLoader.load_universe">load_universe() (engine.data_loader.DataLoader method)</a>
+</li>
+      <li><a href="api_engine.html#engine.data_loader.DataLoader.load_vix">load_vix() (engine.data_loader.DataLoader method)</a>
+</li>
+      <li><a href="api_engine.html#engine.bandit.BanditWeights.log_row">log_row() (engine.bandit.BanditWeights method)</a>
+</li>
+      <li><a href="api_engine.html#engine.config.Config.logging">logging (engine.config.Config attribute)</a>
+</li>
+      <li><a href="api_engine.html#engine.config.LoggingConfig">LoggingConfig (class in engine.config)</a>
+</li>
+      <li><a href="api_engine.html#engine.types.Leg.LONG">LONG (engine.types.Leg attribute)</a>
+</li>
+      <li><a href="api_engine.html#engine.types.ExposureLogRow.long_alpha">long_alpha (engine.types.ExposureLogRow attribute)</a>
+</li>
+      <li><a href="api_engine.html#engine.types.PortfolioReturnsRow.long_leg">long_leg (engine.types.PortfolioReturnsRow attribute)</a>
+</li>
+      <li><a href="api_engine.html#engine.config.PortfolioConfig.long_quartile">long_quartile (engine.config.PortfolioConfig attribute)</a>
+</li>
+      <li><a href="api_engine.html#engine.types.Regime.LOW">LOW (engine.types.Regime attribute)</a>
+</li>
+  </ul></td>
+</tr></table>
+
+<h2 id="M">M</h2>
+<table style="width: 100%" class="indextable genindextable"><tr>
+  <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="api_engine.html#engine.attribution.max_aum_at_impact_budget">max_aum_at_impact_budget() (in module engine.attribution)</a>
+</li>
+      <li><a href="api_engine.html#engine.types.AblationRow.max_dd">max_dd (engine.types.AblationRow attribute)</a>
+
+      <ul>
+        <li><a href="api_engine.html#engine.types.SensitivityGridRow.max_dd">(engine.types.SensitivityGridRow attribute)</a>
+</li>
+      </ul></li>
+      <li><a href="api_analytics.html#analytics.performance.max_drawdown">max_drawdown() (in module analytics.performance)</a>
+</li>
+      <li><a href="api_engine.html#engine.config.PortfolioConfig.max_weight_per_stock">max_weight_per_stock (engine.config.PortfolioConfig attribute)</a>
+</li>
+      <li><a href="api_engine.html#engine.config.UniverseConfig.min_adv_usd">min_adv_usd (engine.config.UniverseConfig attribute)</a>
+</li>
+      <li><a href="api_engine.html#engine.config.FactorConfig.min_sector_size">min_sector_size (engine.config.FactorConfig attribute)</a>
+</li>
+      <li><a href="api_engine.html#engine.config.PortfolioConfig.min_weight_per_stock">min_weight_per_stock (engine.config.PortfolioConfig attribute)</a>
+</li>
+      <li><a href="api_analytics.html#analytics.performance.minimum_backtest_length">minimum_backtest_length() (in module analytics.performance)</a>
+</li>
+      <li><a href="api_engine.html#engine.config.Config.ml_enhancer">ml_enhancer (engine.config.Config attribute)</a>
+</li>
+      <li><a href="api_engine.html#engine.config.MLEnhancerConfig">MLEnhancerConfig (class in engine.config)</a>
+</li>
+      <li><a href="api_engine.html#engine.config.MLEnhancerConfig.model">model (engine.config.MLEnhancerConfig attribute)</a>
+</li>
+      <li><a href="api_engine.html#engine.config.BacktestConfig.model_config">model_config (engine.config.BacktestConfig attribute)</a>
+
+      <ul>
+        <li><a href="api_engine.html#engine.config.BanditConfig.model_config">(engine.config.BanditConfig attribute)</a>
+</li>
+        <li><a href="api_engine.html#engine.config.Config.model_config">(engine.config.Config attribute)</a>
+</li>
+        <li><a href="api_engine.html#engine.config.CostsConfig.model_config">(engine.config.CostsConfig attribute)</a>
+</li>
+        <li><a href="api_engine.html#engine.config.DatabaseConfig.model_config">(engine.config.DatabaseConfig attribute)</a>
+</li>
+        <li><a href="api_engine.html#engine.config.DatesConfig.model_config">(engine.config.DatesConfig attribute)</a>
+</li>
+        <li><a href="api_engine.html#engine.config.DynamicWeightsConfig.model_config">(engine.config.DynamicWeightsConfig attribute)</a>
+</li>
+        <li><a href="api_engine.html#engine.config.EstimationWindowsConfig.model_config">(engine.config.EstimationWindowsConfig attribute)</a>
+</li>
+        <li><a href="api_engine.html#engine.config.FactorConfig.model_config">(engine.config.FactorConfig attribute)</a>
+</li>
+        <li><a href="api_engine.html#engine.config.LoggingConfig.model_config">(engine.config.LoggingConfig attribute)</a>
+</li>
+        <li><a href="api_engine.html#engine.config.MLEnhancerConfig.model_config">(engine.config.MLEnhancerConfig attribute)</a>
+</li>
+        <li><a href="api_engine.html#engine.config.OutputsConfig.model_config">(engine.config.OutputsConfig attribute)</a>
+</li>
+        <li><a href="api_engine.html#engine.config.PortfolioConfig.model_config">(engine.config.PortfolioConfig attribute)</a>
+</li>
+        <li><a href="api_engine.html#engine.config.RiskScalerConfig.model_config">(engine.config.RiskScalerConfig attribute)</a>
+</li>
+        <li><a href="api_engine.html#engine.config.StressWindowsConfig.model_config">(engine.config.StressWindowsConfig attribute)</a>
+</li>
+        <li><a href="api_engine.html#engine.config.UniverseConfig.model_config">(engine.config.UniverseConfig attribute)</a>
+</li>
+        <li><a href="api_engine.html#engine.types.AblationRow.model_config">(engine.types.AblationRow attribute)</a>
+</li>
+        <li><a href="api_engine.html#engine.types.BanditLogRow.model_config">(engine.types.BanditLogRow attribute)</a>
+</li>
+        <li><a href="api_engine.html#engine.types.ExposureLogRow.model_config">(engine.types.ExposureLogRow attribute)</a>
+</li>
+        <li><a href="api_engine.html#engine.types.FactorICRow.model_config">(engine.types.FactorICRow attribute)</a>
+</li>
+        <li><a href="api_engine.html#engine.types.FactorPayload.model_config">(engine.types.FactorPayload attribute)</a>
+</li>
+        <li><a href="api_engine.html#engine.types.FactorPremiaRow.model_config">(engine.types.FactorPremiaRow attribute)</a>
+</li>
+        <li><a href="api_engine.html#engine.types.FactorScoresRow.model_config">(engine.types.FactorScoresRow attribute)</a>
+</li>
+        <li><a href="api_engine.html#engine.types.MonteCarloRow.model_config">(engine.types.MonteCarloRow attribute)</a>
+</li>
+        <li><a href="api_engine.html#engine.types.PortfolioReturnsRow.model_config">(engine.types.PortfolioReturnsRow attribute)</a>
+</li>
+        <li><a href="api_engine.html#engine.types.PortfolioWeightsRow.model_config">(engine.types.PortfolioWeightsRow attribute)</a>
+</li>
+        <li><a href="api_engine.html#engine.types.RegimeLogRow.model_config">(engine.types.RegimeLogRow attribute)</a>
+</li>
+        <li><a href="api_engine.html#engine.types.SensitivityGridRow.model_config">(engine.types.SensitivityGridRow attribute)</a>
+</li>
+        <li><a href="api_engine.html#engine.types.TradeLedgerRow.model_config">(engine.types.TradeLedgerRow attribute)</a>
+</li>
+        <li><a href="api_engine.html#engine.types.UniverseSnapshot.model_config">(engine.types.UniverseSnapshot attribute)</a>
+</li>
+      </ul></li>
+  </ul></td>
+  <td style="width: 33%; vertical-align: top;"><ul>
+      <li>
+    module
+
+      <ul>
+        <li><a href="api_analytics.html#module-analytics.ablation">analytics.ablation</a>
+</li>
+        <li><a href="api_analytics.html#module-analytics.attribution_analysis">analytics.attribution_analysis</a>
+</li>
+        <li><a href="api_analytics.html#module-analytics.charts">analytics.charts</a>
+</li>
+        <li><a href="api_analytics.html#module-analytics.comparison">analytics.comparison</a>
+</li>
+        <li><a href="api_analytics.html#module-analytics.performance">analytics.performance</a>
+</li>
+        <li><a href="api_analytics.html#module-analytics.sensitivity">analytics.sensitivity</a>
+</li>
+        <li><a href="api_analytics.html#module-analytics.stress">analytics.stress</a>
+</li>
+        <li><a href="api_analytics.html#module-analytics.validation">analytics.validation</a>
+</li>
+        <li><a href="api_engine.html#module-engine.attribution">engine.attribution</a>
+</li>
+        <li><a href="api_engine.html#module-engine.backtest">engine.backtest</a>
+</li>
+        <li><a href="api_engine.html#module-engine.bandit">engine.bandit</a>
+</li>
+        <li><a href="api_engine.html#module-engine.benchmark">engine.benchmark</a>
+</li>
+        <li><a href="api_engine.html#module-engine.config">engine.config</a>
+</li>
+        <li><a href="api_engine.html#module-engine.costs">engine.costs</a>
+</li>
+        <li><a href="api_engine.html#module-engine.data_loader">engine.data_loader</a>
+</li>
+        <li><a href="api_engine.html#module-engine.dynamic_weights">engine.dynamic_weights</a>
+</li>
+        <li><a href="api_engine.html#module-engine.factors">engine.factors</a>
+</li>
+        <li><a href="api_engine.html#module-engine.portfolio">engine.portfolio</a>
+</li>
+        <li><a href="api_engine.html#module-engine.risk_scaler">engine.risk_scaler</a>
+</li>
+        <li><a href="api_engine.html#module-engine.types">engine.types</a>
+</li>
+        <li><a href="api_engine.html#module-engine.zscore">engine.zscore</a>
+</li>
+      </ul></li>
+      <li><a href="api_engine.html#engine.types.FactorName.MOMENTUM">MOMENTUM (engine.types.FactorName attribute)</a>
+</li>
+      <li><a href="api_engine.html#engine.types.FactorPayload.momentum">momentum (engine.types.FactorPayload attribute)</a>
+</li>
+      <li><a href="api_engine.html#engine.config.EstimationWindowsConfig.momentum_lookback_months">momentum_lookback_months (engine.config.EstimationWindowsConfig attribute)</a>
+</li>
+      <li><a href="api_engine.html#engine.config.EstimationWindowsConfig.momentum_skip_months">momentum_skip_months (engine.config.EstimationWindowsConfig attribute)</a>
+</li>
+      <li><a href="api_engine.html#engine.types.FactorScoresRow.momentum_z">momentum_z (engine.types.FactorScoresRow attribute)</a>
+</li>
+      <li><a href="api_engine.html#engine.types.FactorScoresRow.momentum_z_ortho">momentum_z_ortho (engine.types.FactorScoresRow attribute)</a>
+</li>
+      <li><a href="api_engine.html#engine.config.BacktestConfig.monte_carlo_block_months">monte_carlo_block_months (engine.config.BacktestConfig attribute)</a>
+</li>
+      <li><a href="api_engine.html#engine.config.BacktestConfig.monte_carlo_n_paths">monte_carlo_n_paths (engine.config.BacktestConfig attribute)</a>
+</li>
+      <li><a href="api_engine.html#engine.types.MonteCarloRow">MonteCarloRow (class in engine.types)</a>
+</li>
+      <li><a href="api_analytics.html#analytics.performance.monthly_hit_rate">monthly_hit_rate() (in module analytics.performance)</a>
+</li>
+      <li><a href="api_engine.html#engine.backtest.monthly_rebalance_dates">monthly_rebalance_dates() (in module engine.backtest)</a>
+</li>
+  </ul></td>
+</tr></table>
+
+<h2 id="N">N</h2>
+<table style="width: 100%" class="indextable genindextable"><tr>
+  <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="api_engine.html#engine.bandit.LinearThompsonSampler.n_arms">n_arms (engine.bandit.LinearThompsonSampler attribute)</a>
+
+      <ul>
+        <li><a href="api_engine.html#engine.config.BanditConfig.n_arms">(engine.config.BanditConfig attribute)</a>
+</li>
+      </ul></li>
+      <li><a href="api_engine.html#engine.types.FactorPremiaRow.n_stocks">n_stocks (engine.types.FactorPremiaRow attribute)</a>
+</li>
+      <li><a href="api_engine.html#engine.types.ExposureLogRow.n_stocks_filtered_htb">n_stocks_filtered_htb (engine.types.ExposureLogRow attribute)</a>
+</li>
+      <li><a href="api_engine.html#engine.types.ExposureLogRow.n_stocks_filtered_liquidity">n_stocks_filtered_liquidity (engine.types.ExposureLogRow attribute)</a>
+</li>
+      <li><a href="api_engine.html#engine.types.ExposureLogRow.n_stocks_long">n_stocks_long (engine.types.ExposureLogRow attribute)</a>
+</li>
+      <li><a href="api_engine.html#engine.types.ExposureLogRow.n_stocks_short">n_stocks_short (engine.types.ExposureLogRow attribute)</a>
+</li>
+      <li><a href="api_engine.html#engine.config.BacktestConfig.n_workers">n_workers (engine.config.BacktestConfig attribute)</a>
+</li>
+  </ul></td>
+  <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="api_engine.html#engine.config.DatabaseConfig.name">name (engine.config.DatabaseConfig attribute)</a>
+</li>
+      <li><a href="api_engine.html#engine.types.MonteCarloRow.nav">nav (engine.types.MonteCarloRow attribute)</a>
+</li>
+      <li><a href="api_engine.html#engine.risk_scaler.CompositeRiskScaler.nav_history">nav_history (engine.risk_scaler.CompositeRiskScaler attribute)</a>
+</li>
+      <li><a href="api_engine.html#engine.types.ExposureLogRow.net_exposure">net_exposure (engine.types.ExposureLogRow attribute)</a>
+</li>
+      <li><a href="api_analytics.html#analytics.performance.net_exposure">net_exposure() (in module analytics.performance)</a>
+</li>
+      <li><a href="api_engine.html#engine.types.TradeLedgerRow.new_weight">new_weight (engine.types.TradeLedgerRow attribute)</a>
+</li>
+      <li><a href="api_engine.html#engine.types.Regime.NORMAL">NORMAL (engine.types.Regime attribute)</a>
+</li>
+      <li><a href="api_engine.html#engine.types.TradeLedgerRow.notional_usd">notional_usd (engine.types.TradeLedgerRow attribute)</a>
+</li>
+  </ul></td>
+</tr></table>
+
+<h2 id="O">O</h2>
+<table style="width: 100%" class="indextable genindextable"><tr>
+  <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="api_engine.html#engine.types.TradeLedgerRow.old_weight">old_weight (engine.types.TradeLedgerRow attribute)</a>
+</li>
+      <li><a href="api_engine.html#engine.costs.CostModel.one_way_turnover">one_way_turnover() (engine.costs.CostModel static method)</a>
+</li>
+      <li><a href="api_engine.html#engine.config.DatesConfig.oos_end">oos_end (engine.config.DatesConfig attribute)</a>
+</li>
+      <li><a href="api_engine.html#engine.config.DatesConfig.oos_start">oos_start (engine.config.DatesConfig attribute)</a>
+</li>
+      <li><a href="api_engine.html#engine.portfolio.PortfolioEngine.optimise_leg">optimise_leg() (engine.portfolio.PortfolioEngine method)</a>
+</li>
+  </ul></td>
+  <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="api_engine.html#engine.config.FactorConfig.orthogonalisation_order">orthogonalisation_order (engine.config.FactorConfig attribute)</a>
+</li>
+      <li><a href="api_engine.html#engine.config.FactorConfig.orthogonalise">orthogonalise (engine.config.FactorConfig attribute)</a>
+</li>
+      <li><a href="api_engine.html#engine.factors.orthogonalise">orthogonalise() (in module engine.factors)</a>
+</li>
+      <li><a href="api_engine.html#engine.config.OutputsConfig.output_dir">output_dir (engine.config.OutputsConfig attribute)</a>
+</li>
+      <li><a href="api_engine.html#engine.config.Config.outputs">outputs (engine.config.Config attribute)</a>
+</li>
+      <li><a href="api_engine.html#engine.config.OutputsConfig">OutputsConfig (class in engine.config)</a>
+</li>
+  </ul></td>
+</tr></table>
+
+<h2 id="P">P</h2>
+<table style="width: 100%" class="indextable genindextable"><tr>
+  <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="api_analytics.html#analytics.validation.ValidationResult.passed">passed (analytics.validation.ValidationResult attribute)</a>
+</li>
+      <li><a href="api_engine.html#engine.config.DatabaseConfig.password">password (engine.config.DatabaseConfig attribute)</a>
+</li>
+      <li><a href="api_engine.html#engine.types.MonteCarloRow.path_id">path_id (engine.types.MonteCarloRow attribute)</a>
+</li>
+      <li><a href="api_analytics.html#analytics.performance.pct_negative_months">pct_negative_months() (in module analytics.performance)</a>
+</li>
+      <li><a href="api_analytics.html#analytics.performance.pct_positive_ic_months">pct_positive_ic_months() (in module analytics.performance)</a>
+</li>
+      <li><a href="api_engine.html#engine.benchmark.CashMarketBlend.period_return">period_return() (engine.benchmark.CashMarketBlend method)</a>
+
+      <ul>
+        <li><a href="api_engine.html#engine.benchmark.EqualWeightBenchmark.period_return">(engine.benchmark.EqualWeightBenchmark method)</a>
+</li>
+        <li><a href="api_engine.html#engine.benchmark.SPXBenchmark.period_return">(engine.benchmark.SPXBenchmark method)</a>
+</li>
+      </ul></li>
+      <li><a href="api_analytics.html#analytics.stress.permutation_test_dynamic_vs_static">permutation_test_dynamic_vs_static() (in module analytics.stress)</a>
+</li>
+      <li><a href="api_engine.html#engine.config.Config.pit_lag">pit_lag (engine.config.Config attribute)</a>
+</li>
+      <li><a href="api_engine.html#engine.data_loader.PITContext">PITContext (class in engine.data_loader)</a>
+</li>
+      <li><a href="api_analytics.html#analytics.charts.plot_ablation">plot_ablation() (in module analytics.charts)</a>
+</li>
+      <li><a href="api_analytics.html#analytics.charts.plot_bandit_posterior">plot_bandit_posterior() (in module analytics.charts)</a>
+</li>
+      <li><a href="api_analytics.html#analytics.charts.plot_cost_comparison">plot_cost_comparison() (in module analytics.charts)</a>
+</li>
+      <li><a href="api_analytics.html#analytics.charts.plot_covariance">plot_covariance() (in module analytics.charts)</a>
+</li>
+      <li><a href="api_analytics.html#analytics.charts.plot_covid_zoom">plot_covid_zoom() (in module analytics.charts)</a>
+</li>
+      <li><a href="api_analytics.html#analytics.charts.plot_cumulative_return">plot_cumulative_return() (in module analytics.charts)</a>
+</li>
+      <li><a href="api_analytics.html#analytics.charts.plot_deflated_sharpe_distribution">plot_deflated_sharpe_distribution() (in module analytics.charts)</a>
+</li>
+      <li><a href="api_analytics.html#analytics.charts.plot_drawdown">plot_drawdown() (in module analytics.charts)</a>
+</li>
+      <li><a href="api_analytics.html#analytics.charts.plot_factor_attribution">plot_factor_attribution() (in module analytics.charts)</a>
+</li>
+      <li><a href="api_analytics.html#analytics.charts.plot_ff5_regression_loadings">plot_ff5_regression_loadings() (in module analytics.charts)</a>
+</li>
+      <li><a href="api_analytics.html#analytics.charts.plot_ls_decomposition">plot_ls_decomposition() (in module analytics.charts)</a>
+</li>
+      <li><a href="api_analytics.html#analytics.charts.plot_param_sensitivity">plot_param_sensitivity() (in module analytics.charts)</a>
+</li>
+  </ul></td>
+  <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="api_analytics.html#analytics.charts.plot_rolling_ic">plot_rolling_ic() (in module analytics.charts)</a>
+</li>
+      <li><a href="api_analytics.html#analytics.charts.plot_rolling_sharpe">plot_rolling_sharpe() (in module analytics.charts)</a>
+</li>
+      <li><a href="api_analytics.html#analytics.charts.plot_sector_exposure">plot_sector_exposure() (in module analytics.charts)</a>
+</li>
+      <li><a href="api_analytics.html#analytics.charts.plot_turnover">plot_turnover() (in module analytics.charts)</a>
+</li>
+      <li><a href="api_analytics.html#analytics.charts.plot_vix_regime_returns">plot_vix_regime_returns() (in module analytics.charts)</a>
+</li>
+      <li><a href="api_engine.html#engine.config.DatabaseConfig.port">port (engine.config.DatabaseConfig attribute)</a>
+</li>
+      <li><a href="api_engine.html#engine.config.Config.portfolio">portfolio (engine.config.Config attribute)</a>
+</li>
+      <li><a href="api_engine.html#engine.types.ExposureLogRow.portfolio_beta">portfolio_beta (engine.types.ExposureLogRow attribute)</a>
+</li>
+      <li><a href="api_analytics.html#analytics.performance.portfolio_beta">portfolio_beta() (in module analytics.performance)</a>
+</li>
+      <li><a href="api_engine.html#engine.backtest.BacktestEngine.portfolio_engine">portfolio_engine (engine.backtest.BacktestEngine attribute)</a>
+</li>
+      <li><a href="api_engine.html#engine.config.PortfolioConfig">PortfolioConfig (class in engine.config)</a>
+</li>
+      <li><a href="api_engine.html#engine.portfolio.PortfolioEngine">PortfolioEngine (class in engine.portfolio)</a>
+</li>
+      <li><a href="api_engine.html#engine.types.PortfolioReturnsRow">PortfolioReturnsRow (class in engine.types)</a>
+</li>
+      <li><a href="api_engine.html#engine.types.PortfolioWeightsRow">PortfolioWeightsRow (class in engine.types)</a>
+</li>
+      <li><a href="api_engine.html#engine.types.ExposureLogRow.position_scale">position_scale (engine.types.ExposureLogRow attribute)</a>
+</li>
+      <li><a href="api_engine.html#engine.bandit.LinearThompsonSampler.posterior">posterior() (engine.bandit.LinearThompsonSampler method)</a>
+</li>
+      <li><a href="api_engine.html#engine.bandit.LinearThompsonSampler.posterior_means_matrix">posterior_means_matrix() (engine.bandit.LinearThompsonSampler method)</a>
+</li>
+      <li><a href="api_engine.html#engine.bandit.LinearThompsonSampler.posterior_stds_matrix">posterior_stds_matrix() (engine.bandit.LinearThompsonSampler method)</a>
+</li>
+      <li><a href="api_engine.html#engine.types.TradeLedgerRow.predicted_impact_bp">predicted_impact_bp (engine.types.TradeLedgerRow attribute)</a>
+</li>
+      <li><a href="api_engine.html#engine.data_loader.PITContext.prices">prices (engine.data_loader.PITContext attribute)</a>
+</li>
+      <li><a href="api_engine.html#engine.config.BanditConfig.prior_sigma2">prior_sigma2 (engine.config.BanditConfig attribute)</a>
+</li>
+      <li><a href="api_analytics.html#analytics.performance.probabilistic_sharpe_ratio">probabilistic_sharpe_ratio() (in module analytics.performance)</a>
+</li>
+      <li><a href="api_engine.html#engine.types.TradeLedgerRow.proportional_cost_bp">proportional_cost_bp (engine.types.TradeLedgerRow attribute)</a>
+</li>
+  </ul></td>
+</tr></table>
+
+<h2 id="Q">Q</h2>
+<table style="width: 100%" class="indextable genindextable"><tr>
+  <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="api_engine.html#engine.config.StressWindowsConfig.q4_2025_reversal">q4_2025_reversal (engine.config.StressWindowsConfig attribute)</a>
+</li>
+      <li><a href="api_engine.html#engine.types.FactorName.QUALITY">QUALITY (engine.types.FactorName attribute)</a>
+</li>
+  </ul></td>
+  <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="api_engine.html#engine.types.FactorPayload.quality">quality (engine.types.FactorPayload attribute)</a>
+</li>
+      <li><a href="api_engine.html#engine.types.FactorScoresRow.quality_z">quality_z (engine.types.FactorScoresRow attribute)</a>
+</li>
+      <li><a href="api_engine.html#engine.types.FactorScoresRow.quality_z_ortho">quality_z_ortho (engine.types.FactorScoresRow attribute)</a>
+</li>
+  </ul></td>
+</tr></table>
+
+<h2 id="R">R</h2>
+<table style="width: 100%" class="indextable genindextable"><tr>
+  <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="api_engine.html#engine.bandit.LinearThompsonSampler.R">R (engine.bandit.LinearThompsonSampler attribute)</a>
+</li>
+      <li><a href="api_engine.html#engine.types.FactorPremiaRow.r_squared">r_squared (engine.types.FactorPremiaRow attribute)</a>
+</li>
+      <li><a href="api_engine.html#engine.config.BacktestConfig.random_seed">random_seed (engine.config.BacktestConfig attribute)</a>
+
+      <ul>
+        <li><a href="api_engine.html#engine.config.BanditConfig.random_seed">(engine.config.BanditConfig attribute)</a>
+</li>
+      </ul></li>
+      <li><a href="api_engine.html#engine.config.StressWindowsConfig.rate_shock_2022">rate_shock_2022 (engine.config.StressWindowsConfig attribute)</a>
+</li>
+      <li><a href="api_engine.html#engine.data_loader.PITContext.ratios">ratios (engine.data_loader.PITContext attribute)</a>
+</li>
+      <li><a href="api_engine.html#engine.types.BanditLogRow.realised_reward">realised_reward (engine.types.BanditLogRow attribute)</a>
+</li>
+      <li><a href="api_engine.html#engine.benchmark.EqualWeightBenchmark.rebalance">rebalance() (engine.benchmark.EqualWeightBenchmark method)</a>
+</li>
+      <li><a href="api_engine.html#engine.data_loader.PITContext.rebalance_date">rebalance_date (engine.data_loader.PITContext attribute)</a>
+</li>
+      <li><a href="api_engine.html#engine.config.DatesConfig.rebalance_frequency">rebalance_frequency (engine.config.DatesConfig attribute)</a>
+</li>
+      <li><a href="api_engine.html#engine.types.TradeLedgerRow.rebalance_id">rebalance_id (engine.types.TradeLedgerRow attribute)</a>
+</li>
+      <li><a href="api_engine.html#engine.risk_scaler.CompositeRiskScaler.record_nav">record_nav() (engine.risk_scaler.CompositeRiskScaler method)</a>
+</li>
+      <li><a href="api_engine.html#engine.types.Regime">Regime (class in engine.types)</a>
+</li>
+      <li><a href="api_engine.html#engine.types.RegimeLogRow.regime_hmm">regime_hmm (engine.types.RegimeLogRow attribute)</a>
+</li>
+      <li><a href="api_engine.html#engine.backtest.BacktestResult.regime_log">regime_log (engine.backtest.BacktestResult attribute)</a>
+</li>
+      <li><a href="api_engine.html#engine.types.RegimeLogRow.regime_pct">regime_pct (engine.types.RegimeLogRow attribute)</a>
+</li>
+  </ul></td>
+  <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="api_engine.html#engine.config.DynamicWeightsConfig.regime_tilts">regime_tilts (engine.config.DynamicWeightsConfig attribute)</a>
+</li>
+      <li><a href="api_engine.html#engine.types.RegimeLogRow">RegimeLogRow (class in engine.types)</a>
+</li>
+      <li><a href="api_engine.html#engine.backtest.BacktestResult.returns">returns (engine.backtest.BacktestResult attribute)</a>
+</li>
+      <li><a href="api_engine.html#engine.data_loader.PITContext.returns_local">returns_local (engine.data_loader.PITContext attribute)</a>
+</li>
+      <li><a href="api_engine.html#engine.data_loader.PITContext.returns_usd">returns_usd (engine.data_loader.PITContext attribute)</a>
+</li>
+      <li><a href="api_engine.html#engine.config.BanditConfig.reward_half_life_months">reward_half_life_months (engine.config.BanditConfig attribute)</a>
+</li>
+      <li><a href="api_engine.html#engine.data_loader.PITContext.rf_rate">rf_rate (engine.data_loader.PITContext attribute)</a>
+
+      <ul>
+        <li><a href="api_engine.html#engine.types.PortfolioReturnsRow.rf_rate">(engine.types.PortfolioReturnsRow attribute)</a>
+</li>
+      </ul></li>
+      <li><a href="api_engine.html#engine.config.LoggingConfig.rich_tracebacks">rich_tracebacks (engine.config.LoggingConfig attribute)</a>
+</li>
+      <li><a href="api_engine.html#engine.config.Config.risk_scaler">risk_scaler (engine.config.Config attribute)</a>
+</li>
+      <li><a href="api_engine.html#engine.config.RiskScalerConfig">RiskScalerConfig (class in engine.config)</a>
+</li>
+      <li><a href="api_engine.html#engine.backtest.BacktestEngine.run">run() (engine.backtest.BacktestEngine method)</a>
+</li>
+      <li><a href="api_analytics.html#analytics.ablation.run_ablation">run_ablation() (in module analytics.ablation)</a>
+</li>
+      <li><a href="api_analytics.html#analytics.attribution_analysis.run_ff5_mom_regression">run_ff5_mom_regression() (in module analytics.attribution_analysis)</a>
+</li>
+      <li><a href="api_analytics.html#analytics.sensitivity.run_sensitivity_cpcv">run_sensitivity_cpcv() (in module analytics.sensitivity)</a>
+</li>
+      <li><a href="api_analytics.html#analytics.comparison.run_static_vs_dynamic">run_static_vs_dynamic() (in module analytics.comparison)</a>
+</li>
+      <li><a href="api_analytics.html#analytics.stress.run_stress">run_stress() (in module analytics.stress)</a>
+</li>
+  </ul></td>
+</tr></table>
+
+<h2 id="S">S</h2>
+<table style="width: 100%" class="indextable genindextable"><tr>
+  <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="api_engine.html#engine.bandit.LinearThompsonSampler.sample_action">sample_action() (engine.bandit.LinearThompsonSampler method)</a>
+</li>
+      <li><a href="api_engine.html#engine.bandit.BanditWeights.sampler">sampler (engine.bandit.BanditWeights attribute)</a>
+</li>
+      <li><a href="api_engine.html#engine.backtest.BacktestResult.save">save() (engine.backtest.BacktestResult method)</a>
+</li>
+      <li><a href="api_engine.html#engine.config.DatabaseConfig.schema_">schema_ (engine.config.DatabaseConfig attribute)</a>
+</li>
+      <li><a href="api_engine.html#engine.portfolio.PortfolioEngine.score_weighted_leg">score_weighted_leg() (engine.portfolio.PortfolioEngine method)</a>
+</li>
+      <li><a href="api_engine.html#engine.backtest.BacktestResult.seed">seed (engine.backtest.BacktestResult attribute)</a>
+
+      <ul>
+        <li><a href="api_engine.html#engine.bandit.LinearThompsonSampler.seed">(engine.bandit.LinearThompsonSampler attribute)</a>
+</li>
+        <li><a href="api_engine.html#engine.types.TradeLedgerRow.seed">(engine.types.TradeLedgerRow attribute)</a>
+</li>
+      </ul></li>
+      <li><a href="api_engine.html#engine.bandit.BanditWeights.select">select() (engine.bandit.BanditWeights method)</a>
+</li>
+      <li><a href="api_engine.html#engine.costs.CostModel.sensitivity_drag">sensitivity_drag() (engine.costs.CostModel method)</a>
+</li>
+      <li><a href="api_engine.html#engine.types.SensitivityGridRow">SensitivityGridRow (class in engine.types)</a>
+</li>
+      <li><a href="api_engine.html#engine.data_loader.PITContext.sentiment">sentiment (engine.data_loader.PITContext attribute)</a>
+</li>
+      <li><a href="api_engine.html#engine.types.FactorName.SENTIMENT">SENTIMENT (engine.types.FactorName attribute)</a>
+</li>
+      <li><a href="api_engine.html#engine.types.FactorPayload.sentiment">sentiment (engine.types.FactorPayload attribute)</a>
+</li>
+      <li><a href="api_engine.html#engine.types.FactorScoresRow.sentiment_z">sentiment_z (engine.types.FactorScoresRow attribute)</a>
+</li>
+      <li><a href="api_engine.html#engine.types.FactorScoresRow.sentiment_z_ortho">sentiment_z_ortho (engine.types.FactorScoresRow attribute)</a>
+</li>
+      <li><a href="api_engine.html#engine.types.SensitivityGridRow.sharpe_deflated">sharpe_deflated (engine.types.SensitivityGridRow attribute)</a>
+</li>
+      <li><a href="api_engine.html#engine.types.AblationRow.sharpe_net">sharpe_net (engine.types.AblationRow attribute)</a>
+
+      <ul>
+        <li><a href="api_engine.html#engine.types.SensitivityGridRow.sharpe_net">(engine.types.SensitivityGridRow attribute)</a>
+</li>
+      </ul></li>
+      <li><a href="api_analytics.html#analytics.performance.sharpe_ratio">sharpe_ratio() (in module analytics.performance)</a>
+</li>
+      <li><a href="api_engine.html#engine.types.Leg.SHORT">SHORT (engine.types.Leg attribute)</a>
+</li>
+      <li><a href="api_engine.html#engine.types.ExposureLogRow.short_alpha">short_alpha (engine.types.ExposureLogRow attribute)</a>
+</li>
+  </ul></td>
+  <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="api_engine.html#engine.types.PortfolioReturnsRow.short_leg">short_leg (engine.types.PortfolioReturnsRow attribute)</a>
+</li>
+      <li><a href="api_engine.html#engine.config.UniverseConfig.short_min_adv_usd">short_min_adv_usd (engine.config.UniverseConfig attribute)</a>
+</li>
+      <li><a href="api_engine.html#engine.config.UniverseConfig.short_min_market_cap_usd">short_min_market_cap_usd (engine.config.UniverseConfig attribute)</a>
+</li>
+      <li><a href="api_engine.html#engine.config.PortfolioConfig.short_quartile">short_quartile (engine.config.PortfolioConfig attribute)</a>
+</li>
+      <li><a href="api_engine.html#engine.types.TradeLedgerRow.side">side (engine.types.TradeLedgerRow attribute)</a>
+</li>
+      <li><a href="api_engine.html#engine.bandit.LinearThompsonSampler.sigma2_prior">sigma2_prior (engine.bandit.LinearThompsonSampler attribute)</a>
+</li>
+      <li><a href="api_analytics.html#analytics.performance.skewness">skewness() (in module analytics.performance)</a>
+</li>
+      <li><a href="api_analytics.html#analytics.performance.sortino_ratio">sortino_ratio() (in module analytics.performance)</a>
+</li>
+      <li><a href="api_engine.html#engine.benchmark.SPXBenchmark">SPXBenchmark (class in engine.benchmark)</a>
+</li>
+      <li><a href="api_engine.html#engine.types.Strategy.STATIC">STATIC (engine.types.Strategy attribute)</a>
+</li>
+      <li><a href="api_engine.html#engine.types.PortfolioReturnsRow.static_net_20bp">static_net_20bp (engine.types.PortfolioReturnsRow attribute)</a>
+</li>
+      <li><a href="api_engine.html#engine.types.PortfolioReturnsRow.static_net_30bp">static_net_30bp (engine.types.PortfolioReturnsRow attribute)</a>
+</li>
+      <li><a href="api_engine.html#engine.dynamic_weights.StaticWeights">StaticWeights (class in engine.dynamic_weights)</a>
+</li>
+      <li><a href="api_engine.html#engine.bandit.BanditWeights.step">step (engine.bandit.BanditWeights attribute)</a>
+</li>
+      <li><a href="api_engine.html#engine.types.Strategy">Strategy (class in engine.types)</a>
+</li>
+      <li><a href="api_engine.html#engine.types.PortfolioWeightsRow.strategy">strategy (engine.types.PortfolioWeightsRow attribute)</a>
+</li>
+      <li><a href="api_engine.html#engine.config.Config.stress_windows">stress_windows (engine.config.Config attribute)</a>
+</li>
+      <li><a href="api_engine.html#engine.config.StressWindowsConfig">StressWindowsConfig (class in engine.config)</a>
+</li>
+      <li><a href="api_engine.html#engine.types.FactorScoresRow.symbol">symbol (engine.types.FactorScoresRow attribute)</a>
+
+      <ul>
+        <li><a href="api_engine.html#engine.types.PortfolioWeightsRow.symbol">(engine.types.PortfolioWeightsRow attribute)</a>
+</li>
+        <li><a href="api_engine.html#engine.types.TradeLedgerRow.symbol">(engine.types.TradeLedgerRow attribute)</a>
+</li>
+      </ul></li>
+      <li><a href="api_engine.html#engine.types.UniverseSnapshot.symbols">symbols (engine.types.UniverseSnapshot attribute)</a>
+</li>
+      <li><a href="api_analytics.html#analytics.attribution_analysis.synthesize_ff_factors">synthesize_ff_factors() (in module analytics.attribution_analysis)</a>
+</li>
+  </ul></td>
+</tr></table>
+
+<h2 id="T">T</h2>
+<table style="width: 100%" class="indextable genindextable"><tr>
+  <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="api_engine.html#engine.types.FactorPremiaRow.t_stat">t_stat (engine.types.FactorPremiaRow attribute)</a>
+</li>
+      <li><a href="api_engine.html#engine.factors.FactorEngine.to_long_df">to_long_df() (engine.factors.FactorEngine method)</a>
+</li>
+      <li><a href="api_engine.html#engine.config.OutputsConfig.track_data_hash">track_data_hash (engine.config.OutputsConfig attribute)</a>
+</li>
+      <li><a href="api_engine.html#engine.config.OutputsConfig.track_git_sha">track_git_sha (engine.config.OutputsConfig attribute)</a>
+</li>
+      <li><a href="api_engine.html#engine.benchmark.tracking_error">tracking_error() (in module engine.benchmark)</a>
+</li>
+      <li><a href="api_engine.html#engine.backtest.BacktestResult.trade_ledger">trade_ledger (engine.backtest.BacktestResult attribute)</a>
+</li>
+  </ul></td>
+  <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="api_engine.html#engine.types.TradeLedgerRow">TradeLedgerRow (class in engine.types)</a>
+</li>
+      <li><a href="api_engine.html#engine.config.DatesConfig.trading_calendar">trading_calendar (engine.config.DatesConfig attribute)</a>
+</li>
+      <li><a href="api_engine.html#engine.types.AblationRow.turnover">turnover (engine.types.AblationRow attribute)</a>
+
+      <ul>
+        <li><a href="api_engine.html#engine.types.SensitivityGridRow.turnover">(engine.types.SensitivityGridRow attribute)</a>
+</li>
+      </ul></li>
+      <li><a href="api_engine.html#engine.types.ExposureLogRow.turnover_1way">turnover_1way (engine.types.ExposureLogRow attribute)</a>
+</li>
+      <li><a href="api_engine.html#engine.config.PortfolioConfig.turnover_penalty_lambda">turnover_penalty_lambda (engine.config.PortfolioConfig attribute)</a>
+</li>
+  </ul></td>
+</tr></table>
+
+<h2 id="U">U</h2>
+<table style="width: 100%" class="indextable genindextable"><tr>
+  <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="api_engine.html#engine.config.Config.universe">universe (engine.config.Config attribute)</a>
+
+      <ul>
+        <li><a href="api_engine.html#engine.data_loader.PITContext.universe">(engine.data_loader.PITContext attribute)</a>
+</li>
+      </ul></li>
+      <li><a href="api_engine.html#engine.config.UniverseConfig">UniverseConfig (class in engine.config)</a>
+</li>
+  </ul></td>
+  <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="api_engine.html#engine.types.UniverseSnapshot">UniverseSnapshot (class in engine.types)</a>
+</li>
+      <li><a href="api_engine.html#engine.bandit.LinearThompsonSampler.update">update() (engine.bandit.LinearThompsonSampler method)</a>
+</li>
+      <li><a href="api_engine.html#engine.bandit.BanditWeights.update_reward">update_reward() (engine.bandit.BanditWeights method)</a>
+</li>
+      <li><a href="api_engine.html#engine.config.DatabaseConfig.user">user (engine.config.DatabaseConfig attribute)</a>
+</li>
+  </ul></td>
+</tr></table>
+
+<h2 id="V">V</h2>
+<table style="width: 100%" class="indextable genindextable"><tr>
+  <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="api_engine.html#engine.bandit.LinearThompsonSampler.v">v (engine.bandit.LinearThompsonSampler attribute)</a>
+</li>
+      <li><a href="api_analytics.html#analytics.validation.validate_factors">validate_factors() (in module analytics.validation)</a>
+</li>
+      <li><a href="api_analytics.html#analytics.validation.validate_regime">validate_regime() (in module analytics.validation)</a>
+</li>
+      <li><a href="api_analytics.html#analytics.validation.validate_returns">validate_returns() (in module analytics.validation)</a>
+</li>
+      <li><a href="api_analytics.html#analytics.validation.validate_weights">validate_weights() (in module analytics.validation)</a>
+</li>
+      <li><a href="api_analytics.html#analytics.validation.ValidationResult">ValidationResult (class in analytics.validation)</a>
+</li>
+      <li><a href="api_engine.html#engine.types.FactorName.VALUE">VALUE (engine.types.FactorName attribute)</a>
+</li>
+      <li><a href="api_engine.html#engine.types.FactorPayload.value">value (engine.types.FactorPayload attribute)</a>
+</li>
+      <li><a href="api_engine.html#engine.types.FactorScoresRow.value_z">value_z (engine.types.FactorScoresRow attribute)</a>
+</li>
+      <li><a href="api_engine.html#engine.types.FactorScoresRow.value_z_ortho">value_z_ortho (engine.types.FactorScoresRow attribute)</a>
+</li>
+      <li><a href="api_engine.html#engine.types.ExposureLogRow.var_99">var_99 (engine.types.ExposureLogRow attribute)</a>
+</li>
+      <li><a href="api_engine.html#engine.config.EstimationWindowsConfig.var_days">var_days (engine.config.EstimationWindowsConfig attribute)</a>
+</li>
+      <li><a href="api_engine.html#engine.risk_scaler.CompositeRiskScaler.var_scalar">var_scalar() (engine.risk_scaler.CompositeRiskScaler method)</a>
+</li>
+      <li><a href="api_engine.html#engine.config.UniverseConfig.variant">variant (engine.config.UniverseConfig attribute)</a>
+
+      <ul>
+        <li><a href="api_engine.html#engine.types.AblationRow.variant">(engine.types.AblationRow attribute)</a>
+</li>
+      </ul></li>
+  </ul></td>
+  <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="api_engine.html#engine.data_loader.PITContext.vix">vix (engine.data_loader.PITContext attribute)</a>
+</li>
+      <li><a href="api_engine.html#engine.config.DynamicWeightsConfig.vix_high_pct">vix_high_pct (engine.config.DynamicWeightsConfig attribute)</a>
+</li>
+      <li><a href="api_engine.html#engine.types.RegimeLogRow.vix_level">vix_level (engine.types.RegimeLogRow attribute)</a>
+</li>
+      <li><a href="api_engine.html#engine.config.DynamicWeightsConfig.vix_low_pct">vix_low_pct (engine.config.DynamicWeightsConfig attribute)</a>
+</li>
+      <li><a href="api_engine.html#engine.types.RegimeLogRow.vix_percentile">vix_percentile (engine.types.RegimeLogRow attribute)</a>
+</li>
+      <li><a href="api_engine.html#engine.config.EstimationWindowsConfig.vix_regime_days">vix_regime_days (engine.config.EstimationWindowsConfig attribute)</a>
+</li>
+      <li><a href="api_engine.html#engine.risk_scaler.CompositeRiskScaler.vol_scalar">vol_scalar() (engine.risk_scaler.CompositeRiskScaler method)</a>
+</li>
+      <li><a href="api_engine.html#engine.config.RiskScalerConfig.vol_target_annual">vol_target_annual (engine.config.RiskScalerConfig attribute)</a>
+</li>
+      <li><a href="api_engine.html#engine.config.RiskScalerConfig.vol_target_clip_lower">vol_target_clip_lower (engine.config.RiskScalerConfig attribute)</a>
+</li>
+      <li><a href="api_engine.html#engine.config.RiskScalerConfig.vol_target_clip_upper">vol_target_clip_upper (engine.config.RiskScalerConfig attribute)</a>
+</li>
+      <li><a href="api_engine.html#engine.config.EstimationWindowsConfig.vol_target_days">vol_target_days (engine.config.EstimationWindowsConfig attribute)</a>
+</li>
+      <li><a href="api_engine.html#engine.config.RiskScalerConfig.vol_target_enabled">vol_target_enabled (engine.config.RiskScalerConfig attribute)</a>
+</li>
+      <li><a href="api_engine.html#engine.types.ExposureLogRow.vol_target_scalar">vol_target_scalar (engine.types.ExposureLogRow attribute)</a>
+</li>
+  </ul></td>
+</tr></table>
+
+<h2 id="W">W</h2>
+<table style="width: 100%" class="indextable genindextable"><tr>
+  <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="api_engine.html#engine.types.RegimeLogRow.w_momentum">w_momentum (engine.types.RegimeLogRow attribute)</a>
+</li>
+      <li><a href="api_engine.html#engine.types.RegimeLogRow.w_quality">w_quality (engine.types.RegimeLogRow attribute)</a>
+</li>
+      <li><a href="api_engine.html#engine.types.RegimeLogRow.w_sentiment">w_sentiment (engine.types.RegimeLogRow attribute)</a>
+</li>
+      <li><a href="api_engine.html#engine.types.RegimeLogRow.w_value">w_value (engine.types.RegimeLogRow attribute)</a>
+</li>
+      <li><a href="api_engine.html#engine.config.BanditConfig.warmup_months">warmup_months (engine.config.BanditConfig attribute)</a>
+</li>
+  </ul></td>
+  <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="api_engine.html#engine.types.PortfolioWeightsRow.weight">weight (engine.types.PortfolioWeightsRow attribute)</a>
+</li>
+      <li><a href="api_engine.html#engine.backtest.BacktestResult.weights">weights (engine.backtest.BacktestResult attribute)</a>
+</li>
+      <li><a href="api_engine.html#engine.config.FactorConfig.winsor_lower_pct">winsor_lower_pct (engine.config.FactorConfig attribute)</a>
+</li>
+      <li><a href="api_engine.html#engine.config.FactorConfig.winsor_upper_pct">winsor_upper_pct (engine.config.FactorConfig attribute)</a>
+</li>
+      <li><a href="api_analytics.html#analytics.performance.worst_month">worst_month() (in module analytics.performance)</a>
+</li>
+  </ul></td>
+</tr></table>
+
+<h2 id="Z">Z</h2>
+<table style="width: 100%" class="indextable genindextable"><tr>
+  <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="api_engine.html#engine.zscore.ZScoreEngine.zscore_cross_section">zscore_cross_section() (engine.zscore.ZScoreEngine method)</a>
+</li>
+  </ul></td>
+  <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="api_engine.html#engine.backtest.BacktestEngine.zscore_engine">zscore_engine (engine.backtest.BacktestEngine attribute)</a>
+</li>
+      <li><a href="api_engine.html#engine.zscore.ZScoreEngine">ZScoreEngine (class in engine.zscore)</a>
+</li>
+  </ul></td>
+</tr></table>
+
+
+
+                </article>
+              
+              
+              
+              
+              
+                <footer class="prev-next-footer d-print-none">
+                  
+<div class="prev-next-area">
+</div>
+                </footer>
+              
+            </div>
+            
+            
+              
+            
+          </div>
+          <footer class="bd-footer-content">
+            
+          </footer>
+        
+      </main>
+    </div>
+  </div>
+  
+  <!-- Scripts loaded after <body> so the DOM is not blocked -->
+  <script defer src="_static/scripts/bootstrap.js?digest=8878045cc6db502f8baf"></script>
+<script defer src="_static/scripts/pydata-sphinx-theme.js?digest=8878045cc6db502f8baf"></script>
+
+  <footer class="bd-footer">
+<div class="bd-footer__inner bd-page-width">
+  
+    <div class="footer-items__start">
+      
+        <div class="footer-item">
+
+  <p class="copyright">
+    
+      © Copyright 2026, Team Kolmogorov.
+      <br/>
+    
+  </p>
+</div>
+      
+        <div class="footer-item">
+
+  <p class="sphinx-version">
+    Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 8.2.3.
+    <br/>
+  </p>
+</div>
+      
+    </div>
+  
+  
+  
+    <div class="footer-items__end">
+      
+        <div class="footer-item">
+<p class="theme-version">
+  <!-- # L10n: Setting the PST URL as an argument as this does not need to be localized -->
+  Built with the <a href="https://pydata-sphinx-theme.readthedocs.io/en/stable/index.html">PyData Sphinx Theme</a> 0.16.1.
+</p></div>
+      
+    </div>
+  
+</div>
+
+  </footer>
+  </body>
+</html>

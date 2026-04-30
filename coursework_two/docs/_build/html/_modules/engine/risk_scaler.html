@@ -1,0 +1,600 @@
+
+<!DOCTYPE html>
+
+
+<html lang="en" data-content_root="../../" >
+
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>engine.risk_scaler &#8212; CW2 Backtest Engine — Team Kolmogorov</title>
+  
+  
+  
+  <script data-cfasync="false">
+    document.documentElement.dataset.mode = localStorage.getItem("mode") || "";
+    document.documentElement.dataset.theme = localStorage.getItem("theme") || "";
+  </script>
+  <!--
+    this give us a css class that will be invisible only if js is disabled
+  -->
+  <noscript>
+    <style>
+      .pst-js-only { display: none !important; }
+
+    </style>
+  </noscript>
+  
+  <!-- Loaded before other Sphinx assets -->
+  <link href="../../_static/styles/theme.css?digest=8878045cc6db502f8baf" rel="stylesheet" />
+<link href="../../_static/styles/pydata-sphinx-theme.css?digest=8878045cc6db502f8baf" rel="stylesheet" />
+
+    <link rel="stylesheet" type="text/css" href="../../_static/pygments.css?v=8f2a1f02" />
+  
+  <!-- So that users can add custom icons -->
+  <script src="../../_static/scripts/fontawesome.js?digest=8878045cc6db502f8baf"></script>
+  <!-- Pre-loaded scripts that we'll load fully later -->
+  <link rel="preload" as="script" href="../../_static/scripts/bootstrap.js?digest=8878045cc6db502f8baf" />
+<link rel="preload" as="script" href="../../_static/scripts/pydata-sphinx-theme.js?digest=8878045cc6db502f8baf" />
+
+    <script src="../../_static/documentation_options.js?v=71d9d8e6"></script>
+    <script src="../../_static/doctools.js?v=9bcbadda"></script>
+    <script src="../../_static/sphinx_highlight.js?v=dc90522c"></script>
+    <script>DOCUMENTATION_OPTIONS.pagename = '_modules/engine/risk_scaler';</script>
+    <link rel="index" title="Index" href="../../genindex.html" />
+    <link rel="search" title="Search" href="../../search.html" />
+  <meta name="viewport" content="width=device-width, initial-scale=1"/>
+  <meta name="docsearch:language" content="en"/>
+  <meta name="docsearch:version" content="" />
+  </head>
+  
+  
+  <body data-bs-spy="scroll" data-bs-target=".bd-toc-nav" data-offset="180" data-bs-root-margin="0px 0px -60%" data-default-mode="">
+
+  
+  
+  <div id="pst-skip-link" class="skip-link d-print-none"><a href="#main-content">Skip to main content</a></div>
+  
+  <div id="pst-scroll-pixel-helper"></div>
+  
+  <button type="button" class="btn rounded-pill" id="pst-back-to-top">
+    <i class="fa-solid fa-arrow-up"></i>Back to top</button>
+
+  
+  <dialog id="pst-search-dialog">
+    
+<form class="bd-search d-flex align-items-center"
+      action="../../search.html"
+      method="get">
+  <i class="fa-solid fa-magnifying-glass"></i>
+  <input type="search"
+         class="form-control"
+         name="q"
+         placeholder="Search the docs ..."
+         aria-label="Search the docs ..."
+         autocomplete="off"
+         autocorrect="off"
+         autocapitalize="off"
+         spellcheck="false"/>
+  <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd>K</kbd></span>
+</form>
+  </dialog>
+
+  <div class="pst-async-banner-revealer d-none">
+  <aside id="bd-header-version-warning" class="d-none d-print-none" aria-label="Version warning"></aside>
+</div>
+
+  
+    <header class="bd-header navbar navbar-expand-lg bd-navbar d-print-none">
+<div class="bd-header__inner bd-page-width">
+  <button class="pst-navbar-icon sidebar-toggle primary-toggle" aria-label="Site navigation">
+    <span class="fa-solid fa-bars"></span>
+  </button>
+  
+  
+  <div class="col-lg-3 navbar-header-items__start">
+    
+      <div class="navbar-item">
+
+  
+    
+  
+
+<a class="navbar-brand logo" href="../../index.html">
+  
+  
+  
+  
+  
+  
+    <p class="title logo__title">CW2 Backtest Engine — Team Kolmogorov</p>
+  
+</a></div>
+    
+  </div>
+  
+  <div class="col-lg-9 navbar-header-items">
+    
+    <div class="me-auto navbar-header-items__center">
+      
+        <div class="navbar-item">
+<nav>
+  <ul class="bd-navbar-elements navbar-nav">
+    
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../installation.html">
+    Installation
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../architecture.html">
+    Architecture
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../usage.html">
+    Usage
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../api_engine.html">
+    Engine API Reference
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../api_analytics.html">
+    Analytics API Reference
+  </a>
+</li>
+
+  </ul>
+</nav></div>
+      
+    </div>
+    
+    
+    <div class="navbar-header-items__end">
+      
+        <div class="navbar-item navbar-persistent--container">
+          
+
+<button class="btn search-button-field search-button__button pst-js-only" title="Search" aria-label="Search" data-bs-placement="bottom" data-bs-toggle="tooltip">
+ <i class="fa-solid fa-magnifying-glass"></i>
+ <span class="search-button__default-text">Search</span>
+ <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd class="kbd-shortcut__modifier">K</kbd></span>
+</button>
+        </div>
+      
+      
+        <div class="navbar-item">
+
+<button class="btn btn-sm nav-link pst-navbar-icon theme-switch-button pst-js-only" aria-label="Color mode" data-bs-title="Color mode"  data-bs-placement="bottom" data-bs-toggle="tooltip">
+  <i class="theme-switch fa-solid fa-sun                fa-lg" data-mode="light" title="Light"></i>
+  <i class="theme-switch fa-solid fa-moon               fa-lg" data-mode="dark"  title="Dark"></i>
+  <i class="theme-switch fa-solid fa-circle-half-stroke fa-lg" data-mode="auto"  title="System Settings"></i>
+</button></div>
+      
+    </div>
+    
+  </div>
+  
+  
+    <div class="navbar-persistent--mobile">
+
+<button class="btn search-button-field search-button__button pst-js-only" title="Search" aria-label="Search" data-bs-placement="bottom" data-bs-toggle="tooltip">
+ <i class="fa-solid fa-magnifying-glass"></i>
+ <span class="search-button__default-text">Search</span>
+ <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd class="kbd-shortcut__modifier">K</kbd></span>
+</button>
+    </div>
+  
+
+  
+</div>
+
+    </header>
+  
+
+  <div class="bd-container">
+    <div class="bd-container__inner bd-page-width">
+      
+      
+      
+        
+      
+      <dialog id="pst-primary-sidebar-modal"></dialog>
+      <div id="pst-primary-sidebar" class="bd-sidebar-primary bd-sidebar hide-on-wide">
+        
+
+  
+  <div class="sidebar-header-items sidebar-primary__section">
+    
+    
+      <div class="sidebar-header-items__center">
+        
+          
+          
+            <div class="navbar-item">
+<nav>
+  <ul class="bd-navbar-elements navbar-nav">
+    
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../installation.html">
+    Installation
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../architecture.html">
+    Architecture
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../usage.html">
+    Usage
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../api_engine.html">
+    Engine API Reference
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../api_analytics.html">
+    Analytics API Reference
+  </a>
+</li>
+
+  </ul>
+</nav></div>
+          
+        
+      </div>
+    
+    
+    
+      <div class="sidebar-header-items__end">
+        
+          <div class="navbar-item">
+
+<button class="btn btn-sm nav-link pst-navbar-icon theme-switch-button pst-js-only" aria-label="Color mode" data-bs-title="Color mode"  data-bs-placement="bottom" data-bs-toggle="tooltip">
+  <i class="theme-switch fa-solid fa-sun                fa-lg" data-mode="light" title="Light"></i>
+  <i class="theme-switch fa-solid fa-moon               fa-lg" data-mode="dark"  title="Dark"></i>
+  <i class="theme-switch fa-solid fa-circle-half-stroke fa-lg" data-mode="auto"  title="System Settings"></i>
+</button></div>
+        
+      </div>
+    
+  </div>
+  
+  
+  <div class="sidebar-primary-items__end sidebar-primary__section">
+      <div class="sidebar-primary-item">
+<div id="ethical-ad-placement"
+      class="flat"
+      data-ea-publisher="readthedocs"
+      data-ea-type="readthedocs-sidebar"
+      data-ea-manual="true">
+</div></div>
+  </div>
+
+
+      </div>
+      
+      <main id="main-content" class="bd-main" role="main">
+        
+        
+          <div class="bd-content">
+            <div class="bd-article-container">
+              
+              <div class="bd-header-article d-print-none">
+<div class="header-article-items header-article__inner">
+  
+    <div class="header-article-items__start">
+      
+        <div class="header-article-item">
+
+<nav aria-label="Breadcrumb" class="d-print-none">
+  <ul class="bd-breadcrumbs">
+    
+    <li class="breadcrumb-item breadcrumb-home">
+      <a href="../../index.html" class="nav-link" aria-label="Home">
+        <i class="fa-solid fa-home"></i>
+      </a>
+    </li>
+    
+    <li class="breadcrumb-item"><a href="../index.html" class="nav-link">Module code</a></li>
+    
+    <li class="breadcrumb-item active" aria-current="page"><span class="ellipsis">engine.risk_scaler</span></li>
+  </ul>
+</nav>
+</div>
+      
+    </div>
+  
+  
+</div>
+</div>
+              
+              
+              
+                
+<div id="searchbox"></div>
+                <article class="bd-article">
+                  
+  <h1>Source code for engine.risk_scaler</h1><div class="highlight"><pre>
+<span></span><span class="sd">&quot;&quot;&quot;Composite risk scaler — HVaR → Volatility-target → Drawdown-control chain.</span>
+
+<span class="sd">Implements the three-stage risk-scaling pipeline from PLAN §5.16–5.17 layered</span>
+<span class="sd">on top of CW1 §3.5 HVaR-based position sizing.</span>
+
+<span class="sd">Stage 1 — 99% Historical VaR scaler (CW1 Eq. 10)</span>
+<span class="sd">------------------------------------------------</span>
+<span class="sd">    position_scale = target_budget / |VaR_99|</span>
+<span class="sd">where VaR_99 is the 1st-percentile daily loss over a 756-day rolling window.</span>
+
+<span class="sd">Stage 2 — Conditional Volatility Targeting (§5.16, Moreira-Muir 2017)</span>
+<span class="sd">---------------------------------------------------------------------</span>
+<span class="sd">    σ̂_60 = √(252/60 · Σ_{s=t-60}^{t-1} (R_s − R̄)²)</span>
+<span class="sd">    vol_scalar = target_annual / σ̂_60    (clipped to [0.3, 1.5])</span>
+
+<span class="sd">Stage 3 — Drawdown-Control Overlay (§5.17, Korn-Korn-Kroisandt 2017)</span>
+<span class="sd">--------------------------------------------------------------------</span>
+<span class="sd">    DD_t = (NAV_t − peak_{12m,t}) / peak_{12m,t}</span>
+<span class="sd">    dd_scalar = 1.0 if DD &gt; −3%, 0.75 if DD ≥ −6%, 0.50 if DD &lt; −6%</span>
+<span class="sd">    (with hysteresis: scalar returns to 1.0 only once DD &gt; −1%)</span>
+<span class="sd">&quot;&quot;&quot;</span>
+
+<span class="kn">from</span><span class="w"> </span><span class="nn">__future__</span><span class="w"> </span><span class="kn">import</span> <span class="n">annotations</span>
+
+<span class="kn">import</span><span class="w"> </span><span class="nn">logging</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">dataclasses</span><span class="w"> </span><span class="kn">import</span> <span class="n">dataclass</span><span class="p">,</span> <span class="n">field</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">typing</span><span class="w"> </span><span class="kn">import</span> <span class="n">Optional</span>
+
+<span class="kn">import</span><span class="w"> </span><span class="nn">numpy</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">np</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">pandas</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">pd</span>
+
+<span class="kn">from</span><span class="w"> </span><span class="nn">engine.config</span><span class="w"> </span><span class="kn">import</span> <span class="n">Config</span>
+
+<span class="n">logger</span> <span class="o">=</span> <span class="n">logging</span><span class="o">.</span><span class="n">getLogger</span><span class="p">(</span><span class="vm">__name__</span><span class="p">)</span>
+
+
+<span class="c1"># =============================================================================</span>
+<span class="c1"># Stage 1 — Historical VaR (CW1 §3.5)</span>
+<span class="c1"># =============================================================================</span>
+<div class="viewcode-block" id="historical_var_99">
+<a class="viewcode-back" href="../../api_engine.html#engine.risk_scaler.historical_var_99">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">historical_var_99</span><span class="p">(</span><span class="n">daily_returns</span><span class="p">:</span> <span class="n">pd</span><span class="o">.</span><span class="n">Series</span><span class="p">,</span> <span class="n">confidence</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">0.99</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">float</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Empirical 1-day 99% VaR magnitude (positive number).&quot;&quot;&quot;</span>
+    <span class="n">r</span> <span class="o">=</span> <span class="n">daily_returns</span><span class="o">.</span><span class="n">dropna</span><span class="p">()</span>
+    <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">r</span><span class="p">)</span> <span class="o">&lt;</span> <span class="mi">30</span><span class="p">:</span>
+        <span class="k">return</span> <span class="mf">0.02</span>  <span class="c1"># fallback if too little history</span>
+    <span class="n">alpha</span> <span class="o">=</span> <span class="mi">1</span> <span class="o">-</span> <span class="n">confidence</span>
+    <span class="k">return</span> <span class="nb">float</span><span class="p">(</span><span class="o">-</span><span class="n">r</span><span class="o">.</span><span class="n">quantile</span><span class="p">(</span><span class="n">alpha</span><span class="p">))</span></div>
+
+
+
+<div class="viewcode-block" id="historical_es_99">
+<a class="viewcode-back" href="../../api_engine.html#engine.risk_scaler.historical_es_99">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">historical_es_99</span><span class="p">(</span><span class="n">daily_returns</span><span class="p">:</span> <span class="n">pd</span><span class="o">.</span><span class="n">Series</span><span class="p">,</span> <span class="n">confidence</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">0.99</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">float</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Expected Shortfall — mean loss in the worst (1-confidence) tail.&quot;&quot;&quot;</span>
+    <span class="n">r</span> <span class="o">=</span> <span class="n">daily_returns</span><span class="o">.</span><span class="n">dropna</span><span class="p">()</span>
+    <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">r</span><span class="p">)</span> <span class="o">&lt;</span> <span class="mi">30</span><span class="p">:</span>
+        <span class="k">return</span> <span class="mf">0.025</span>
+    <span class="n">alpha</span> <span class="o">=</span> <span class="mi">1</span> <span class="o">-</span> <span class="n">confidence</span>
+    <span class="n">cutoff</span> <span class="o">=</span> <span class="n">r</span><span class="o">.</span><span class="n">quantile</span><span class="p">(</span><span class="n">alpha</span><span class="p">)</span>
+    <span class="k">return</span> <span class="nb">float</span><span class="p">(</span><span class="o">-</span><span class="n">r</span><span class="p">[</span><span class="n">r</span> <span class="o">&lt;=</span> <span class="n">cutoff</span><span class="p">]</span><span class="o">.</span><span class="n">mean</span><span class="p">())</span></div>
+
+
+
+<span class="c1"># =============================================================================</span>
+<span class="c1"># Composite scaler with state tracking (needed for drawdown-control)</span>
+<span class="c1"># =============================================================================</span>
+<div class="viewcode-block" id="CompositeRiskScaler">
+<a class="viewcode-back" href="../../api_engine.html#engine.risk_scaler.CompositeRiskScaler">[docs]</a>
+<span class="nd">@dataclass</span>
+<span class="k">class</span><span class="w"> </span><span class="nc">CompositeRiskScaler</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Chain: HVaR-scale → vol-target → DD-control.</span>
+
+<span class="sd">    State is mutated between rebalances — track NAV history for drawdown-based</span>
+<span class="sd">    logic.  Pass this object to the backtest engine as the ``risk_scaler``</span>
+<span class="sd">    dependency.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="n">cfg</span><span class="p">:</span> <span class="n">Config</span>
+    <span class="n">nav_history</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="nb">tuple</span><span class="p">[</span><span class="n">pd</span><span class="o">.</span><span class="n">Timestamp</span><span class="p">,</span> <span class="nb">float</span><span class="p">]]</span> <span class="o">=</span> <span class="n">field</span><span class="p">(</span><span class="n">default_factory</span><span class="o">=</span><span class="nb">list</span><span class="p">)</span>
+
+    <span class="c1"># ------------------------------------------------------------------</span>
+<div class="viewcode-block" id="CompositeRiskScaler.var_scalar">
+<a class="viewcode-back" href="../../api_engine.html#engine.risk_scaler.CompositeRiskScaler.var_scalar">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">var_scalar</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">portfolio_returns_daily</span><span class="p">:</span> <span class="n">pd</span><span class="o">.</span><span class="n">Series</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">tuple</span><span class="p">[</span><span class="nb">float</span><span class="p">,</span> <span class="nb">float</span><span class="p">,</span> <span class="nb">float</span><span class="p">]:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Stage 1: target_budget / |VaR_99|.  Returns (scalar, var99, es99).&quot;&quot;&quot;</span>
+        <span class="n">rs_cfg</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">cfg</span><span class="o">.</span><span class="n">risk_scaler</span>
+        <span class="n">var</span> <span class="o">=</span> <span class="n">historical_var_99</span><span class="p">(</span><span class="n">portfolio_returns_daily</span><span class="p">,</span> <span class="n">rs_cfg</span><span class="o">.</span><span class="n">hvar_confidence</span><span class="p">)</span>
+        <span class="n">es</span> <span class="o">=</span> <span class="n">historical_es_99</span><span class="p">(</span><span class="n">portfolio_returns_daily</span><span class="p">,</span> <span class="n">rs_cfg</span><span class="o">.</span><span class="n">hvar_confidence</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">var</span> <span class="o">&lt;=</span> <span class="mi">0</span><span class="p">:</span>
+            <span class="k">return</span> <span class="mf">1.0</span><span class="p">,</span> <span class="n">var</span><span class="p">,</span> <span class="n">es</span>
+        <span class="n">scalar</span> <span class="o">=</span> <span class="n">rs_cfg</span><span class="o">.</span><span class="n">hvar_target_budget</span> <span class="o">/</span> <span class="n">var</span>
+        <span class="k">return</span> <span class="nb">float</span><span class="p">(</span><span class="n">scalar</span><span class="p">),</span> <span class="nb">float</span><span class="p">(</span><span class="n">var</span><span class="p">),</span> <span class="nb">float</span><span class="p">(</span><span class="n">es</span><span class="p">)</span></div>
+
+
+    <span class="c1"># ------------------------------------------------------------------</span>
+<div class="viewcode-block" id="CompositeRiskScaler.vol_scalar">
+<a class="viewcode-back" href="../../api_engine.html#engine.risk_scaler.CompositeRiskScaler.vol_scalar">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">vol_scalar</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">portfolio_returns_daily</span><span class="p">:</span> <span class="n">pd</span><span class="o">.</span><span class="n">Series</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">float</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Stage 2: Moreira-Muir (2017) conditional vol targeting.&quot;&quot;&quot;</span>
+        <span class="n">rs</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">cfg</span><span class="o">.</span><span class="n">risk_scaler</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">rs</span><span class="o">.</span><span class="n">vol_target_enabled</span><span class="p">:</span>
+            <span class="k">return</span> <span class="mf">1.0</span>
+        <span class="n">r</span> <span class="o">=</span> <span class="n">portfolio_returns_daily</span><span class="o">.</span><span class="n">dropna</span><span class="p">()</span><span class="o">.</span><span class="n">iloc</span><span class="p">[</span><span class="o">-</span><span class="bp">self</span><span class="o">.</span><span class="n">cfg</span><span class="o">.</span><span class="n">estimation_windows</span><span class="o">.</span><span class="n">vol_target_days</span><span class="p">:]</span>
+        <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">r</span><span class="p">)</span> <span class="o">&lt;</span> <span class="mi">10</span><span class="p">:</span>
+            <span class="k">return</span> <span class="mf">1.0</span>
+        <span class="n">realised_vol</span> <span class="o">=</span> <span class="nb">float</span><span class="p">(</span><span class="n">r</span><span class="o">.</span><span class="n">std</span><span class="p">()</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">sqrt</span><span class="p">(</span><span class="mi">252</span><span class="p">))</span>
+        <span class="k">if</span> <span class="n">realised_vol</span> <span class="o">&lt;=</span> <span class="mi">0</span><span class="p">:</span>
+            <span class="k">return</span> <span class="mf">1.0</span>
+        <span class="n">target</span> <span class="o">=</span> <span class="n">rs</span><span class="o">.</span><span class="n">vol_target_annual</span>
+        <span class="n">raw</span> <span class="o">=</span> <span class="n">target</span> <span class="o">/</span> <span class="n">realised_vol</span>
+        <span class="k">return</span> <span class="nb">float</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">clip</span><span class="p">(</span><span class="n">raw</span><span class="p">,</span> <span class="n">rs</span><span class="o">.</span><span class="n">vol_target_clip_lower</span><span class="p">,</span> <span class="n">rs</span><span class="o">.</span><span class="n">vol_target_clip_upper</span><span class="p">))</span></div>
+
+
+    <span class="c1"># ------------------------------------------------------------------</span>
+<div class="viewcode-block" id="CompositeRiskScaler.dd_scalar">
+<a class="viewcode-back" href="../../api_engine.html#engine.risk_scaler.CompositeRiskScaler.dd_scalar">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">dd_scalar</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">tuple</span><span class="p">[</span><span class="nb">float</span><span class="p">,</span> <span class="nb">float</span><span class="p">]:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Stage 3: drawdown-control overlay with hysteresis.</span>
+
+<span class="sd">        Returns (scalar, drawdown_12m).</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">rs</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">cfg</span><span class="o">.</span><span class="n">risk_scaler</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">rs</span><span class="o">.</span><span class="n">dd_control_enabled</span> <span class="ow">or</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">nav_history</span><span class="p">)</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+            <span class="k">return</span> <span class="mf">1.0</span><span class="p">,</span> <span class="mf">0.0</span>
+
+        <span class="n">df</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">nav_history</span><span class="p">,</span> <span class="n">columns</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;date&quot;</span><span class="p">,</span> <span class="s2">&quot;nav&quot;</span><span class="p">])</span><span class="o">.</span><span class="n">sort_values</span><span class="p">(</span><span class="s2">&quot;date&quot;</span><span class="p">)</span>
+        <span class="c1"># 12-month rolling peak (approx 12 rebalance months)</span>
+        <span class="n">lookback</span> <span class="o">=</span> <span class="nb">min</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">df</span><span class="p">),</span> <span class="bp">self</span><span class="o">.</span><span class="n">cfg</span><span class="o">.</span><span class="n">estimation_windows</span><span class="o">.</span><span class="n">drawdown_lookback_months</span> <span class="o">+</span> <span class="mi">1</span><span class="p">)</span>
+        <span class="n">recent</span> <span class="o">=</span> <span class="n">df</span><span class="o">.</span><span class="n">iloc</span><span class="p">[</span><span class="o">-</span><span class="n">lookback</span><span class="p">:]</span>
+        <span class="n">peak</span> <span class="o">=</span> <span class="n">recent</span><span class="p">[</span><span class="s2">&quot;nav&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">cummax</span><span class="p">()</span><span class="o">.</span><span class="n">iloc</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span>
+        <span class="n">curr</span> <span class="o">=</span> <span class="nb">float</span><span class="p">(</span><span class="n">recent</span><span class="p">[</span><span class="s2">&quot;nav&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">iloc</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">])</span>
+        <span class="k">if</span> <span class="n">peak</span> <span class="o">&lt;=</span> <span class="mi">0</span><span class="p">:</span>
+            <span class="k">return</span> <span class="mf">1.0</span><span class="p">,</span> <span class="mf">0.0</span>
+        <span class="n">dd</span> <span class="o">=</span> <span class="p">(</span><span class="n">curr</span> <span class="o">-</span> <span class="n">peak</span><span class="p">)</span> <span class="o">/</span> <span class="n">peak</span>
+
+        <span class="c1"># Hysteresis: only re-expose when we&#39;ve recovered above dd_recover_threshold</span>
+        <span class="k">if</span> <span class="n">dd</span> <span class="o">&gt;</span> <span class="n">rs</span><span class="o">.</span><span class="n">dd_recover_threshold</span><span class="p">:</span>
+            <span class="n">scalar</span> <span class="o">=</span> <span class="mf">1.0</span>
+        <span class="k">elif</span> <span class="n">dd</span> <span class="o">&gt;</span> <span class="n">rs</span><span class="o">.</span><span class="n">dd_threshold_soft</span><span class="p">:</span>
+            <span class="n">scalar</span> <span class="o">=</span> <span class="mf">1.0</span>
+        <span class="k">elif</span> <span class="n">dd</span> <span class="o">&gt;</span> <span class="n">rs</span><span class="o">.</span><span class="n">dd_threshold_hard</span><span class="p">:</span>
+            <span class="n">scalar</span> <span class="o">=</span> <span class="n">rs</span><span class="o">.</span><span class="n">dd_scalar_soft</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">scalar</span> <span class="o">=</span> <span class="n">rs</span><span class="o">.</span><span class="n">dd_scalar_hard</span>
+        <span class="k">return</span> <span class="nb">float</span><span class="p">(</span><span class="n">scalar</span><span class="p">),</span> <span class="nb">float</span><span class="p">(</span><span class="n">dd</span><span class="p">)</span></div>
+
+
+    <span class="c1"># ------------------------------------------------------------------</span>
+<div class="viewcode-block" id="CompositeRiskScaler.apply">
+<a class="viewcode-back" href="../../api_engine.html#engine.risk_scaler.CompositeRiskScaler.apply">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">apply</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span>
+        <span class="n">target_weights</span><span class="p">:</span> <span class="n">pd</span><span class="o">.</span><span class="n">Series</span><span class="p">,</span>
+        <span class="n">portfolio_returns_daily</span><span class="p">:</span> <span class="n">pd</span><span class="o">.</span><span class="n">Series</span><span class="p">,</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">tuple</span><span class="p">[</span><span class="n">pd</span><span class="o">.</span><span class="n">Series</span><span class="p">,</span> <span class="nb">dict</span><span class="p">]:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Run the three-stage scaler, return (scaled_weights, diagnostics).&quot;&quot;&quot;</span>
+        <span class="n">var_s</span><span class="p">,</span> <span class="n">var_99</span><span class="p">,</span> <span class="n">es_99</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">var_scalar</span><span class="p">(</span><span class="n">portfolio_returns_daily</span><span class="p">)</span>
+        <span class="n">vol_s</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">vol_scalar</span><span class="p">(</span><span class="n">portfolio_returns_daily</span><span class="p">)</span>
+        <span class="n">dd_s</span><span class="p">,</span> <span class="n">dd</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">dd_scalar</span><span class="p">()</span>
+
+        <span class="n">composite</span> <span class="o">=</span> <span class="n">var_s</span> <span class="o">*</span> <span class="n">vol_s</span> <span class="o">*</span> <span class="n">dd_s</span>
+        <span class="c1"># Composite safety ceiling — PLAN-compliant 2.0 ceiling</span>
+        <span class="n">composite</span> <span class="o">=</span> <span class="nb">float</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">clip</span><span class="p">(</span><span class="n">composite</span><span class="p">,</span> <span class="mf">0.0</span><span class="p">,</span> <span class="mf">2.0</span><span class="p">))</span>
+        <span class="n">scaled</span> <span class="o">=</span> <span class="n">target_weights</span> <span class="o">*</span> <span class="n">composite</span>
+        <span class="n">diag</span> <span class="o">=</span> <span class="p">{</span>
+            <span class="s2">&quot;position_scale&quot;</span><span class="p">:</span> <span class="n">composite</span><span class="p">,</span>
+            <span class="s2">&quot;var_99&quot;</span><span class="p">:</span> <span class="n">var_99</span><span class="p">,</span>
+            <span class="s2">&quot;es_99&quot;</span><span class="p">:</span> <span class="n">es_99</span><span class="p">,</span>
+            <span class="s2">&quot;vol_target_scalar&quot;</span><span class="p">:</span> <span class="n">vol_s</span><span class="p">,</span>
+            <span class="s2">&quot;dd_control_scalar&quot;</span><span class="p">:</span> <span class="n">dd_s</span><span class="p">,</span>
+            <span class="s2">&quot;drawdown_12m&quot;</span><span class="p">:</span> <span class="n">dd</span><span class="p">,</span>
+        <span class="p">}</span>
+        <span class="k">return</span> <span class="n">scaled</span><span class="p">,</span> <span class="n">diag</span></div>
+
+
+    <span class="c1"># ------------------------------------------------------------------</span>
+<div class="viewcode-block" id="CompositeRiskScaler.record_nav">
+<a class="viewcode-back" href="../../api_engine.html#engine.risk_scaler.CompositeRiskScaler.record_nav">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">record_nav</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">date</span><span class="p">:</span> <span class="n">pd</span><span class="o">.</span><span class="n">Timestamp</span><span class="p">,</span> <span class="n">nav</span><span class="p">:</span> <span class="nb">float</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">nav_history</span><span class="o">.</span><span class="n">append</span><span class="p">((</span><span class="n">pd</span><span class="o">.</span><span class="n">Timestamp</span><span class="p">(</span><span class="n">date</span><span class="p">),</span> <span class="nb">float</span><span class="p">(</span><span class="n">nav</span><span class="p">)))</span></div>
+</div>
+
+
+
+<span class="n">__all__</span> <span class="o">=</span> <span class="p">[</span><span class="s2">&quot;CompositeRiskScaler&quot;</span><span class="p">,</span> <span class="s2">&quot;historical_var_99&quot;</span><span class="p">,</span> <span class="s2">&quot;historical_es_99&quot;</span><span class="p">]</span>
+</pre></div>
+
+                </article>
+              
+              
+              
+              
+              
+                <footer class="prev-next-footer d-print-none">
+                  
+<div class="prev-next-area">
+</div>
+                </footer>
+              
+            </div>
+            
+            
+              
+            
+          </div>
+          <footer class="bd-footer-content">
+            
+          </footer>
+        
+      </main>
+    </div>
+  </div>
+  
+  <!-- Scripts loaded after <body> so the DOM is not blocked -->
+  <script defer src="../../_static/scripts/bootstrap.js?digest=8878045cc6db502f8baf"></script>
+<script defer src="../../_static/scripts/pydata-sphinx-theme.js?digest=8878045cc6db502f8baf"></script>
+
+  <footer class="bd-footer">
+<div class="bd-footer__inner bd-page-width">
+  
+    <div class="footer-items__start">
+      
+        <div class="footer-item">
+
+  <p class="copyright">
+    
+      © Copyright 2026, Team Kolmogorov.
+      <br/>
+    
+  </p>
+</div>
+      
+        <div class="footer-item">
+
+  <p class="sphinx-version">
+    Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 8.2.3.
+    <br/>
+  </p>
+</div>
+      
+    </div>
+  
+  
+  
+    <div class="footer-items__end">
+      
+        <div class="footer-item">
+<p class="theme-version">
+  <!-- # L10n: Setting the PST URL as an argument as this does not need to be localized -->
+  Built with the <a href="https://pydata-sphinx-theme.readthedocs.io/en/stable/index.html">PyData Sphinx Theme</a> 0.16.1.
+</p></div>
+      
+    </div>
+  
+</div>
+
+  </footer>
+  </body>
+</html>
