@@ -179,6 +179,24 @@ poetry run python -m sphinx -b html docs docs/_build/html
 Source RST files live in [docs/](docs/) (`index.rst`, `architecture.rst`,
 `installation.rst`, `usage.rst`, `api_engine.rst`, `api_analytics.rst`).
 
+## Tearsheet notebook
+
+The investment tearsheet is at
+[notebooks/CW2_Tearsheet.ipynb](notebooks/CW2_Tearsheet.ipynb).  Markdown
+narrative is fully aligned to the submitted report (every numeric claim
+sources to a report Table or Figure).  Code-cell outputs are stripped at
+commit time so the notebook always re-renders against the current
+parquets.  To produce the rendered tearsheet:
+
+```bash
+poetry run jupyter nbconvert --to notebook --execute \
+    notebooks/CW2_Tearsheet.ipynb --inplace
+poetry run jupyter nbconvert --to html notebooks/CW2_Tearsheet.ipynb
+```
+
+The notebook reads only the `output/*.parquet` artefacts and the cached
+Kenneth-French factor data — no PostgreSQL connection is required.
+
 ## License
 
 MIT — Team Kolmogorov · UCL MSc Banking and Digital Finance · 2026.

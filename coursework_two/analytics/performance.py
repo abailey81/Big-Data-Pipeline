@@ -7,7 +7,7 @@ Implements the **complete** metric suite required by the CW2 report:
     • Long/short-specific       (leg alphas, gross/net exposure, turnover, β)
     • Factor diagnostics        (per-factor IC, IC-IR, % positive IC months, FM-Betas)
     • Headline 4×17 exhibit     (§1.6 template — fills the Section 4.1 table)
-    • Block bootstrap CI        (Politis-Romano 1994, 6-month stationary block)
+    • Block bootstrap CI        (Politis-Romano 1994, configurable block — report uses 3-month)
     • Deflated Sharpe Ratio     (Bailey & López de Prado 2014)
     • Probabilistic Sharpe      (PSR at threshold)
     • Minimum Backtest Length   (§5.18, Bailey et al. 2017)

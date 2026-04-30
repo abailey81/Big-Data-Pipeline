@@ -3,6 +3,61 @@
 All notable changes to the CW2 backtest engine.  Format follows
 [Keep a Changelog](https://keepachangelog.com/), semantic versioning.
 
+## [0.3.3] — 2026-04-30 (submission alignment)
+
+### Changed
+
+- `notebooks/CW2_Tearsheet.ipynb` — six narrative cells rewritten to align
+  with every numeric claim in the submitted report (Tables 1, 5, 8, 9, 10,
+  11 [§5.2 regime], 11 [§4.3.1 bootstrap], 12 PSR, 13 DSR, 15):
+    - Cell 11 (Interpretation): Static raw +1.505 / excess +1.087 (+17.83 %
+      ann., 11.39 % vol, max DD −7.86 %); Dynamic +1.404 / +0.997 (+16.92 %,
+      11.67 %, −8.64 %); cumulative growth 1.517 / 1.549 / 1.342 vs EW.
+    - Cell 15 (Bootstrap reading): four-variant 95 % CI table from Table 11;
+      Politis-Romano 2,000 resamples, **block length 3 months** (was 6);
+      PSR Dynamic 97.1 % / 88.8 % / 70.7 %; DSR threshold 1.771.
+    - Cell 56 (Regime-conditional): Dynamic vs Static excess SR by regime
+      (Low/Normal/High VIX) reproducing report Table 11 of §5.2.
+    - Cell 59 (Permutation honest reading): observed gap +0.061, percentiles
+      −1.903 / +1.874, p = 0.948 (10,000 permutations).
+    - Cell 62 (How to read the table): four bullets restated against the
+      report's authoritative numbers; block length corrected to 3 months.
+    - Cell 63 (Conclusions): "What evidence supports / does not support"
+      restated against Table 15 four-variant comparison and the report's
+      §6 (Limitations) — short-borrow cost note (150 bp haircut compresses
+      Dynamic excess Sharpe from +0.997 to ≈ +0.87).
+- `notebooks/CW2_Tearsheet.ipynb` code cells: bootstrap parameters changed
+  from `block_size=6, n_bootstrap=5000` to `block_size=3, n_bootstrap=2000`
+  to match the report's bootstrap configuration.
+- `engine/zscore.py`, `engine/dynamic_weights.py`, `analytics/comparison.py`:
+  docstrings updated to reflect the implemented 50/50 mom + value composite
+  rather than the original CW1 30/30/25/15 four-factor proposal.
+- `docs/architecture_diagram.md` Mermaid sequence: WeightEngine box label
+  "30/30/25/15" → "50/50 mom + value baseline".
+- `docs/index.rst`, `docs/architecture.rst`, `docs/usage.rst`,
+  `docs/installation.rst`, `docs/conf.py`: stale four-factor framing,
+  artefact counts (9 → 17), version banner (0.2.0 → 0.3.2), and
+  ablation-variant counts (5 → 8) corrected.
+
+### Removed
+
+- `scripts/build_notebook.py` — 1,319-line generator targeting
+  `notebooks/tearsheet.ipynb` (a different filename) with comprehensively
+  stale four-factor narrative and Sharpe 1.29 / 0.76 numbers from the
+  earlier project era.  `notebooks/CW2_Tearsheet.ipynb` is the canonical
+  hand-edited deliverable.
+
+### Documentation
+
+- `docs/_build/html/` Sphinx site committed (8.5 MB, 14 HTML pages over
+  22 modules) so markers can browse the API reference without a Python
+  setup.  Source RST files under `docs/`, build with
+  `poetry run python -m sphinx -b html docs docs/_build/html`.
+- `pyproject.toml` version 0.1.0 → 0.3.2.
+- `scripts/validate_cw1_integration.py`: emoji checkmarks (✅/❌) replaced
+  with plain `OK` / `MISSING` / `FAIL` tokens to match the published
+  `reports/cw1_integration.md` style.
+
 ## [0.3.2] — 2026-04-30
 
 ### Fixed
@@ -75,8 +130,8 @@ All notable changes to the CW2 backtest engine.  Format follows
   lag-invariant on the two-factor composite because momentum uses prices
   rather than fundamentals.
 - `analytics/monte_carlo.py` — 10,000-path circular block bootstrap
-  (Politis-Romano 1994, 6-month blocks) over the Dynamic net 20 bp return
-  series.  Output: `output/monte_carlo_paths.parquet`.
+  (Politis-Romano 1994, 3-month blocks per report Table 11) over the
+  Dynamic net 20 bp return series.  Output: `output/monte_carlo_paths.parquet`.
 - `analytics/regime_performance.py` — per-regime × per-strategy
   metric decomposition joined via `pd.merge_asof` against `regime_log`.
   Output: `output/regime_performance.parquet`.

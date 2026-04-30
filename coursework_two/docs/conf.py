@@ -10,7 +10,7 @@ sys.path.insert(0, str(Path(__file__).parent.parent))
 project = "CW2 Multi-Factor L/S Equity Backtest Engine"
 copyright = "2026, Team Kolmogorov"
 author = "Team Kolmogorov"
-release = "0.3.2"
+release = "0.3.3"
 
 extensions = [
     "sphinx.ext.autodoc",

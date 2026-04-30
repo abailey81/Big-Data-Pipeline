@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "ift-coursework-two"
-version = "0.3.2"
+version = "0.3.3"
 description = "Team Kolmogorov — CW2 Multi-Factor L/S Equity Backtest Engine"
 authors = ["Team Kolmogorov <team@kolmogorov.ucl>"]
 readme = "README.md"
