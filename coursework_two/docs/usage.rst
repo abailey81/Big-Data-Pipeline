@@ -13,20 +13,27 @@ Modes
 
 ``full`` (default)
     Run a single backtest from ``dates.oos_start`` to ``dates.oos_end`` in
-    the YAML config.  Produces all 9 Parquet artefacts in ``output/``.
+    the YAML config.  Produces all 17 Parquet artefacts in ``output/``.
 
 ``sensitivity``
-    Execute the γ × λ grid search with Combinatorial Purged CV (§5.5).
-    Emits ``sensitivity_grid.parquet``.  Runs ~15 × 66 = 990 backtest folds
+    Execute the γ × λ grid search with Combinatorial Purged CV.
+    Emits ``sensitivity_grid.parquet``.  Runs 15 × 66 = 990 backtest folds
     in parallel via joblib.
 
 ``ablation``
-    Re-run the backtest five times with each factor removed (weight=0,
-    others renormalised).  Emits ``ablation_results.parquet``.
+    Re-run the backtest across eight factor-weight variants (full
+    four-factor, three-factor, two-factor, and four leave-one-out
+    versions).  Emits ``ablation_results.parquet``.
 
 ``stress``
     Re-run on three crisis windows (COVID 2020, 2022 rate shock, Q4 2025
-    reversal) plus Monte Carlo permutation test (§5.13).
+    reversal) plus Monte Carlo permutation test.
+
+``monte_carlo``
+    Circular-block-bootstrap 10⁴ NAV paths from ``portfolio_returns.parquet``.
+
+``regime_perf``
+    Per-regime × per-strategy metric decomposition.
 
 Config
 ------
@@ -44,23 +51,35 @@ the full parameter map.  Key knobs:
 Interpreting output
 -------------------
 
-``portfolio_returns.parquet`` has three strategy columns plus three
-benchmark columns:
+``portfolio_returns.parquet`` carries the strategy columns plus three
+benchmarks and the per-leg / risk-free decomposition:
 
-+-----------------+------------------------------+
-| Column          | Meaning                      |
-+=================+==============================+
-| dynamic_gross   | Pre-cost return (Eq 9 comp.) |
-+-----------------+------------------------------+
-| dynamic_net_20bp| 20 bp/side cost (headline)  |
-+-----------------+------------------------------+
-| static_net_20bp | Static 30/30/25/15 variant   |
-+-----------------+------------------------------+
-| bandit_net_20bp | Thompson Sampling variant    |
-+-----------------+------------------------------+
-| benchmark_ew    | **Primary** EW universe      |
-+-----------------+------------------------------+
-| benchmark_spx   | S&P 500 market reference     |
-+-----------------+------------------------------+
++-------------------+----------------------------------------------+
+| Column            | Meaning                                      |
++===================+==============================================+
+| dynamic_gross     | Pre-cost return                              |
++-------------------+----------------------------------------------+
+| dynamic_net_20bp  | 20 bp/side cost (headline)                   |
++-------------------+----------------------------------------------+
+| dynamic_net_30bp  | 30 bp/side cost (stress)                     |
++-------------------+----------------------------------------------+
+| static_net_20bp   | Static 50/50 momentum + value variant        |
++-------------------+----------------------------------------------+
+| bandit_net_20bp   | Linear Thompson Sampling variant             |
++-------------------+----------------------------------------------+
+| hrp_net_20bp      | Hierarchical Risk Parity construction        |
++-------------------+----------------------------------------------+
+| long_leg          | Long-only sub-portfolio return               |
++-------------------+----------------------------------------------+
+| short_leg         | Short-only sub-portfolio return              |
++-------------------+----------------------------------------------+
+| benchmark_ew      | **Primary** equal-weighted universe          |
++-------------------+----------------------------------------------+
+| benchmark_spx     | S&P 500 total-return reference               |
++-------------------+----------------------------------------------+
+| benchmark_50_50   | 50 % EW + 50 % SPX blended reference         |
++-------------------+----------------------------------------------+
+| rf_rate           | DGS3MO risk-free monthly rate                |
++-------------------+----------------------------------------------+
 
 See ``analytics/performance.py`` for full metric computation.

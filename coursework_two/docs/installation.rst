@@ -34,4 +34,4 @@ Setup
     poetry run pytest test/ -x
 
     # 5. Run the full backtest
-    poetry run python Main.py --mode full --start 2023-07-01 --end 2026-03-20
+    poetry run python Main.py --mode full --start 2023-07-01 --end 2026-03-31

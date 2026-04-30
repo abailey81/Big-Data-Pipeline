@@ -38,7 +38,7 @@ Data flow
                                     TradeLedger + MetricTracker
                                                 │
                                                 ▼
-                                    output/*.parquet (9 files)
+                                    output/*.parquet (17 files)
                                                 │
                                                 ▼
                                     analytics/ (charts + metrics + tests)
@@ -52,7 +52,10 @@ Component responsibilities
 
 - **FactorEngine** — Computes 12-1 momentum, equal-weighted B/P+E/P+CF/P
   value composite, ROE+stability+inverse-D/E quality composite, and
-  pre-computed VADER sentiment.
+  pre-computed VADER sentiment.  All four factors are computed and
+  surfaced in ``factor_ic.parquet`` for the diagnostic IC exhibit; the
+  implemented composite is two-factor (momentum + value at 50/50) per
+  the report's §§1.2, 2.2.1, 4.2 reduction on out-of-sample IC evidence.
 
 - **ZScoreEngine** — Sector-neutral winsorised z-score + sequential
   Gram-Schmidt orthogonalisation (§5.14).
@@ -69,7 +72,8 @@ Component responsibilities
 - **CostModel** — Spec-compliant proportional costs at 20 and 30 bp/side.
 
 - **BacktestEngine** — Event-driven loop iterating monthly NYSE trading-day
-  ends; produces 9 Parquet artefacts per the PLAN §6 data contract.
+  ends; produces 17 Parquet artefacts per the data contract documented
+  in the project README.
 
 Point-in-time guarantees
 -------------------------

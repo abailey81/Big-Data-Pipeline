@@ -163,6 +163,22 @@ poetry run pytest test/ -v --cov=engine --cov=analytics --cov-report=term-missin
 87 tests across engine and analytics.  14 PIT integration tests are
 DB-dependent and auto-skip without the CW1 schema.
 
+## Documentation
+
+API documentation is generated with Sphinx (autodoc + napoleon + viewcode).
+A pre-built HTML site is committed under [docs/_build/html/](docs/_build/html/).
+Open [docs/_build/html/index.html](docs/_build/html/index.html) in a
+browser to navigate the engine and analytics module reference.
+
+To rebuild:
+
+```bash
+poetry run python -m sphinx -b html docs docs/_build/html
+```
+
+Source RST files live in [docs/](docs/) (`index.rst`, `architecture.rst`,
+`installation.rst`, `usage.rst`, `api_engine.rst`, `api_analytics.rst`).
+
 ## License
 
 MIT — Team Kolmogorov · UCL MSc Banking and Digital Finance · 2026.
