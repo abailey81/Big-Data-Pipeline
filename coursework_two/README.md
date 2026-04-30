@@ -46,33 +46,154 @@ the accompanying report.
 
 ## Quick Start
 
-The backtest reads CW1 PostgreSQL directly.  Bring the CW1 Docker stack
-up first (`postgres_db_cw` on port 5439).
+CW2 reads the CW1 PostgreSQL schema directly — there is no separate
+CW2 data layer.  Pick the path that matches your starting state:
+
+| Starting state | Go to |
+|---|---|
+| Fresh checkout, nothing installed, no DB running | [Path A — Full setup](#path-a--full-setup-from-scratch) |
+| CW1 Docker is already running with the schema populated | [Path B — Run CW2 only](#path-b--run-cw2-only-cw1-db-already-up) |
+| Just want to refresh the tearsheet from existing parquets | [Path C — Tearsheet only](#path-c--tearsheet-only-no-db-required) |
+
+### Prerequisites
+
+- Python 3.10 – 3.13 (tested on 3.13.x)
+- Poetry ≥ 1.5  (`pip install poetry` if missing)
+- Docker (or a local Postgres listening on 5439) — only required for Paths A and B
+- ≈ 1 GB free disk for `output/`, `docs/_build/`, and the FF-factor cache
+
+### Path A — full setup from scratch
+
+```bash
+# 1. CW1 Postgres up (from repo root)
+docker compose up -d --build                  # postgres_db_cw on localhost:5439
+
+# 2. Install CW2
+cd coursework_two
+poetry install                                # ≈ 60 s
+
+# 3. Verify DB is reachable
+poetry run python -c "from engine.data_loader import DataLoader; \
+    from engine.config import load_config; \
+    print('DB reachable' if DataLoader(load_config()).health_check() else 'DB unreachable')"
+
+# 4. Continue with Path B
+```
+
+### Path B — run CW2 only (CW1 DB already up)
+
+End-to-end pipeline.  Wall-clock ≈ 40 min total; ablation is the long pole.
 
 ```bash
 cd coursework_two
-poetry install                 # or: pip install -r requirements.txt
 
-# Test suite (87 tests, ≈ 8 s; DB-dependent integration tests
-# auto-skip if the CW1 schema is unreachable)
-poetry run pytest test/
+# Engine — writes 17 parquets to coursework_two/output/
+poetry run python Main.py --mode full        --start 2023-07-01 --end 2026-03-31   # ~  4 min
+poetry run python Main.py --mode sensitivity --start 2023-07-01 --end 2026-03-31   # ~  8 min
+poetry run python Main.py --mode ablation    --start 2023-07-01 --end 2026-03-31   # ~ 30 min
+poetry run python Main.py --mode stress                                            # ~  1 min
+poetry run python Main.py --mode monte_carlo                                       # ~ 30 s
+poetry run python Main.py --mode regime_perf                                       # ~  5 s
 
-# Full out-of-sample backtest
-poetry run python Main.py --mode full --start 2023-07-01 --end 2026-03-31
+# Analysis CSVs — read parquets only, no DB
+cd ..
+poetry run python analysis/run_attribution_ls.py        # ~ 10 s — Table 10
+poetry run python analysis/run_inference_ls.py          # ~ 30 s — Tables 11–13
+poetry run python analysis/run_cost_stress_ls_v2.py     # ~  6 min — Table 14
 
-# γ × λ sensitivity grid via combinatorial purged cross-validation
-poetry run python Main.py --mode sensitivity --start 2023-07-01 --end 2026-03-31
-
-# Eight-variant factor ablation
-poetry run python Main.py --mode ablation --start 2023-07-01 --end 2026-03-31
-
-# Crisis-window stress (COVID, 2022 rate shock, Q4 2025 reversal)
-poetry run python Main.py --mode stress
-
-# Post-backtest analytics (read the parquet outputs, no DB required)
-poetry run python Main.py --mode monte_carlo
-poetry run python Main.py --mode regime_perf
+# Tearsheet
+poetry run jupyter nbconvert --to notebook --execute \
+    coursework_two/notebooks/CW2_Tearsheet.ipynb --inplace \
+    --ExecutePreprocessor.timeout=900
+poetry run jupyter nbconvert --to html coursework_two/notebooks/CW2_Tearsheet.ipynb
 ```
+
+**Headline-only fast path** (~ 8 min — skips sensitivity, ablation, cost stress, since those are committed in the repo):
+
+```bash
+cd coursework_two && \
+poetry run python Main.py --mode full --start 2023-07-01 --end 2026-03-31 && \
+poetry run python Main.py --mode stress && \
+poetry run python Main.py --mode monte_carlo && \
+poetry run python Main.py --mode regime_perf && \
+cd .. && \
+poetry run python analysis/run_attribution_ls.py && \
+poetry run python analysis/run_inference_ls.py && \
+poetry run jupyter nbconvert --to notebook --execute \
+    coursework_two/notebooks/CW2_Tearsheet.ipynb --inplace
+```
+
+### Path C — tearsheet only (no DB required)
+
+The 17 parquets in `output/` and the FF-factor cache in
+`output/.ff_cache/` are committed.  This re-renders the tearsheet
+without touching Postgres:
+
+```bash
+cd coursework_two
+poetry install
+poetry run jupyter nbconvert --to notebook --execute \
+    notebooks/CW2_Tearsheet.ipynb --inplace
+poetry run jupyter nbconvert --to html notebooks/CW2_Tearsheet.ipynb
+```
+
+### What each engine mode does
+
+| Mode | Purpose | Time | Outputs |
+|---|---|---:|---|
+| `full` | 33 monthly rebalances (Jul 2023 – Feb 2026); Dynamic / Static / Bandit / HRP | 4 min | `portfolio_returns`, `portfolio_weights`, `factor_*`, `regime_log`, `exposure_log`, `bandit_log`, `trade_ledger`, `backtest_metadata` (14 parquets) |
+| `sensitivity` | γ × λ grid (15 cells × 66 CPCV folds) with deflated Sharpe per cell | 8 min | `sensitivity_grid.parquet` |
+| `ablation` | 8 factor-weight variants — full backtest each | 30 min | `ablation_results.parquet` |
+| `stress` | 3 crisis windows + Dynamic-vs-Static permutation test (10⁴ permutations) | 1 min | `stress_results.parquet`, `permutation_test.parquet`, `permutation_null_distribution.parquet` |
+| `monte_carlo` | 10⁴ circular-block-bootstrap NAV paths from `portfolio_returns.parquet` | 30 s | `monte_carlo_paths.parquet` |
+| `regime_perf` | Per-regime × per-strategy metric decomposition | 5 s | `regime_performance.parquet` |
+
+### Verify outputs
+
+```bash
+ls coursework_two/output/*.parquet | wc -l        # expect 17
+ls analysis/output/*.csv                          # expect 3 CSVs
+
+poetry run python -c "
+import pandas as pd
+df = pd.read_parquet('coursework_two/output/portfolio_returns.parquet')
+print('Rows (months):', len(df))
+print('Date range   :', df.date.min(), '->', df.date.max())
+print(df[['static_net_20bp','dynamic_net_20bp','hrp_net_20bp','bandit_net_20bp']].describe().round(4))
+"
+```
+
+The annualised-return / vol / Sharpe values should match the
+[Headline Results](#headline-results) table to two decimal places (small
+differences arise if the CW1 snapshot has been refreshed since the
+report was frozen — see the `data_snapshot_sha256` reproducibility
+caveat below).
+
+### Expected warnings (benign)
+
+The CW1 `news_sentiment` table is a single 2026-03-20 snapshot, so for
+every pre-2026-03-20 rebalance the sentiment column is constant and
+Spearman / Pearson correlations are mathematically undefined.  You will
+see:
+
+- `ConstantInputWarning: An input array is constant; the correlation coefficient is not defined.`
+- `RuntimeWarning: invalid value encountered in divide`
+- `FutureWarning: The default fill_method='pad' in DataFrame.pct_change is deprecated`
+
+These do not affect any reported number.  The `ZScoreEngine.composite`
+sentinel-coverage safeguard redistributes sentiment's zero composite
+weight to momentum and value, and `factor_ic.parquet` records
+`sentiment_ic = 0.0000` for every rebalance — this is the report's
+§2.2.1 finding, not a runtime error.
+
+### Troubleshooting
+
+| Symptom | Fix |
+|---|---|
+| `CW1 DB unreachable: psycopg2.OperationalError ... port 5439 ... Connection refused` | CW1 Docker is down.  From the repo root: `docker compose up -d --build`. |
+| `pyarrow ... Failed ... ModuleNotFoundError: No module named 'pkg_resources'` (on Python 3.13) | Old `poetry.lock` pinning pyarrow 15.  `poetry lock && poetry install` — the committed `pyproject.toml` requires pyarrow ≥ 18 which ships Py 3.13 wheels. |
+| `scipy TypeError ... _fitpack_impl.py` | Bare `python` / `pytest` invoked instead of Poetry's venv.  Always use `poetry run python …` / `poetry run pytest …`. |
+| Headline numbers differ slightly from the report | The CW1 snapshot has moved since the report was frozen.  The report's tables reference the snapshot whose hash is stamped in `output/backtest_metadata.parquet::data_snapshot_sha256`; current parquets reflect today's snapshot.  This is expected and the analysis CSVs always reflect the current run. |
 
 ## Data Contract
 
@@ -183,19 +304,12 @@ Source RST files live in [docs/](docs/) (`index.rst`, `architecture.rst`,
 
 The investment tearsheet is at
 [notebooks/CW2_Tearsheet.ipynb](notebooks/CW2_Tearsheet.ipynb).  Markdown
-narrative is fully aligned to the submitted report (every numeric claim
-sources to a report Table or Figure).  Code-cell outputs are stripped at
-commit time so the notebook always re-renders against the current
-parquets.  To produce the rendered tearsheet:
-
-```bash
-poetry run jupyter nbconvert --to notebook --execute \
-    notebooks/CW2_Tearsheet.ipynb --inplace
-poetry run jupyter nbconvert --to html notebooks/CW2_Tearsheet.ipynb
-```
-
+narrative is aligned to the submitted report (every numeric claim
+references a report Table or Figure); code-cell outputs are stripped at
+commit time so the notebook re-renders against the current parquets.
 The notebook reads only the `output/*.parquet` artefacts and the cached
-Kenneth-French factor data — no PostgreSQL connection is required.
+Kenneth-French factor data — no PostgreSQL connection is required.  See
+[Path C](#path-c--tearsheet-only-no-db-required) for the render command.
 
 ## License
 
