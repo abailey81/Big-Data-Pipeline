@@ -91,11 +91,11 @@ poetry run python -c "from engine.data_loader import DataLoader; \
 End-to-end pipeline.  Wall-clock ≈ 40 min total; ablation is the long pole.
 
 > **Important:** stay inside `coursework_two/` for every `poetry run` invocation.
-> The repository root has its own `pyproject.toml` (CW1's `ift-systematic-equity`
-> project) — `cd`-ing up there makes Poetry build a different empty venv and
-> the analysis scripts will fail with `ModuleNotFoundError: No module named 'numpy'`.
-> The analysis scripts resolve their own paths absolutely, so the `../analysis/...`
-> form works correctly from `coursework_two/`.
+> The repository root and `coursework_one/` each have their own `pyproject.toml`
+> with separate Poetry venvs.  `cd`-ing into either of those folders and running
+> `poetry run` will pick up the wrong project — analysis scripts will fail with
+> `ModuleNotFoundError: No module named 'numpy'`.  All CW2 analysis scripts live
+> under `coursework_two/analysis/` and resolve their own paths absolutely.
 
 ```bash
 cd coursework_two
@@ -109,9 +109,9 @@ poetry run python Main.py --mode monte_carlo                                    
 poetry run python Main.py --mode regime_perf                                       # ~  5 s
 
 # Analysis CSVs — read parquets only, no DB.  Stay in coursework_two/.
-poetry run python ../analysis/run_attribution_ls.py     # ~ 10 s — Table 10
-poetry run python ../analysis/run_inference_ls.py       # ~ 30 s — Tables 11–13
-poetry run python ../analysis/run_cost_stress_ls_v2.py  # ~  6 min — Table 14
+poetry run python analysis/run_attribution_ls.py     # ~ 10 s — Table 10
+poetry run python analysis/run_inference_ls.py       # ~ 30 s — Tables 11–13
+poetry run python analysis/run_cost_stress_ls_v2.py  # ~  6 min — Table 14
 
 # Tearsheet — paths are relative to coursework_two/
 poetry run python -m jupyter nbconvert --to notebook --execute \
@@ -129,8 +129,8 @@ poetry run python Main.py --mode full --start 2023-07-01 --end 2026-03-31 && \
 poetry run python Main.py --mode stress && \
 poetry run python Main.py --mode monte_carlo && \
 poetry run python Main.py --mode regime_perf && \
-poetry run python ../analysis/run_attribution_ls.py && \
-poetry run python ../analysis/run_inference_ls.py && \
+poetry run python analysis/run_attribution_ls.py && \
+poetry run python analysis/run_inference_ls.py && \
 poetry run python -m jupyter nbconvert --to notebook --execute \
     notebooks/CW2_Tearsheet.ipynb --inplace \
     --ExecutePreprocessor.kernel_name=cw2-poetry \

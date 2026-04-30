@@ -23,10 +23,10 @@ import numpy as np
 import pandas as pd
 
 SCRIPT_DIR = os.path.dirname(os.path.abspath(__file__))
-REPO_ROOT = os.path.dirname(SCRIPT_DIR)
-sys.path.insert(0, os.path.join(REPO_ROOT, "coursework_two", "analytics"))
+CW2_ROOT = os.path.dirname(SCRIPT_DIR)
+sys.path.insert(0, os.path.join(CW2_ROOT, "analytics"))
 
-LS_OUTPUT = os.path.join(REPO_ROOT, "coursework_two", "output")
+LS_OUTPUT = os.path.join(CW2_ROOT, "output")
 MY_OUTPUT = os.path.join(SCRIPT_DIR, "output")
 os.makedirs(MY_OUTPUT, exist_ok=True)
 
