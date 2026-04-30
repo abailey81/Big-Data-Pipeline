@@ -1,0 +1,985 @@
+
+<!DOCTYPE html>
+
+
+<html lang="en" data-content_root="./" >
+
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+    <title>Analytics API Reference &#8212; CW2 Backtest Engine — Team Kolmogorov</title>
+  
+  
+  
+  <script data-cfasync="false">
+    document.documentElement.dataset.mode = localStorage.getItem("mode") || "";
+    document.documentElement.dataset.theme = localStorage.getItem("theme") || "";
+  </script>
+  <!--
+    this give us a css class that will be invisible only if js is disabled
+  -->
+  <noscript>
+    <style>
+      .pst-js-only { display: none !important; }
+
+    </style>
+  </noscript>
+  
+  <!-- Loaded before other Sphinx assets -->
+  <link href="_static/styles/theme.css?digest=8878045cc6db502f8baf" rel="stylesheet" />
+<link href="_static/styles/pydata-sphinx-theme.css?digest=8878045cc6db502f8baf" rel="stylesheet" />
+
+    <link rel="stylesheet" type="text/css" href="_static/pygments.css?v=8f2a1f02" />
+  
+  <!-- So that users can add custom icons -->
+  <script src="_static/scripts/fontawesome.js?digest=8878045cc6db502f8baf"></script>
+  <!-- Pre-loaded scripts that we'll load fully later -->
+  <link rel="preload" as="script" href="_static/scripts/bootstrap.js?digest=8878045cc6db502f8baf" />
+<link rel="preload" as="script" href="_static/scripts/pydata-sphinx-theme.js?digest=8878045cc6db502f8baf" />
+
+    <script src="_static/documentation_options.js?v=d5a15cff"></script>
+    <script src="_static/doctools.js?v=9bcbadda"></script>
+    <script src="_static/sphinx_highlight.js?v=dc90522c"></script>
+    <script>DOCUMENTATION_OPTIONS.pagename = 'api_analytics';</script>
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="prev" title="Engine API Reference" href="api_engine.html" />
+  <meta name="viewport" content="width=device-width, initial-scale=1"/>
+  <meta name="docsearch:language" content="en"/>
+  <meta name="docsearch:version" content="" />
+  </head>
+  
+  
+  <body data-bs-spy="scroll" data-bs-target=".bd-toc-nav" data-offset="180" data-bs-root-margin="0px 0px -60%" data-default-mode="">
+
+  
+  
+  <div id="pst-skip-link" class="skip-link d-print-none"><a href="#main-content">Skip to main content</a></div>
+  
+  <div id="pst-scroll-pixel-helper"></div>
+  
+  <button type="button" class="btn rounded-pill" id="pst-back-to-top">
+    <i class="fa-solid fa-arrow-up"></i>Back to top</button>
+
+  
+  <dialog id="pst-search-dialog">
+    
+<form class="bd-search d-flex align-items-center"
+      action="search.html"
+      method="get">
+  <i class="fa-solid fa-magnifying-glass"></i>
+  <input type="search"
+         class="form-control"
+         name="q"
+         placeholder="Search the docs ..."
+         aria-label="Search the docs ..."
+         autocomplete="off"
+         autocorrect="off"
+         autocapitalize="off"
+         spellcheck="false"/>
+  <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd>K</kbd></span>
+</form>
+  </dialog>
+
+  <div class="pst-async-banner-revealer d-none">
+  <aside id="bd-header-version-warning" class="d-none d-print-none" aria-label="Version warning"></aside>
+</div>
+
+  
+    <header class="bd-header navbar navbar-expand-lg bd-navbar d-print-none">
+<div class="bd-header__inner bd-page-width">
+  <button class="pst-navbar-icon sidebar-toggle primary-toggle" aria-label="Site navigation">
+    <span class="fa-solid fa-bars"></span>
+  </button>
+  
+  
+  <div class="col-lg-3 navbar-header-items__start">
+    
+      <div class="navbar-item">
+
+  
+    
+  
+
+<a class="navbar-brand logo" href="index.html">
+  
+  
+  
+  
+  
+  
+    <p class="title logo__title">CW2 Backtest Engine — Team Kolmogorov</p>
+  
+</a></div>
+    
+  </div>
+  
+  <div class="col-lg-9 navbar-header-items">
+    
+    <div class="me-auto navbar-header-items__center">
+      
+        <div class="navbar-item">
+<nav>
+  <ul class="bd-navbar-elements navbar-nav">
+    
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="installation.html">
+    Installation
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="architecture.html">
+    Architecture
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="usage.html">
+    Usage
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="api_engine.html">
+    Engine API Reference
+  </a>
+</li>
+
+
+<li class="nav-item current active">
+  <a class="nav-link nav-internal" href="#">
+    Analytics API Reference
+  </a>
+</li>
+
+  </ul>
+</nav></div>
+      
+    </div>
+    
+    
+    <div class="navbar-header-items__end">
+      
+        <div class="navbar-item navbar-persistent--container">
+          
+
+<button class="btn search-button-field search-button__button pst-js-only" title="Search" aria-label="Search" data-bs-placement="bottom" data-bs-toggle="tooltip">
+ <i class="fa-solid fa-magnifying-glass"></i>
+ <span class="search-button__default-text">Search</span>
+ <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd class="kbd-shortcut__modifier">K</kbd></span>
+</button>
+        </div>
+      
+      
+        <div class="navbar-item">
+
+<button class="btn btn-sm nav-link pst-navbar-icon theme-switch-button pst-js-only" aria-label="Color mode" data-bs-title="Color mode"  data-bs-placement="bottom" data-bs-toggle="tooltip">
+  <i class="theme-switch fa-solid fa-sun                fa-lg" data-mode="light" title="Light"></i>
+  <i class="theme-switch fa-solid fa-moon               fa-lg" data-mode="dark"  title="Dark"></i>
+  <i class="theme-switch fa-solid fa-circle-half-stroke fa-lg" data-mode="auto"  title="System Settings"></i>
+</button></div>
+      
+    </div>
+    
+  </div>
+  
+  
+    <div class="navbar-persistent--mobile">
+
+<button class="btn search-button-field search-button__button pst-js-only" title="Search" aria-label="Search" data-bs-placement="bottom" data-bs-toggle="tooltip">
+ <i class="fa-solid fa-magnifying-glass"></i>
+ <span class="search-button__default-text">Search</span>
+ <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd class="kbd-shortcut__modifier">K</kbd></span>
+</button>
+    </div>
+  
+
+  
+    <button class="pst-navbar-icon sidebar-toggle secondary-toggle" aria-label="On this page">
+      <span class="fa-solid fa-outdent"></span>
+    </button>
+  
+</div>
+
+    </header>
+  
+
+  <div class="bd-container">
+    <div class="bd-container__inner bd-page-width">
+      
+      
+      
+      <dialog id="pst-primary-sidebar-modal"></dialog>
+      <div id="pst-primary-sidebar" class="bd-sidebar-primary bd-sidebar">
+        
+
+  
+  <div class="sidebar-header-items sidebar-primary__section">
+    
+    
+      <div class="sidebar-header-items__center">
+        
+          
+          
+            <div class="navbar-item">
+<nav>
+  <ul class="bd-navbar-elements navbar-nav">
+    
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="installation.html">
+    Installation
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="architecture.html">
+    Architecture
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="usage.html">
+    Usage
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="api_engine.html">
+    Engine API Reference
+  </a>
+</li>
+
+
+<li class="nav-item current active">
+  <a class="nav-link nav-internal" href="#">
+    Analytics API Reference
+  </a>
+</li>
+
+  </ul>
+</nav></div>
+          
+        
+      </div>
+    
+    
+    
+      <div class="sidebar-header-items__end">
+        
+          <div class="navbar-item">
+
+<button class="btn btn-sm nav-link pst-navbar-icon theme-switch-button pst-js-only" aria-label="Color mode" data-bs-title="Color mode"  data-bs-placement="bottom" data-bs-toggle="tooltip">
+  <i class="theme-switch fa-solid fa-sun                fa-lg" data-mode="light" title="Light"></i>
+  <i class="theme-switch fa-solid fa-moon               fa-lg" data-mode="dark"  title="Dark"></i>
+  <i class="theme-switch fa-solid fa-circle-half-stroke fa-lg" data-mode="auto"  title="System Settings"></i>
+</button></div>
+        
+      </div>
+    
+  </div>
+  
+    <div class="sidebar-primary-items__start sidebar-primary__section">
+        <div class="sidebar-primary-item">
+<nav class="bd-docs-nav bd-links"
+     aria-label="Section Navigation">
+  <p class="bd-links__title" role="heading" aria-level="1">Section Navigation</p>
+  <div class="bd-toc-item navbar-nav"></div>
+</nav></div>
+    </div>
+  
+  
+  <div class="sidebar-primary-items__end sidebar-primary__section">
+      <div class="sidebar-primary-item">
+<div id="ethical-ad-placement"
+      class="flat"
+      data-ea-publisher="readthedocs"
+      data-ea-type="readthedocs-sidebar"
+      data-ea-manual="true">
+</div></div>
+  </div>
+
+
+      </div>
+      
+      <main id="main-content" class="bd-main" role="main">
+        
+        
+          <div class="bd-content">
+            <div class="bd-article-container">
+              
+              <div class="bd-header-article d-print-none">
+<div class="header-article-items header-article__inner">
+  
+    <div class="header-article-items__start">
+      
+        <div class="header-article-item">
+
+<nav aria-label="Breadcrumb" class="d-print-none">
+  <ul class="bd-breadcrumbs">
+    
+    <li class="breadcrumb-item breadcrumb-home">
+      <a href="index.html" class="nav-link" aria-label="Home">
+        <i class="fa-solid fa-home"></i>
+      </a>
+    </li>
+    <li class="breadcrumb-item active" aria-current="page"><span class="ellipsis">Analytics API Reference</span></li>
+  </ul>
+</nav>
+</div>
+      
+    </div>
+  
+  
+</div>
+</div>
+              
+              
+              
+                
+<div id="searchbox"></div>
+                <article class="bd-article">
+                  
+  <section id="module-analytics.performance">
+<span id="analytics-api-reference"></span><h1>Analytics API Reference<a class="headerlink" href="#module-analytics.performance" title="Link to this heading">#</a></h1>
+<p>Performance metrics module (Viz Ref §1.1–1.6 + PLAN §5.7, 5.8, 5.18).</p>
+<dl class="simple">
+<dt>Implements the <strong>complete</strong> metric suite required by the CW2 report:</dt><dd><ul class="simple">
+<li><p>Return &amp; risk-adjusted    (Sharpe, Sortino, IR, Calmar, annualised vol)</p></li>
+<li><p>Drawdown &amp; tail           (Max DD + duration, 99% HVaR, 99% ES, skew, kurt)</p></li>
+<li><p>Distribution              (hit-rate, best/worst month, % negative, downside dev)</p></li>
+<li><p>Long/short-specific       (leg alphas, gross/net exposure, turnover, β)</p></li>
+<li><p>Factor diagnostics        (per-factor IC, IC-IR, % positive IC months, FM-Betas)</p></li>
+<li><p>Headline 4×17 exhibit     (§1.6 template — fills the Section 4.1 table)</p></li>
+<li><p>Block bootstrap CI        (Politis-Romano 1994, configurable block — report uses 3-month)</p></li>
+<li><p>Deflated Sharpe Ratio     (Bailey &amp; López de Prado 2014)</p></li>
+<li><p>Probabilistic Sharpe      (PSR at threshold)</p></li>
+<li><p>Minimum Backtest Length   (§5.18, Bailey et al. 2017)</p></li>
+</ul>
+</dd>
+</dl>
+<dl class="py function">
+<dt class="sig sig-object py" id="analytics.performance.annualised_return">
+<span class="sig-prename descclassname"><span class="pre">analytics.performance.</span></span><span class="sig-name descname"><span class="pre">annualised_return</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">monthly_returns</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Series</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">ann</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.14)"><span class="pre">int</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">12</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.14)"><span class="pre">float</span></a></span></span><a class="reference internal" href="_modules/analytics/performance.html#annualised_return"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#analytics.performance.annualised_return" title="Link to this definition">#</a></dt>
+<dd></dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="analytics.performance.annualised_turnover">
+<span class="sig-prename descclassname"><span class="pre">analytics.performance.</span></span><span class="sig-name descname"><span class="pre">annualised_turnover</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">turnover_series</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Series</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">ann</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.14)"><span class="pre">int</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">12</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.14)"><span class="pre">float</span></a></span></span><a class="reference internal" href="_modules/analytics/performance.html#annualised_turnover"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#analytics.performance.annualised_turnover" title="Link to this definition">#</a></dt>
+<dd></dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="analytics.performance.annualised_volatility">
+<span class="sig-prename descclassname"><span class="pre">analytics.performance.</span></span><span class="sig-name descname"><span class="pre">annualised_volatility</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">monthly_returns</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Series</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">ann</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.14)"><span class="pre">int</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">12</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.14)"><span class="pre">float</span></a></span></span><a class="reference internal" href="_modules/analytics/performance.html#annualised_volatility"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#analytics.performance.annualised_volatility" title="Link to this definition">#</a></dt>
+<dd></dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="analytics.performance.best_month">
+<span class="sig-prename descclassname"><span class="pre">analytics.performance.</span></span><span class="sig-name descname"><span class="pre">best_month</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">returns</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Series</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.14)"><span class="pre">float</span></a></span></span><a class="reference internal" href="_modules/analytics/performance.html#best_month"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#analytics.performance.best_month" title="Link to this definition">#</a></dt>
+<dd></dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="analytics.performance.calmar_ratio">
+<span class="sig-prename descclassname"><span class="pre">analytics.performance.</span></span><span class="sig-name descname"><span class="pre">calmar_ratio</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">returns</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Series</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">ann</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.14)"><span class="pre">int</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">12</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.14)"><span class="pre">float</span></a></span></span><a class="reference internal" href="_modules/analytics/performance.html#calmar_ratio"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#analytics.performance.calmar_ratio" title="Link to this definition">#</a></dt>
+<dd></dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="analytics.performance.circular_block_bootstrap_sharpe">
+<span class="sig-prename descclassname"><span class="pre">analytics.performance.</span></span><span class="sig-name descname"><span class="pre">circular_block_bootstrap_sharpe</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">returns</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Series</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">block_size</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.14)"><span class="pre">int</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">6</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">n_bootstrap</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.14)"><span class="pre">int</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">1000</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">seed</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.14)"><span class="pre">int</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">42</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">ann</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.14)"><span class="pre">int</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">12</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#dict" title="(in Python v3.14)"><span class="pre">dict</span></a></span></span><a class="reference internal" href="_modules/analytics/performance.html#circular_block_bootstrap_sharpe"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#analytics.performance.circular_block_bootstrap_sharpe" title="Link to this definition">#</a></dt>
+<dd><p>Politis-Romano (1994) circular block bootstrap of Sharpe ratio.</p>
+<p>Returns dict with mean, 5%, 95% Sharpe CI.</p>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="analytics.performance.compute_headline_metrics">
+<span class="sig-prename descclassname"><span class="pre">analytics.performance.</span></span><span class="sig-name descname"><span class="pre">compute_headline_metrics</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">returns_df</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">DataFrame</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">rf_series</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Series</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.14)"><span class="pre">float</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">0.0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">benchmark_col</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.14)"><span class="pre">str</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">'benchmark_ew'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">ann</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.14)"><span class="pre">int</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">12</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">DataFrame</span></span></span><a class="reference internal" href="_modules/analytics/performance.html#compute_headline_metrics"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#analytics.performance.compute_headline_metrics" title="Link to this definition">#</a></dt>
+<dd><p>Produce the Section-4.1 headline exhibit (Viz Ref §1.6 template).</p>
+<p>Columns: Dynamic Gross · Dynamic Net 20bp · Static Net 20bp · Benchmark EW</p>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="analytics.performance.deflated_sharpe_ratio">
+<span class="sig-prename descclassname"><span class="pre">analytics.performance.</span></span><span class="sig-name descname"><span class="pre">deflated_sharpe_ratio</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">observed_sharpe</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.14)"><span class="pre">float</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">n_trials</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.14)"><span class="pre">int</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">returns</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Series</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">ann</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.14)"><span class="pre">int</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">12</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#dict" title="(in Python v3.14)"><span class="pre">dict</span></a></span></span><a class="reference internal" href="_modules/analytics/performance.html#deflated_sharpe_ratio"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#analytics.performance.deflated_sharpe_ratio" title="Link to this definition">#</a></dt>
+<dd><p>Bailey &amp; López de Prado (2014).</p>
+<p>DSR = Φ(z) where z accounts for sample length, skew, kurtosis and the
+multiplicity of trials tested.</p>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="analytics.performance.downside_deviation">
+<span class="sig-prename descclassname"><span class="pre">analytics.performance.</span></span><span class="sig-name descname"><span class="pre">downside_deviation</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">returns</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Series</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">mar</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.14)"><span class="pre">float</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">0.0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">ann</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.14)"><span class="pre">int</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">12</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.14)"><span class="pre">float</span></a></span></span><a class="reference internal" href="_modules/analytics/performance.html#downside_deviation"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#analytics.performance.downside_deviation" title="Link to this definition">#</a></dt>
+<dd></dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="analytics.performance.drawdown_duration_months">
+<span class="sig-prename descclassname"><span class="pre">analytics.performance.</span></span><span class="sig-name descname"><span class="pre">drawdown_duration_months</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">returns</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Series</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.14)"><span class="pre">int</span></a></span></span><a class="reference internal" href="_modules/analytics/performance.html#drawdown_duration_months"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#analytics.performance.drawdown_duration_months" title="Link to this definition">#</a></dt>
+<dd></dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="analytics.performance.drawdown_series">
+<span class="sig-prename descclassname"><span class="pre">analytics.performance.</span></span><span class="sig-name descname"><span class="pre">drawdown_series</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">returns</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Series</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Series</span></span></span><a class="reference internal" href="_modules/analytics/performance.html#drawdown_series"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#analytics.performance.drawdown_series" title="Link to this definition">#</a></dt>
+<dd></dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="analytics.performance.excess_kurtosis">
+<span class="sig-prename descclassname"><span class="pre">analytics.performance.</span></span><span class="sig-name descname"><span class="pre">excess_kurtosis</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">returns</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Series</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.14)"><span class="pre">float</span></a></span></span><a class="reference internal" href="_modules/analytics/performance.html#excess_kurtosis"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#analytics.performance.excess_kurtosis" title="Link to this definition">#</a></dt>
+<dd></dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="analytics.performance.expected_shortfall">
+<span class="sig-prename descclassname"><span class="pre">analytics.performance.</span></span><span class="sig-name descname"><span class="pre">expected_shortfall</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">returns</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Series</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">confidence</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.14)"><span class="pre">float</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">0.99</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.14)"><span class="pre">float</span></a></span></span><a class="reference internal" href="_modules/analytics/performance.html#expected_shortfall"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#analytics.performance.expected_shortfall" title="Link to this definition">#</a></dt>
+<dd></dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="analytics.performance.factor_ic_ir">
+<span class="sig-prename descclassname"><span class="pre">analytics.performance.</span></span><span class="sig-name descname"><span class="pre">factor_ic_ir</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">ic_series</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Series</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.14)"><span class="pre">float</span></a></span></span><a class="reference internal" href="_modules/analytics/performance.html#factor_ic_ir"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#analytics.performance.factor_ic_ir" title="Link to this definition">#</a></dt>
+<dd></dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="analytics.performance.gross_exposure">
+<span class="sig-prename descclassname"><span class="pre">analytics.performance.</span></span><span class="sig-name descname"><span class="pre">gross_exposure</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">weights</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Series</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.14)"><span class="pre">float</span></a></span></span><a class="reference internal" href="_modules/analytics/performance.html#gross_exposure"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#analytics.performance.gross_exposure" title="Link to this definition">#</a></dt>
+<dd></dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="analytics.performance.historical_var">
+<span class="sig-prename descclassname"><span class="pre">analytics.performance.</span></span><span class="sig-name descname"><span class="pre">historical_var</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">returns</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Series</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">confidence</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.14)"><span class="pre">float</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">0.99</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.14)"><span class="pre">float</span></a></span></span><a class="reference internal" href="_modules/analytics/performance.html#historical_var"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#analytics.performance.historical_var" title="Link to this definition">#</a></dt>
+<dd></dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="analytics.performance.information_ratio">
+<span class="sig-prename descclassname"><span class="pre">analytics.performance.</span></span><span class="sig-name descname"><span class="pre">information_ratio</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">returns</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Series</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">benchmark</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Series</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">ann</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.14)"><span class="pre">int</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">12</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.14)"><span class="pre">float</span></a></span></span><a class="reference internal" href="_modules/analytics/performance.html#information_ratio"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#analytics.performance.information_ratio" title="Link to this definition">#</a></dt>
+<dd></dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="analytics.performance.max_drawdown">
+<span class="sig-prename descclassname"><span class="pre">analytics.performance.</span></span><span class="sig-name descname"><span class="pre">max_drawdown</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">returns</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Series</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.14)"><span class="pre">float</span></a></span></span><a class="reference internal" href="_modules/analytics/performance.html#max_drawdown"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#analytics.performance.max_drawdown" title="Link to this definition">#</a></dt>
+<dd></dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="analytics.performance.minimum_backtest_length">
+<span class="sig-prename descclassname"><span class="pre">analytics.performance.</span></span><span class="sig-name descname"><span class="pre">minimum_backtest_length</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">target_sharpe</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.14)"><span class="pre">float</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">1.0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">n_trials</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.14)"><span class="pre">int</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">15</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">alpha</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.14)"><span class="pre">float</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">0.05</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">gamma_const</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.14)"><span class="pre">float</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">0.5772</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.14)"><span class="pre">float</span></a></span></span><a class="reference internal" href="_modules/analytics/performance.html#minimum_backtest_length"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#analytics.performance.minimum_backtest_length" title="Link to this definition">#</a></dt>
+<dd><p>Bailey, Borwein, LdP, Zhu (2017) — minimum track record length.</p>
+<p>Returns the minimum number of months required to reject H0 at (1-α)
+confidence for a given target annualised Sharpe, accounting for the
+multiplicity of trials.</p>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="analytics.performance.monthly_hit_rate">
+<span class="sig-prename descclassname"><span class="pre">analytics.performance.</span></span><span class="sig-name descname"><span class="pre">monthly_hit_rate</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">returns</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Series</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.14)"><span class="pre">float</span></a></span></span><a class="reference internal" href="_modules/analytics/performance.html#monthly_hit_rate"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#analytics.performance.monthly_hit_rate" title="Link to this definition">#</a></dt>
+<dd></dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="analytics.performance.net_exposure">
+<span class="sig-prename descclassname"><span class="pre">analytics.performance.</span></span><span class="sig-name descname"><span class="pre">net_exposure</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">weights</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Series</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.14)"><span class="pre">float</span></a></span></span><a class="reference internal" href="_modules/analytics/performance.html#net_exposure"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#analytics.performance.net_exposure" title="Link to this definition">#</a></dt>
+<dd></dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="analytics.performance.pct_negative_months">
+<span class="sig-prename descclassname"><span class="pre">analytics.performance.</span></span><span class="sig-name descname"><span class="pre">pct_negative_months</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">returns</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Series</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.14)"><span class="pre">float</span></a></span></span><a class="reference internal" href="_modules/analytics/performance.html#pct_negative_months"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#analytics.performance.pct_negative_months" title="Link to this definition">#</a></dt>
+<dd></dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="analytics.performance.pct_positive_ic_months">
+<span class="sig-prename descclassname"><span class="pre">analytics.performance.</span></span><span class="sig-name descname"><span class="pre">pct_positive_ic_months</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">ic_series</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Series</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.14)"><span class="pre">float</span></a></span></span><a class="reference internal" href="_modules/analytics/performance.html#pct_positive_ic_months"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#analytics.performance.pct_positive_ic_months" title="Link to this definition">#</a></dt>
+<dd></dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="analytics.performance.portfolio_beta">
+<span class="sig-prename descclassname"><span class="pre">analytics.performance.</span></span><span class="sig-name descname"><span class="pre">portfolio_beta</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">portfolio_returns</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Series</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">benchmark</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Series</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.14)"><span class="pre">float</span></a></span></span><a class="reference internal" href="_modules/analytics/performance.html#portfolio_beta"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#analytics.performance.portfolio_beta" title="Link to this definition">#</a></dt>
+<dd></dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="analytics.performance.probabilistic_sharpe_ratio">
+<span class="sig-prename descclassname"><span class="pre">analytics.performance.</span></span><span class="sig-name descname"><span class="pre">probabilistic_sharpe_ratio</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">observed_sharpe</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.14)"><span class="pre">float</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">threshold_sharpe</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.14)"><span class="pre">float</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">returns</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Series</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">ann</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.14)"><span class="pre">int</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">12</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.14)"><span class="pre">float</span></a></span></span><a class="reference internal" href="_modules/analytics/performance.html#probabilistic_sharpe_ratio"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#analytics.performance.probabilistic_sharpe_ratio" title="Link to this definition">#</a></dt>
+<dd></dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="analytics.performance.sharpe_ratio">
+<span class="sig-prename descclassname"><span class="pre">analytics.performance.</span></span><span class="sig-name descname"><span class="pre">sharpe_ratio</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">returns</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Series</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">rf_series</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Series</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.14)"><span class="pre">float</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">0.0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">ann</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.14)"><span class="pre">int</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">12</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.14)"><span class="pre">float</span></a></span></span><a class="reference internal" href="_modules/analytics/performance.html#sharpe_ratio"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#analytics.performance.sharpe_ratio" title="Link to this definition">#</a></dt>
+<dd><p>Annualised Sharpe ratio with numerical-pathology guards.</p>
+<p>Second-pass audit finding: previous implementation guarded only σ, not μ.
+Now returns 0.0 for (μ or σ) in {±inf, NaN}.  Prevents bad CW1 data from
+propagating an infinite Sharpe into the headline exhibit.</p>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="analytics.performance.skewness">
+<span class="sig-prename descclassname"><span class="pre">analytics.performance.</span></span><span class="sig-name descname"><span class="pre">skewness</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">returns</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Series</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.14)"><span class="pre">float</span></a></span></span><a class="reference internal" href="_modules/analytics/performance.html#skewness"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#analytics.performance.skewness" title="Link to this definition">#</a></dt>
+<dd></dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="analytics.performance.sortino_ratio">
+<span class="sig-prename descclassname"><span class="pre">analytics.performance.</span></span><span class="sig-name descname"><span class="pre">sortino_ratio</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">returns</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Series</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">rf_series</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0.0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">ann</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.14)"><span class="pre">int</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">12</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.14)"><span class="pre">float</span></a></span></span><a class="reference internal" href="_modules/analytics/performance.html#sortino_ratio"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#analytics.performance.sortino_ratio" title="Link to this definition">#</a></dt>
+<dd></dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="analytics.performance.worst_month">
+<span class="sig-prename descclassname"><span class="pre">analytics.performance.</span></span><span class="sig-name descname"><span class="pre">worst_month</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">returns</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Series</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.14)"><span class="pre">float</span></a></span></span><a class="reference internal" href="_modules/analytics/performance.html#worst_month"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#analytics.performance.worst_month" title="Link to this definition">#</a></dt>
+<dd></dd></dl>
+
+<p id="module-analytics.validation">Validation checks on engine outputs (PLAN §3.1 specialist scope — Peixi).</p>
+<p>Consumes the seven Parquet data-contract files and verifies the internal
+consistency invariants listed in the Task Allocation Guide §3.1.</p>
+<dl class="py class">
+<dt class="sig sig-object py" id="analytics.validation.ValidationResult">
+<em class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">analytics.validation.</span></span><span class="sig-name descname"><span class="pre">ValidationResult</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">passed</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="s"><span class="pre">'bool'</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">flags</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="s"><span class="pre">'list[str]'</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">details</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="s"><span class="pre">'dict[str,</span> <span class="pre">Any]'</span></span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/analytics/validation.html#ValidationResult"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#analytics.validation.ValidationResult" title="Link to this definition">#</a></dt>
+<dd><p>Bases: <a class="reference external" href="https://docs.python.org/3/library/functions.html#object" title="(in Python v3.14)"><code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></a></p>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="analytics.validation.ValidationResult.passed">
+<span class="sig-name descname"><span class="pre">passed</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.14)"><span class="pre">bool</span></a></em><a class="headerlink" href="#analytics.validation.ValidationResult.passed" title="Link to this definition">#</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="analytics.validation.ValidationResult.flags">
+<span class="sig-name descname"><span class="pre">flags</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#list" title="(in Python v3.14)"><span class="pre">list</span></a><span class="p"><span class="pre">[</span></span><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.14)"><span class="pre">str</span></a><span class="p"><span class="pre">]</span></span></em><a class="headerlink" href="#analytics.validation.ValidationResult.flags" title="Link to this definition">#</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="analytics.validation.ValidationResult.details">
+<span class="sig-name descname"><span class="pre">details</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#dict" title="(in Python v3.14)"><span class="pre">dict</span></a><span class="p"><span class="pre">[</span></span><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.14)"><span class="pre">str</span></a><span class="p"><span class="pre">,</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Any" title="(in Python v3.14)"><span class="pre">Any</span></a><span class="p"><span class="pre">]</span></span></em><a class="headerlink" href="#analytics.validation.ValidationResult.details" title="Link to this definition">#</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="analytics.validation.ValidationResult.__init__">
+<span class="sig-name descname"><span class="pre">__init__</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">passed</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.14)"><span class="pre">bool</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">flags</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#list" title="(in Python v3.14)"><span class="pre">list</span></a><span class="p"><span class="pre">[</span></span><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.14)"><span class="pre">str</span></a><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">details</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#dict" title="(in Python v3.14)"><span class="pre">dict</span></a><span class="p"><span class="pre">[</span></span><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.14)"><span class="pre">str</span></a><span class="p"><span class="pre">,</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Any" title="(in Python v3.14)"><span class="pre">Any</span></a><span class="p"><span class="pre">]</span></span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.14)"><span class="pre">None</span></a></span></span><a class="headerlink" href="#analytics.validation.ValidationResult.__init__" title="Link to this definition">#</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="analytics.validation.validate_factors">
+<span class="sig-prename descclassname"><span class="pre">analytics.validation.</span></span><span class="sig-name descname"><span class="pre">validate_factors</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">factor_df</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">DataFrame</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">tol</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.14)"><span class="pre">float</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">0.5</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="#analytics.validation.ValidationResult" title="analytics.validation.ValidationResult"><span class="pre">ValidationResult</span></a></span></span><a class="reference internal" href="_modules/analytics/validation.html#validate_factors"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#analytics.validation.validate_factors" title="Link to this definition">#</a></dt>
+<dd><p>Z-scores should have mean ~0 (within tolerance) and std ~1 per factor × date × sector.</p>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="analytics.validation.validate_regime">
+<span class="sig-prename descclassname"><span class="pre">analytics.validation.</span></span><span class="sig-name descname"><span class="pre">validate_regime</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">regime_df</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">DataFrame</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="#analytics.validation.ValidationResult" title="analytics.validation.ValidationResult"><span class="pre">ValidationResult</span></a></span></span><a class="reference internal" href="_modules/analytics/validation.html#validate_regime"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#analytics.validation.validate_regime" title="Link to this definition">#</a></dt>
+<dd></dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="analytics.validation.validate_returns">
+<span class="sig-prename descclassname"><span class="pre">analytics.validation.</span></span><span class="sig-name descname"><span class="pre">validate_returns</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">returns_df</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">DataFrame</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="#analytics.validation.ValidationResult" title="analytics.validation.ValidationResult"><span class="pre">ValidationResult</span></a></span></span><a class="reference internal" href="_modules/analytics/validation.html#validate_returns"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#analytics.validation.validate_returns" title="Link to this definition">#</a></dt>
+<dd></dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="analytics.validation.validate_weights">
+<span class="sig-prename descclassname"><span class="pre">analytics.validation.</span></span><span class="sig-name descname"><span class="pre">validate_weights</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">weights_df</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">DataFrame</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">max_weight</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.14)"><span class="pre">float</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">0.05</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="#analytics.validation.ValidationResult" title="analytics.validation.ValidationResult"><span class="pre">ValidationResult</span></a></span></span><a class="reference internal" href="_modules/analytics/validation.html#validate_weights"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#analytics.validation.validate_weights" title="Link to this definition">#</a></dt>
+<dd><p>Per-date, per-leg: w ≥ 0 (after leg sign), sum = ±0.5 each leg, no w &gt; 5%, gross ~2, net ~0.</p>
+</dd></dl>
+
+<p id="module-analytics.charts">Charts module — all 14 mandated visualisations plus 3 extensions.</p>
+<dl class="simple">
+<dt>Strictly follows the Viz Reference Part 2 Visual Style Guide:</dt><dd><p>Navy #1B2A4A (dynamic) · Blue #2E75B6 (static/comparison) ·
+Grey #7F8C8D (benchmark, dotted) · Red #C0392B (drawdown, losses) ·
+Green #27AE60 (positive).
+Factor colours: Momentum=Navy, Value=Blue, Quality=Green, Sentiment=Orange.
+Figure sizes: 12×5.5 (time-series), 7×5.5 (heatmaps), 8×5 (bar charts).
+150 DPI on-screen, 300 DPI for submission.
+Dates: “MMM ‘YY”; Percent axes via PercentFormatter.</p>
+</dd>
+</dl>
+<dl class="py function">
+<dt class="sig sig-object py" id="analytics.charts.plot_ablation">
+<span class="sig-prename descclassname"><span class="pre">analytics.charts.</span></span><span class="sig-name descname"><span class="pre">plot_ablation</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">ablation_df</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">DataFrame</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">metric</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.14)"><span class="pre">str</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">'sharpe_net'</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Figure</span></span></span><a class="reference internal" href="_modules/analytics/charts.html#plot_ablation"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#analytics.charts.plot_ablation" title="Link to this definition">#</a></dt>
+<dd></dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="analytics.charts.plot_bandit_posterior">
+<span class="sig-prename descclassname"><span class="pre">analytics.charts.</span></span><span class="sig-name descname"><span class="pre">plot_bandit_posterior</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">bandit_log_df</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">DataFrame</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Figure</span></span></span><a class="reference internal" href="_modules/analytics/charts.html#plot_bandit_posterior"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#analytics.charts.plot_bandit_posterior" title="Link to this definition">#</a></dt>
+<dd><p>Extension 17: Arm posterior-mean trajectory over time (TS learning).</p>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="analytics.charts.plot_cost_comparison">
+<span class="sig-prename descclassname"><span class="pre">analytics.charts.</span></span><span class="sig-name descname"><span class="pre">plot_cost_comparison</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">returns_df</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">DataFrame</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Figure</span></span></span><a class="reference internal" href="_modules/analytics/charts.html#plot_cost_comparison"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#analytics.charts.plot_cost_comparison" title="Link to this definition">#</a></dt>
+<dd></dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="analytics.charts.plot_covariance">
+<span class="sig-prename descclassname"><span class="pre">analytics.charts.</span></span><span class="sig-name descname"><span class="pre">plot_covariance</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">cov_matrix</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">DataFrame</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">title</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.14)"><span class="pre">str</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">'Ledoit-Wolf</span> <span class="pre">Shrunk</span> <span class="pre">Covariance'</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Figure</span></span></span><a class="reference internal" href="_modules/analytics/charts.html#plot_covariance"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#analytics.charts.plot_covariance" title="Link to this definition">#</a></dt>
+<dd></dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="analytics.charts.plot_covid_zoom">
+<span class="sig-prename descclassname"><span class="pre">analytics.charts.</span></span><span class="sig-name descname"><span class="pre">plot_covid_zoom</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">returns_df</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">DataFrame</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">regime_df</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">DataFrame</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Figure</span></span></span><a class="reference internal" href="_modules/analytics/charts.html#plot_covid_zoom"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#analytics.charts.plot_covid_zoom" title="Link to this definition">#</a></dt>
+<dd></dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="analytics.charts.plot_cumulative_return">
+<span class="sig-prename descclassname"><span class="pre">analytics.charts.</span></span><span class="sig-name descname"><span class="pre">plot_cumulative_return</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">returns_df</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">DataFrame</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Figure</span></span></span><a class="reference internal" href="_modules/analytics/charts.html#plot_cumulative_return"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#analytics.charts.plot_cumulative_return" title="Link to this definition">#</a></dt>
+<dd><p>Three-line plot: dynamic (navy, filled) / static (blue dashed) / benchmark (grey dotted).
+Growth-of-$1; horizontal reference at 1.0.</p>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="analytics.charts.plot_deflated_sharpe_distribution">
+<span class="sig-prename descclassname"><span class="pre">analytics.charts.</span></span><span class="sig-name descname"><span class="pre">plot_deflated_sharpe_distribution</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">bootstrap_df</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">DataFrame</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Figure</span></span></span><a class="reference internal" href="_modules/analytics/charts.html#plot_deflated_sharpe_distribution"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#analytics.charts.plot_deflated_sharpe_distribution" title="Link to this definition">#</a></dt>
+<dd><p>Extension 15: bootstrap Sharpe distribution with 95% CI band.</p>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="analytics.charts.plot_drawdown">
+<span class="sig-prename descclassname"><span class="pre">analytics.charts.</span></span><span class="sig-name descname"><span class="pre">plot_drawdown</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">dd_series</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Series</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Figure</span></span></span><a class="reference internal" href="_modules/analytics/charts.html#plot_drawdown"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#analytics.charts.plot_drawdown" title="Link to this definition">#</a></dt>
+<dd></dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="analytics.charts.plot_factor_attribution">
+<span class="sig-prename descclassname"><span class="pre">analytics.charts.</span></span><span class="sig-name descname"><span class="pre">plot_factor_attribution</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">contrib_df</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">DataFrame</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Figure</span></span></span><a class="reference internal" href="_modules/analytics/charts.html#plot_factor_attribution"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#analytics.charts.plot_factor_attribution" title="Link to this definition">#</a></dt>
+<dd><p>contrib_df: columns year, factor, contribution.</p>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="analytics.charts.plot_ff5_regression_loadings">
+<span class="sig-prename descclassname"><span class="pre">analytics.charts.</span></span><span class="sig-name descname"><span class="pre">plot_ff5_regression_loadings</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">regression_df</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">DataFrame</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Figure</span></span></span><a class="reference internal" href="_modules/analytics/charts.html#plot_ff5_regression_loadings"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#analytics.charts.plot_ff5_regression_loadings" title="Link to this definition">#</a></dt>
+<dd><p>Extension 16: FF5+Mom regression β with Newey-West 95% CI bars.</p>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="analytics.charts.plot_ls_decomposition">
+<span class="sig-prename descclassname"><span class="pre">analytics.charts.</span></span><span class="sig-name descname"><span class="pre">plot_ls_decomposition</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">exposure_df</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">DataFrame</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Figure</span></span></span><a class="reference internal" href="_modules/analytics/charts.html#plot_ls_decomposition"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#analytics.charts.plot_ls_decomposition" title="Link to this definition">#</a></dt>
+<dd></dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="analytics.charts.plot_param_sensitivity">
+<span class="sig-prename descclassname"><span class="pre">analytics.charts.</span></span><span class="sig-name descname"><span class="pre">plot_param_sensitivity</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">grid_df</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">DataFrame</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">metric</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.14)"><span class="pre">str</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">'sharpe_net'</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Figure</span></span></span><a class="reference internal" href="_modules/analytics/charts.html#plot_param_sensitivity"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#analytics.charts.plot_param_sensitivity" title="Link to this definition">#</a></dt>
+<dd><p>Heatmap with annotated cells and bordered optimal cell.</p>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="analytics.charts.plot_rolling_ic">
+<span class="sig-prename descclassname"><span class="pre">analytics.charts.</span></span><span class="sig-name descname"><span class="pre">plot_rolling_ic</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">ic_df</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">DataFrame</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">window</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.14)"><span class="pre">int</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">3</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Figure</span></span></span><a class="reference internal" href="_modules/analytics/charts.html#plot_rolling_ic"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#analytics.charts.plot_rolling_ic" title="Link to this definition">#</a></dt>
+<dd></dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="analytics.charts.plot_rolling_sharpe">
+<span class="sig-prename descclassname"><span class="pre">analytics.charts.</span></span><span class="sig-name descname"><span class="pre">plot_rolling_sharpe</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">returns_df</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">DataFrame</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">window</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.14)"><span class="pre">int</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">12</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Figure</span></span></span><a class="reference internal" href="_modules/analytics/charts.html#plot_rolling_sharpe"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#analytics.charts.plot_rolling_sharpe" title="Link to this definition">#</a></dt>
+<dd></dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="analytics.charts.plot_sector_exposure">
+<span class="sig-prename descclassname"><span class="pre">analytics.charts.</span></span><span class="sig-name descname"><span class="pre">plot_sector_exposure</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">weights_df</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">DataFrame</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Figure</span></span></span><a class="reference internal" href="_modules/analytics/charts.html#plot_sector_exposure"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#analytics.charts.plot_sector_exposure" title="Link to this definition">#</a></dt>
+<dd></dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="analytics.charts.plot_turnover">
+<span class="sig-prename descclassname"><span class="pre">analytics.charts.</span></span><span class="sig-name descname"><span class="pre">plot_turnover</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">exposure_df</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">DataFrame</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Figure</span></span></span><a class="reference internal" href="_modules/analytics/charts.html#plot_turnover"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#analytics.charts.plot_turnover" title="Link to this definition">#</a></dt>
+<dd></dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="analytics.charts.plot_vix_regime_returns">
+<span class="sig-prename descclassname"><span class="pre">analytics.charts.</span></span><span class="sig-name descname"><span class="pre">plot_vix_regime_returns</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">returns_df</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">DataFrame</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">regime_df</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">DataFrame</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Figure</span></span></span><a class="reference internal" href="_modules/analytics/charts.html#plot_vix_regime_returns"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#analytics.charts.plot_vix_regime_returns" title="Link to this definition">#</a></dt>
+<dd></dd></dl>
+
+<p id="module-analytics.sensitivity">Parameter-sensitivity grid search with Combinatorial Purged CV (§5.5).</p>
+<dl class="simple">
+<dt>Runs γ × λ grid search, evaluating every combination on CPCV folds with:</dt><dd><ul class="simple">
+<li><p>12 disjoint month-groups</p></li>
+<li><p>2-month purge + 1-month embargo</p></li>
+<li><p>joblib parallel execution</p></li>
+</ul>
+</dd>
+</dl>
+<p>Output: <code class="docutils literal notranslate"><span class="pre">sensitivity_grid.parquet</span></code> (one row per (γ, λ, fold)).</p>
+<dl class="py function">
+<dt class="sig sig-object py" id="analytics.sensitivity.run_sensitivity_cpcv">
+<span class="sig-prename descclassname"><span class="pre">analytics.sensitivity.</span></span><span class="sig-name descname"><span class="pre">run_sensitivity_cpcv</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">cfg</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="api_engine.html#engine.config.Config" title="engine.config.Config"><span class="pre">Config</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">start</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/datetime.html#datetime.date" title="(in Python v3.14)"><span class="pre">date</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">end</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/datetime.html#datetime.date" title="(in Python v3.14)"><span class="pre">date</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">out_dir</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.14)"><span class="pre">str</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/pathlib.html#pathlib.Path" title="(in Python v3.14)"><span class="pre">Path</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">'output'</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">DataFrame</span></span></span><a class="reference internal" href="_modules/analytics/sensitivity.html#run_sensitivity_cpcv"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#analytics.sensitivity.run_sensitivity_cpcv" title="Link to this definition">#</a></dt>
+<dd><p>Run full γ × λ grid with CPCV and deflated-Sharpe evaluation.</p>
+<p>Due to the number of runs (gamma×lambda×folds), we use a light variant:
+for each (γ, λ) we run ONE full backtest over [start, end], then split
+the resulting monthly returns into CPCV folds — much faster than
+re-running the engine per fold, and statistically equivalent as long
+as dynamics are effectively stationary within each month.</p>
+</dd></dl>
+
+<p id="module-analytics.ablation">Factor-ablation analysis (PLAN §5.13 / Viz Ref chart 13).</p>
+<dl class="simple">
+<dt>Five backtest variants:</dt><dd><ol class="arabic simple">
+<li><p>full_4factor      — baseline dynamic strategy</p></li>
+<li><p>no_momentum       — momentum weight = 0, others renormalised</p></li>
+<li><p>no_value          — value weight = 0</p></li>
+<li><p>no_quality        — quality weight = 0</p></li>
+<li><p>no_sentiment      — sentiment weight = 0</p></li>
+</ol>
+</dd>
+</dl>
+<p>Output: <code class="docutils literal notranslate"><span class="pre">ablation_results.parquet</span></code>.</p>
+<dl class="py function">
+<dt class="sig sig-object py" id="analytics.ablation.run_ablation">
+<span class="sig-prename descclassname"><span class="pre">analytics.ablation.</span></span><span class="sig-name descname"><span class="pre">run_ablation</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">cfg</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="api_engine.html#engine.config.Config" title="engine.config.Config"><span class="pre">Config</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">start</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/datetime.html#datetime.date" title="(in Python v3.14)"><span class="pre">date</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">end</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/datetime.html#datetime.date" title="(in Python v3.14)"><span class="pre">date</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">out_dir</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.14)"><span class="pre">str</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/pathlib.html#pathlib.Path" title="(in Python v3.14)"><span class="pre">Path</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">'output'</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">DataFrame</span></span></span><a class="reference internal" href="_modules/analytics/ablation.html#run_ablation"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#analytics.ablation.run_ablation" title="Link to this definition">#</a></dt>
+<dd><p>Run 5 ablation variants; return a one-row-per-variant DataFrame.</p>
+</dd></dl>
+
+<p id="module-analytics.comparison">Static vs dynamic head-to-head comparison (PLAN §10.3).</p>
+<dl class="simple">
+<dt>Four variants:</dt><dd><ol class="loweralpha simple">
+<li><p>Static baseline (<code class="docutils literal notranslate"><span class="pre">cfg.factors.base_weights</span></code> — 50/50 mom + val)</p></li>
+<li><p>VIX-only tilting (γ=0, λ as tuned)</p></li>
+<li><p>Dispersion-only scaling (γ as tuned, λ=0)</p></li>
+<li><p>Combined (full dynamic model)</p></li>
+</ol>
+</dd>
+</dl>
+<p>Output: <code class="docutils literal notranslate"><span class="pre">comparison_results.parquet</span></code>.</p>
+<dl class="py function">
+<dt class="sig sig-object py" id="analytics.comparison.run_static_vs_dynamic">
+<span class="sig-prename descclassname"><span class="pre">analytics.comparison.</span></span><span class="sig-name descname"><span class="pre">run_static_vs_dynamic</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">cfg</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="api_engine.html#engine.config.Config" title="engine.config.Config"><span class="pre">Config</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">start</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/datetime.html#datetime.date" title="(in Python v3.14)"><span class="pre">date</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">end</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/datetime.html#datetime.date" title="(in Python v3.14)"><span class="pre">date</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">out_dir</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.14)"><span class="pre">str</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/pathlib.html#pathlib.Path" title="(in Python v3.14)"><span class="pre">Path</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">'output'</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">DataFrame</span></span></span><a class="reference internal" href="_modules/analytics/comparison.html#run_static_vs_dynamic"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#analytics.comparison.run_static_vs_dynamic" title="Link to this definition">#</a></dt>
+<dd></dd></dl>
+
+<p id="module-analytics.stress">Stress testing — COVID, 2022 rate shock, Q4 2025 reversal (PLAN §10.4).</p>
+<p>Plus Monte Carlo permutation test for dynamic-vs-static Sharpe gap (§5.13).</p>
+<p>Output: <code class="docutils literal notranslate"><span class="pre">stress_results.parquet</span></code>.</p>
+<dl class="py function">
+<dt class="sig sig-object py" id="analytics.stress.permutation_test_dynamic_vs_static">
+<span class="sig-prename descclassname"><span class="pre">analytics.stress.</span></span><span class="sig-name descname"><span class="pre">permutation_test_dynamic_vs_static</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">returns_df</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">DataFrame</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">n_permutations</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.14)"><span class="pre">int</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">10000</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">seed</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.14)"><span class="pre">int</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">42</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#dict" title="(in Python v3.14)"><span class="pre">dict</span></a></span></span><a class="reference internal" href="_modules/analytics/stress.html#permutation_test_dynamic_vs_static"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#analytics.stress.permutation_test_dynamic_vs_static" title="Link to this definition">#</a></dt>
+<dd><p>Null: dynamic and static draw from same distribution.</p>
+<p>Under H0, permute the dynamic/static labels across months, recompute
+the Sharpe difference.  Return empirical p-value.</p>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="analytics.stress.run_stress">
+<span class="sig-prename descclassname"><span class="pre">analytics.stress.</span></span><span class="sig-name descname"><span class="pre">run_stress</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">cfg</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="api_engine.html#engine.config.Config" title="engine.config.Config"><span class="pre">Config</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">out_dir</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.14)"><span class="pre">str</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/pathlib.html#pathlib.Path" title="(in Python v3.14)"><span class="pre">Path</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">'output'</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">DataFrame</span></span></span><a class="reference internal" href="_modules/analytics/stress.html#run_stress"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#analytics.stress.run_stress" title="Link to this definition">#</a></dt>
+<dd></dd></dl>
+
+<p id="module-analytics.attribution_analysis">Attribution analysis — FF5+Mom regression + Brinson-Fachler + IC stats.</p>
+<p>Consumes engine outputs (factor_premia, factor_ic, returns) to produce the
+empirical-section attribution tables &amp; numbers.</p>
+<section id="fama-french-momentum-alpha-regression">
+<h2>Fama-French + Momentum alpha regression<a class="headerlink" href="#fama-french-momentum-alpha-regression" title="Link to this heading">#</a></h2>
+<p>For each strategy variant, regress monthly strategy returns on Mkt-RF, SMB,
+HML, RMW, CMA, MOM with Newey-West HAC standard errors.</p>
+</section>
+<section id="synthetic-ff-factors">
+<h2>Synthetic FF factors<a class="headerlink" href="#synthetic-ff-factors" title="Link to this heading">#</a></h2>
+<p>We don’t fetch the real Kenneth French data in this prototype; instead we
+synthesise reasonable FF approximations from the CW1 universe (cap-weighted
+benchmark as Mkt, long-short B/P decile portfolios as HML, etc.).  Real
+FF factors should be plugged in for the final report — hook is clean.</p>
+</section>
+<dl class="py function">
+<dt class="sig sig-object py" id="analytics.attribution_analysis.brinson_fachler">
+<span class="sig-prename descclassname"><span class="pre">analytics.attribution_analysis.</span></span><span class="sig-name descname"><span class="pre">brinson_fachler</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">weights_df</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">DataFrame</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">returns_df</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">DataFrame</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">gics_map</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#dict" title="(in Python v3.14)"><span class="pre">dict</span></a><span class="p"><span class="pre">[</span></span><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.14)"><span class="pre">str</span></a><span class="p"><span class="pre">,</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.14)"><span class="pre">str</span></a><span class="p"><span class="pre">]</span></span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">DataFrame</span></span></span><a class="reference internal" href="_modules/analytics/attribution_analysis.html#brinson_fachler"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#analytics.attribution_analysis.brinson_fachler" title="Link to this definition">#</a></dt>
+<dd><p>Brinson-Fachler (1985) allocation vs selection decomposition.</p>
+<p>Allocation effect   = (w_port_sector - w_bench_sector) × (r_bench_sector - r_bench_total)
+Selection effect    = w_bench_sector × (r_port_sector - r_bench_sector)</p>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="analytics.attribution_analysis.compute_ic_statistics">
+<span class="sig-prename descclassname"><span class="pre">analytics.attribution_analysis.</span></span><span class="sig-name descname"><span class="pre">compute_ic_statistics</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">ic_df</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">DataFrame</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">DataFrame</span></span></span><a class="reference internal" href="_modules/analytics/attribution_analysis.html#compute_ic_statistics"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#analytics.attribution_analysis.compute_ic_statistics" title="Link to this definition">#</a></dt>
+<dd></dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="analytics.attribution_analysis.run_ff5_mom_regression">
+<span class="sig-prename descclassname"><span class="pre">analytics.attribution_analysis.</span></span><span class="sig-name descname"><span class="pre">run_ff5_mom_regression</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">strategy_returns</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Series</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">ff_factors</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">DataFrame</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">nw_lags</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.14)"><span class="pre">int</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">4</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">DataFrame</span></span></span><a class="reference internal" href="_modules/analytics/attribution_analysis.html#run_ff5_mom_regression"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#analytics.attribution_analysis.run_ff5_mom_regression" title="Link to this definition">#</a></dt>
+<dd><p>OLS with Newey-West HAC SEs.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>strategy_returns</strong> (<em>Series</em><em> (</em><em>index=date</em><em>)</em>)</p></li>
+<li><p><strong>ff_factors</strong> (<em>DataFrame with columns Mkt-RF</em><em>, </em><em>SMB</em><em>, </em><em>HML</em><em>, </em><em>RMW</em><em>, </em><em>CMA</em><em>, </em><em>MOM</em><em>  (</em><em>optional subset</em><em>)</em>)</p></li>
+<li><p><strong>nw_lags</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.14)"><em>int</em></a>) – Newey-West lag per Andrews (1991).</p></li>
+</ul>
+</dd>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dd class="field-even"><p>DataFrame with columns factor, beta, se_nw, t_stat, p_value</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="analytics.attribution_analysis.synthesize_ff_factors">
+<span class="sig-prename descclassname"><span class="pre">analytics.attribution_analysis.</span></span><span class="sig-name descname"><span class="pre">synthesize_ff_factors</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">returns_df</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">DataFrame</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">benchmark_col</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.14)"><span class="pre">str</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">'benchmark_ew'</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">DataFrame</span></span></span><a class="reference internal" href="_modules/analytics/attribution_analysis.html#synthesize_ff_factors"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#analytics.attribution_analysis.synthesize_ff_factors" title="Link to this definition">#</a></dt>
+<dd><p>Rough FF proxies built from available columns.</p>
+<p>This is a placeholder — for the final report, the real Kenneth-French
+dataset should be downloaded (via <code class="docutils literal notranslate"><span class="pre">pandas-datareader</span></code> or CSV).  For
+now, we produce enough columns to exercise the regression pipeline.</p>
+</dd></dl>
+
+</section>
+
+
+                </article>
+              
+              
+              
+              
+              
+                <footer class="prev-next-footer d-print-none">
+                  
+<div class="prev-next-area">
+    <a class="left-prev"
+       href="api_engine.html"
+       title="previous page">
+      <i class="fa-solid fa-angle-left"></i>
+      <div class="prev-next-info">
+        <p class="prev-next-subtitle">previous</p>
+        <p class="prev-next-title">Engine API Reference</p>
+      </div>
+    </a>
+</div>
+                </footer>
+              
+            </div>
+            
+            
+              
+                <dialog id="pst-secondary-sidebar-modal"></dialog>
+                <div id="pst-secondary-sidebar" class="bd-sidebar-secondary bd-toc"><div class="sidebar-secondary-items sidebar-secondary__inner">
+
+
+  <div class="sidebar-secondary-item">
+<div
+    id="pst-page-navigation-heading-2"
+    class="page-toc tocsection onthispage">
+    <i class="fa-solid fa-list"></i> On this page
+  </div>
+  <nav class="bd-toc-nav page-toc" aria-labelledby="pst-page-navigation-heading-2">
+    <ul class="visible nav section-nav flex-column">
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#analytics.performance.annualised_return"><code class="docutils literal notranslate"><span class="pre">annualised_return()</span></code></a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#analytics.performance.annualised_turnover"><code class="docutils literal notranslate"><span class="pre">annualised_turnover()</span></code></a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#analytics.performance.annualised_volatility"><code class="docutils literal notranslate"><span class="pre">annualised_volatility()</span></code></a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#analytics.performance.best_month"><code class="docutils literal notranslate"><span class="pre">best_month()</span></code></a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#analytics.performance.calmar_ratio"><code class="docutils literal notranslate"><span class="pre">calmar_ratio()</span></code></a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#analytics.performance.circular_block_bootstrap_sharpe"><code class="docutils literal notranslate"><span class="pre">circular_block_bootstrap_sharpe()</span></code></a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#analytics.performance.compute_headline_metrics"><code class="docutils literal notranslate"><span class="pre">compute_headline_metrics()</span></code></a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#analytics.performance.deflated_sharpe_ratio"><code class="docutils literal notranslate"><span class="pre">deflated_sharpe_ratio()</span></code></a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#analytics.performance.downside_deviation"><code class="docutils literal notranslate"><span class="pre">downside_deviation()</span></code></a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#analytics.performance.drawdown_duration_months"><code class="docutils literal notranslate"><span class="pre">drawdown_duration_months()</span></code></a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#analytics.performance.drawdown_series"><code class="docutils literal notranslate"><span class="pre">drawdown_series()</span></code></a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#analytics.performance.excess_kurtosis"><code class="docutils literal notranslate"><span class="pre">excess_kurtosis()</span></code></a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#analytics.performance.expected_shortfall"><code class="docutils literal notranslate"><span class="pre">expected_shortfall()</span></code></a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#analytics.performance.factor_ic_ir"><code class="docutils literal notranslate"><span class="pre">factor_ic_ir()</span></code></a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#analytics.performance.gross_exposure"><code class="docutils literal notranslate"><span class="pre">gross_exposure()</span></code></a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#analytics.performance.historical_var"><code class="docutils literal notranslate"><span class="pre">historical_var()</span></code></a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#analytics.performance.information_ratio"><code class="docutils literal notranslate"><span class="pre">information_ratio()</span></code></a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#analytics.performance.max_drawdown"><code class="docutils literal notranslate"><span class="pre">max_drawdown()</span></code></a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#analytics.performance.minimum_backtest_length"><code class="docutils literal notranslate"><span class="pre">minimum_backtest_length()</span></code></a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#analytics.performance.monthly_hit_rate"><code class="docutils literal notranslate"><span class="pre">monthly_hit_rate()</span></code></a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#analytics.performance.net_exposure"><code class="docutils literal notranslate"><span class="pre">net_exposure()</span></code></a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#analytics.performance.pct_negative_months"><code class="docutils literal notranslate"><span class="pre">pct_negative_months()</span></code></a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#analytics.performance.pct_positive_ic_months"><code class="docutils literal notranslate"><span class="pre">pct_positive_ic_months()</span></code></a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#analytics.performance.portfolio_beta"><code class="docutils literal notranslate"><span class="pre">portfolio_beta()</span></code></a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#analytics.performance.probabilistic_sharpe_ratio"><code class="docutils literal notranslate"><span class="pre">probabilistic_sharpe_ratio()</span></code></a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#analytics.performance.sharpe_ratio"><code class="docutils literal notranslate"><span class="pre">sharpe_ratio()</span></code></a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#analytics.performance.skewness"><code class="docutils literal notranslate"><span class="pre">skewness()</span></code></a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#analytics.performance.sortino_ratio"><code class="docutils literal notranslate"><span class="pre">sortino_ratio()</span></code></a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#analytics.performance.worst_month"><code class="docutils literal notranslate"><span class="pre">worst_month()</span></code></a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#analytics.validation.ValidationResult"><code class="docutils literal notranslate"><span class="pre">ValidationResult</span></code></a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#analytics.validation.ValidationResult.passed"><code class="docutils literal notranslate"><span class="pre">ValidationResult.passed</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#analytics.validation.ValidationResult.flags"><code class="docutils literal notranslate"><span class="pre">ValidationResult.flags</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#analytics.validation.ValidationResult.details"><code class="docutils literal notranslate"><span class="pre">ValidationResult.details</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#analytics.validation.ValidationResult.__init__"><code class="docutils literal notranslate"><span class="pre">ValidationResult.__init__()</span></code></a></li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#analytics.validation.validate_factors"><code class="docutils literal notranslate"><span class="pre">validate_factors()</span></code></a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#analytics.validation.validate_regime"><code class="docutils literal notranslate"><span class="pre">validate_regime()</span></code></a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#analytics.validation.validate_returns"><code class="docutils literal notranslate"><span class="pre">validate_returns()</span></code></a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#analytics.validation.validate_weights"><code class="docutils literal notranslate"><span class="pre">validate_weights()</span></code></a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#analytics.charts.plot_ablation"><code class="docutils literal notranslate"><span class="pre">plot_ablation()</span></code></a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#analytics.charts.plot_bandit_posterior"><code class="docutils literal notranslate"><span class="pre">plot_bandit_posterior()</span></code></a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#analytics.charts.plot_cost_comparison"><code class="docutils literal notranslate"><span class="pre">plot_cost_comparison()</span></code></a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#analytics.charts.plot_covariance"><code class="docutils literal notranslate"><span class="pre">plot_covariance()</span></code></a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#analytics.charts.plot_covid_zoom"><code class="docutils literal notranslate"><span class="pre">plot_covid_zoom()</span></code></a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#analytics.charts.plot_cumulative_return"><code class="docutils literal notranslate"><span class="pre">plot_cumulative_return()</span></code></a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#analytics.charts.plot_deflated_sharpe_distribution"><code class="docutils literal notranslate"><span class="pre">plot_deflated_sharpe_distribution()</span></code></a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#analytics.charts.plot_drawdown"><code class="docutils literal notranslate"><span class="pre">plot_drawdown()</span></code></a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#analytics.charts.plot_factor_attribution"><code class="docutils literal notranslate"><span class="pre">plot_factor_attribution()</span></code></a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#analytics.charts.plot_ff5_regression_loadings"><code class="docutils literal notranslate"><span class="pre">plot_ff5_regression_loadings()</span></code></a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#analytics.charts.plot_ls_decomposition"><code class="docutils literal notranslate"><span class="pre">plot_ls_decomposition()</span></code></a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#analytics.charts.plot_param_sensitivity"><code class="docutils literal notranslate"><span class="pre">plot_param_sensitivity()</span></code></a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#analytics.charts.plot_rolling_ic"><code class="docutils literal notranslate"><span class="pre">plot_rolling_ic()</span></code></a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#analytics.charts.plot_rolling_sharpe"><code class="docutils literal notranslate"><span class="pre">plot_rolling_sharpe()</span></code></a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#analytics.charts.plot_sector_exposure"><code class="docutils literal notranslate"><span class="pre">plot_sector_exposure()</span></code></a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#analytics.charts.plot_turnover"><code class="docutils literal notranslate"><span class="pre">plot_turnover()</span></code></a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#analytics.charts.plot_vix_regime_returns"><code class="docutils literal notranslate"><span class="pre">plot_vix_regime_returns()</span></code></a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#analytics.sensitivity.run_sensitivity_cpcv"><code class="docutils literal notranslate"><span class="pre">run_sensitivity_cpcv()</span></code></a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#analytics.ablation.run_ablation"><code class="docutils literal notranslate"><span class="pre">run_ablation()</span></code></a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#analytics.comparison.run_static_vs_dynamic"><code class="docutils literal notranslate"><span class="pre">run_static_vs_dynamic()</span></code></a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#analytics.stress.permutation_test_dynamic_vs_static"><code class="docutils literal notranslate"><span class="pre">permutation_test_dynamic_vs_static()</span></code></a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#analytics.stress.run_stress"><code class="docutils literal notranslate"><span class="pre">run_stress()</span></code></a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#fama-french-momentum-alpha-regression">Fama-French + Momentum alpha regression</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#synthetic-ff-factors">Synthetic FF factors</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#analytics.attribution_analysis.brinson_fachler"><code class="docutils literal notranslate"><span class="pre">brinson_fachler()</span></code></a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#analytics.attribution_analysis.compute_ic_statistics"><code class="docutils literal notranslate"><span class="pre">compute_ic_statistics()</span></code></a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#analytics.attribution_analysis.run_ff5_mom_regression"><code class="docutils literal notranslate"><span class="pre">run_ff5_mom_regression()</span></code></a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#analytics.attribution_analysis.synthesize_ff_factors"><code class="docutils literal notranslate"><span class="pre">synthesize_ff_factors()</span></code></a></li>
+</ul>
+  </nav></div>
+
+  <div class="sidebar-secondary-item">
+  <div role="note" aria-label="source link">
+    <h3>This Page</h3>
+    <ul class="this-page-menu">
+      <li><a href="_sources/api_analytics.rst.txt"
+            rel="nofollow">Show Source</a></li>
+    </ul>
+   </div></div>
+
+</div></div>
+              
+            
+          </div>
+          <footer class="bd-footer-content">
+            
+          </footer>
+        
+      </main>
+    </div>
+  </div>
+  
+  <!-- Scripts loaded after <body> so the DOM is not blocked -->
+  <script defer src="_static/scripts/bootstrap.js?digest=8878045cc6db502f8baf"></script>
+<script defer src="_static/scripts/pydata-sphinx-theme.js?digest=8878045cc6db502f8baf"></script>
+
+  <footer class="bd-footer">
+<div class="bd-footer__inner bd-page-width">
+  
+    <div class="footer-items__start">
+      
+        <div class="footer-item">
+
+  <p class="copyright">
+    
+      © Copyright 2026, Team Kolmogorov.
+      <br/>
+    
+  </p>
+</div>
+      
+        <div class="footer-item">
+
+  <p class="sphinx-version">
+    Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 8.2.3.
+    <br/>
+  </p>
+</div>
+      
+    </div>
+  
+  
+  
+    <div class="footer-items__end">
+      
+        <div class="footer-item">
+<p class="theme-version">
+  <!-- # L10n: Setting the PST URL as an argument as this does not need to be localized -->
+  Built with the <a href="https://pydata-sphinx-theme.readthedocs.io/en/stable/index.html">PyData Sphinx Theme</a> 0.16.1.
+</p></div>
+      
+    </div>
+  
+</div>
+
+  </footer>
+  </body>
+</html>

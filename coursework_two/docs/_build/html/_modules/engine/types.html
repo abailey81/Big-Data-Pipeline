@@ -1,0 +1,758 @@
+
+<!DOCTYPE html>
+
+
+<html lang="en" data-content_root="../../" >
+
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>engine.types &#8212; CW2 Backtest Engine — Team Kolmogorov</title>
+  
+  
+  
+  <script data-cfasync="false">
+    document.documentElement.dataset.mode = localStorage.getItem("mode") || "";
+    document.documentElement.dataset.theme = localStorage.getItem("theme") || "";
+  </script>
+  <!--
+    this give us a css class that will be invisible only if js is disabled
+  -->
+  <noscript>
+    <style>
+      .pst-js-only { display: none !important; }
+
+    </style>
+  </noscript>
+  
+  <!-- Loaded before other Sphinx assets -->
+  <link href="../../_static/styles/theme.css?digest=8878045cc6db502f8baf" rel="stylesheet" />
+<link href="../../_static/styles/pydata-sphinx-theme.css?digest=8878045cc6db502f8baf" rel="stylesheet" />
+
+    <link rel="stylesheet" type="text/css" href="../../_static/pygments.css?v=8f2a1f02" />
+  
+  <!-- So that users can add custom icons -->
+  <script src="../../_static/scripts/fontawesome.js?digest=8878045cc6db502f8baf"></script>
+  <!-- Pre-loaded scripts that we'll load fully later -->
+  <link rel="preload" as="script" href="../../_static/scripts/bootstrap.js?digest=8878045cc6db502f8baf" />
+<link rel="preload" as="script" href="../../_static/scripts/pydata-sphinx-theme.js?digest=8878045cc6db502f8baf" />
+
+    <script src="../../_static/documentation_options.js?v=d5a15cff"></script>
+    <script src="../../_static/doctools.js?v=9bcbadda"></script>
+    <script src="../../_static/sphinx_highlight.js?v=dc90522c"></script>
+    <script>DOCUMENTATION_OPTIONS.pagename = '_modules/engine/types';</script>
+    <link rel="index" title="Index" href="../../genindex.html" />
+    <link rel="search" title="Search" href="../../search.html" />
+  <meta name="viewport" content="width=device-width, initial-scale=1"/>
+  <meta name="docsearch:language" content="en"/>
+  <meta name="docsearch:version" content="" />
+  </head>
+  
+  
+  <body data-bs-spy="scroll" data-bs-target=".bd-toc-nav" data-offset="180" data-bs-root-margin="0px 0px -60%" data-default-mode="">
+
+  
+  
+  <div id="pst-skip-link" class="skip-link d-print-none"><a href="#main-content">Skip to main content</a></div>
+  
+  <div id="pst-scroll-pixel-helper"></div>
+  
+  <button type="button" class="btn rounded-pill" id="pst-back-to-top">
+    <i class="fa-solid fa-arrow-up"></i>Back to top</button>
+
+  
+  <dialog id="pst-search-dialog">
+    
+<form class="bd-search d-flex align-items-center"
+      action="../../search.html"
+      method="get">
+  <i class="fa-solid fa-magnifying-glass"></i>
+  <input type="search"
+         class="form-control"
+         name="q"
+         placeholder="Search the docs ..."
+         aria-label="Search the docs ..."
+         autocomplete="off"
+         autocorrect="off"
+         autocapitalize="off"
+         spellcheck="false"/>
+  <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd>K</kbd></span>
+</form>
+  </dialog>
+
+  <div class="pst-async-banner-revealer d-none">
+  <aside id="bd-header-version-warning" class="d-none d-print-none" aria-label="Version warning"></aside>
+</div>
+
+  
+    <header class="bd-header navbar navbar-expand-lg bd-navbar d-print-none">
+<div class="bd-header__inner bd-page-width">
+  <button class="pst-navbar-icon sidebar-toggle primary-toggle" aria-label="Site navigation">
+    <span class="fa-solid fa-bars"></span>
+  </button>
+  
+  
+  <div class="col-lg-3 navbar-header-items__start">
+    
+      <div class="navbar-item">
+
+  
+    
+  
+
+<a class="navbar-brand logo" href="../../index.html">
+  
+  
+  
+  
+  
+  
+    <p class="title logo__title">CW2 Backtest Engine — Team Kolmogorov</p>
+  
+</a></div>
+    
+  </div>
+  
+  <div class="col-lg-9 navbar-header-items">
+    
+    <div class="me-auto navbar-header-items__center">
+      
+        <div class="navbar-item">
+<nav>
+  <ul class="bd-navbar-elements navbar-nav">
+    
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../installation.html">
+    Installation
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../architecture.html">
+    Architecture
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../usage.html">
+    Usage
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../api_engine.html">
+    Engine API Reference
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../api_analytics.html">
+    Analytics API Reference
+  </a>
+</li>
+
+  </ul>
+</nav></div>
+      
+    </div>
+    
+    
+    <div class="navbar-header-items__end">
+      
+        <div class="navbar-item navbar-persistent--container">
+          
+
+<button class="btn search-button-field search-button__button pst-js-only" title="Search" aria-label="Search" data-bs-placement="bottom" data-bs-toggle="tooltip">
+ <i class="fa-solid fa-magnifying-glass"></i>
+ <span class="search-button__default-text">Search</span>
+ <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd class="kbd-shortcut__modifier">K</kbd></span>
+</button>
+        </div>
+      
+      
+        <div class="navbar-item">
+
+<button class="btn btn-sm nav-link pst-navbar-icon theme-switch-button pst-js-only" aria-label="Color mode" data-bs-title="Color mode"  data-bs-placement="bottom" data-bs-toggle="tooltip">
+  <i class="theme-switch fa-solid fa-sun                fa-lg" data-mode="light" title="Light"></i>
+  <i class="theme-switch fa-solid fa-moon               fa-lg" data-mode="dark"  title="Dark"></i>
+  <i class="theme-switch fa-solid fa-circle-half-stroke fa-lg" data-mode="auto"  title="System Settings"></i>
+</button></div>
+      
+    </div>
+    
+  </div>
+  
+  
+    <div class="navbar-persistent--mobile">
+
+<button class="btn search-button-field search-button__button pst-js-only" title="Search" aria-label="Search" data-bs-placement="bottom" data-bs-toggle="tooltip">
+ <i class="fa-solid fa-magnifying-glass"></i>
+ <span class="search-button__default-text">Search</span>
+ <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd class="kbd-shortcut__modifier">K</kbd></span>
+</button>
+    </div>
+  
+
+  
+</div>
+
+    </header>
+  
+
+  <div class="bd-container">
+    <div class="bd-container__inner bd-page-width">
+      
+      
+      
+        
+      
+      <dialog id="pst-primary-sidebar-modal"></dialog>
+      <div id="pst-primary-sidebar" class="bd-sidebar-primary bd-sidebar hide-on-wide">
+        
+
+  
+  <div class="sidebar-header-items sidebar-primary__section">
+    
+    
+      <div class="sidebar-header-items__center">
+        
+          
+          
+            <div class="navbar-item">
+<nav>
+  <ul class="bd-navbar-elements navbar-nav">
+    
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../installation.html">
+    Installation
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../architecture.html">
+    Architecture
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../usage.html">
+    Usage
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../api_engine.html">
+    Engine API Reference
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../api_analytics.html">
+    Analytics API Reference
+  </a>
+</li>
+
+  </ul>
+</nav></div>
+          
+        
+      </div>
+    
+    
+    
+      <div class="sidebar-header-items__end">
+        
+          <div class="navbar-item">
+
+<button class="btn btn-sm nav-link pst-navbar-icon theme-switch-button pst-js-only" aria-label="Color mode" data-bs-title="Color mode"  data-bs-placement="bottom" data-bs-toggle="tooltip">
+  <i class="theme-switch fa-solid fa-sun                fa-lg" data-mode="light" title="Light"></i>
+  <i class="theme-switch fa-solid fa-moon               fa-lg" data-mode="dark"  title="Dark"></i>
+  <i class="theme-switch fa-solid fa-circle-half-stroke fa-lg" data-mode="auto"  title="System Settings"></i>
+</button></div>
+        
+      </div>
+    
+  </div>
+  
+  
+  <div class="sidebar-primary-items__end sidebar-primary__section">
+      <div class="sidebar-primary-item">
+<div id="ethical-ad-placement"
+      class="flat"
+      data-ea-publisher="readthedocs"
+      data-ea-type="readthedocs-sidebar"
+      data-ea-manual="true">
+</div></div>
+  </div>
+
+
+      </div>
+      
+      <main id="main-content" class="bd-main" role="main">
+        
+        
+          <div class="bd-content">
+            <div class="bd-article-container">
+              
+              <div class="bd-header-article d-print-none">
+<div class="header-article-items header-article__inner">
+  
+    <div class="header-article-items__start">
+      
+        <div class="header-article-item">
+
+<nav aria-label="Breadcrumb" class="d-print-none">
+  <ul class="bd-breadcrumbs">
+    
+    <li class="breadcrumb-item breadcrumb-home">
+      <a href="../../index.html" class="nav-link" aria-label="Home">
+        <i class="fa-solid fa-home"></i>
+      </a>
+    </li>
+    
+    <li class="breadcrumb-item"><a href="../index.html" class="nav-link">Module code</a></li>
+    
+    <li class="breadcrumb-item active" aria-current="page"><span class="ellipsis">engine.types</span></li>
+  </ul>
+</nav>
+</div>
+      
+    </div>
+  
+  
+</div>
+</div>
+              
+              
+              
+                
+<div id="searchbox"></div>
+                <article class="bd-article">
+                  
+  <h1>Source code for engine.types</h1><div class="highlight"><pre>
+<span></span><span class="sd">&quot;&quot;&quot;Engine / analytics data contract (Pydantic models and TypedDicts).</span>
+
+<span class="sd">This module locks the schemas for every Parquet file produced by the engine</span>
+<span class="sd">and consumed by the analytics layer.  Agreed by Tamer + Lucian in Week 1 per</span>
+<span class="sd">PLAN.md §3.2.  No other engine code should define output schemas.</span>
+
+<span class="sd">The contract:</span>
+<span class="sd">    portfolio_returns.parquet    : PortfolioReturnsRow</span>
+<span class="sd">    portfolio_weights.parquet    : PortfolioWeightsRow</span>
+<span class="sd">    factor_scores.parquet        : FactorScoresRow</span>
+<span class="sd">    factor_ic.parquet            : FactorICRow</span>
+<span class="sd">    factor_premia.parquet        : FactorPremiaRow           (§5.9 Fama-MacBeth)</span>
+<span class="sd">    regime_log.parquet           : RegimeLogRow</span>
+<span class="sd">    exposure_log.parquet         : ExposureLogRow</span>
+<span class="sd">    sensitivity_grid.parquet     : SensitivityGridRow        (§5.5 CPCV)</span>
+<span class="sd">    ablation_results.parquet     : AblationRow               (§5.13 ablation)</span>
+<span class="sd">    bandit_log.parquet           : BanditLogRow              (§5.4 Thompson)</span>
+<span class="sd">    monte_carlo_paths.parquet    : MonteCarloRow             (§7.5)</span>
+<span class="sd">    trade_ledger.parquet         : TradeLedgerRow            (§7.9)</span>
+
+<span class="sd">References</span>
+<span class="sd">----------</span>
+<span class="sd">Agrawal &amp; Goyal (2013); Russo &amp; Van Roy (2018); Bailey &amp; López de Prado (2014).</span>
+<span class="sd">&quot;&quot;&quot;</span>
+
+<span class="kn">from</span><span class="w"> </span><span class="nn">__future__</span><span class="w"> </span><span class="kn">import</span> <span class="n">annotations</span>
+
+<span class="kn">from</span><span class="w"> </span><span class="nn">datetime</span><span class="w"> </span><span class="kn">import</span> <span class="n">date</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">enum</span><span class="w"> </span><span class="kn">import</span> <span class="n">Enum</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">typing</span><span class="w"> </span><span class="kn">import</span> <span class="n">Literal</span><span class="p">,</span> <span class="n">Optional</span>
+
+<span class="kn">from</span><span class="w"> </span><span class="nn">pydantic</span><span class="w"> </span><span class="kn">import</span> <span class="n">BaseModel</span><span class="p">,</span> <span class="n">ConfigDict</span><span class="p">,</span> <span class="n">Field</span>
+
+
+<span class="c1"># =============================================================================</span>
+<span class="c1"># Enumerations</span>
+<span class="c1"># =============================================================================</span>
+<div class="viewcode-block" id="Regime">
+<a class="viewcode-back" href="../../api_engine.html#engine.types.Regime">[docs]</a>
+<span class="k">class</span><span class="w"> </span><span class="nc">Regime</span><span class="p">(</span><span class="nb">str</span><span class="p">,</span> <span class="n">Enum</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;VIX-based volatility regime classification (§3.5 of CW1 report).&quot;&quot;&quot;</span>
+
+    <span class="n">LOW</span> <span class="o">=</span> <span class="s2">&quot;low&quot;</span>
+    <span class="n">NORMAL</span> <span class="o">=</span> <span class="s2">&quot;normal&quot;</span>
+    <span class="n">HIGH</span> <span class="o">=</span> <span class="s2">&quot;high&quot;</span></div>
+
+
+
+<div class="viewcode-block" id="Leg">
+<a class="viewcode-back" href="../../api_engine.html#engine.types.Leg">[docs]</a>
+<span class="k">class</span><span class="w"> </span><span class="nc">Leg</span><span class="p">(</span><span class="nb">str</span><span class="p">,</span> <span class="n">Enum</span><span class="p">):</span>
+    <span class="n">LONG</span> <span class="o">=</span> <span class="s2">&quot;long&quot;</span>
+    <span class="n">SHORT</span> <span class="o">=</span> <span class="s2">&quot;short&quot;</span></div>
+
+
+
+<div class="viewcode-block" id="Strategy">
+<a class="viewcode-back" href="../../api_engine.html#engine.types.Strategy">[docs]</a>
+<span class="k">class</span><span class="w"> </span><span class="nc">Strategy</span><span class="p">(</span><span class="nb">str</span><span class="p">,</span> <span class="n">Enum</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Weight-selection variant identity.&quot;&quot;&quot;</span>
+
+    <span class="n">STATIC</span> <span class="o">=</span> <span class="s2">&quot;static&quot;</span>
+    <span class="n">DYNAMIC_GRID</span> <span class="o">=</span> <span class="s2">&quot;dynamic_grid&quot;</span>
+    <span class="n">DYNAMIC_BANDIT</span> <span class="o">=</span> <span class="s2">&quot;dynamic_bandit&quot;</span>
+    <span class="n">HRP</span> <span class="o">=</span> <span class="s2">&quot;hrp&quot;</span></div>
+
+
+
+<div class="viewcode-block" id="FactorName">
+<a class="viewcode-back" href="../../api_engine.html#engine.types.FactorName">[docs]</a>
+<span class="k">class</span><span class="w"> </span><span class="nc">FactorName</span><span class="p">(</span><span class="nb">str</span><span class="p">,</span> <span class="n">Enum</span><span class="p">):</span>
+    <span class="n">MOMENTUM</span> <span class="o">=</span> <span class="s2">&quot;momentum&quot;</span>
+    <span class="n">VALUE</span> <span class="o">=</span> <span class="s2">&quot;value&quot;</span>
+    <span class="n">QUALITY</span> <span class="o">=</span> <span class="s2">&quot;quality&quot;</span>
+    <span class="n">SENTIMENT</span> <span class="o">=</span> <span class="s2">&quot;sentiment&quot;</span></div>
+
+
+
+<span class="c1"># =============================================================================</span>
+<span class="c1"># Contract rows (one per output Parquet)</span>
+<span class="c1"># =============================================================================</span>
+<span class="k">class</span><span class="w"> </span><span class="nc">_BaseRow</span><span class="p">(</span><span class="n">BaseModel</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Frozen-style row model — forbid extra fields so contracts stay tight.&quot;&quot;&quot;</span>
+
+    <span class="n">model_config</span> <span class="o">=</span> <span class="n">ConfigDict</span><span class="p">(</span><span class="n">extra</span><span class="o">=</span><span class="s2">&quot;forbid&quot;</span><span class="p">,</span> <span class="n">frozen</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">populate_by_name</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+
+
+<div class="viewcode-block" id="PortfolioReturnsRow">
+<a class="viewcode-back" href="../../api_engine.html#engine.types.PortfolioReturnsRow">[docs]</a>
+<span class="k">class</span><span class="w"> </span><span class="nc">PortfolioReturnsRow</span><span class="p">(</span><span class="n">_BaseRow</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;One row per rebalance date with net/gross return per variant.</span>
+
+<span class="sd">    Exactly the four columns required by the Viz &amp; Metrics Reference §1:</span>
+<span class="sd">    Dynamic Gross · Dynamic Net 20bp · Static Net 20bp · Benchmark EW.</span>
+<span class="sd">    Plus 30bp sensitivity and HRP robustness.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="n">date</span><span class="p">:</span> <span class="n">date</span>
+    <span class="n">dynamic_gross</span><span class="p">:</span> <span class="nb">float</span>
+    <span class="n">dynamic_net_20bp</span><span class="p">:</span> <span class="nb">float</span>
+    <span class="n">dynamic_net_30bp</span><span class="p">:</span> <span class="nb">float</span>
+    <span class="n">static_net_20bp</span><span class="p">:</span> <span class="nb">float</span>
+    <span class="n">static_net_30bp</span><span class="p">:</span> <span class="nb">float</span>
+    <span class="n">hrp_net_20bp</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">float</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span>
+    <span class="n">bandit_net_20bp</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">float</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span>
+    <span class="n">benchmark_ew</span><span class="p">:</span> <span class="nb">float</span>                               <span class="c1"># §7.13 headline comparator</span>
+    <span class="n">benchmark_spx</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">float</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span>             <span class="c1"># S&amp;P 500 market reference</span>
+    <span class="n">benchmark_cash_market_50_50</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">float</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span>   <span class="c1"># 50/50 cash+mkt blend</span>
+    <span class="n">long_leg</span><span class="p">:</span> <span class="nb">float</span>
+    <span class="n">short_leg</span><span class="p">:</span> <span class="nb">float</span>
+    <span class="n">rf_rate</span><span class="p">:</span> <span class="nb">float</span></div>
+
+
+
+<div class="viewcode-block" id="PortfolioWeightsRow">
+<a class="viewcode-back" href="../../api_engine.html#engine.types.PortfolioWeightsRow">[docs]</a>
+<span class="k">class</span><span class="w"> </span><span class="nc">PortfolioWeightsRow</span><span class="p">(</span><span class="n">_BaseRow</span><span class="p">):</span>
+    <span class="n">date</span><span class="p">:</span> <span class="n">date</span>
+    <span class="n">symbol</span><span class="p">:</span> <span class="nb">str</span>
+    <span class="n">weight</span><span class="p">:</span> <span class="nb">float</span>
+    <span class="n">leg</span><span class="p">:</span> <span class="n">Leg</span>
+    <span class="n">strategy</span><span class="p">:</span> <span class="n">Strategy</span></div>
+
+
+
+<div class="viewcode-block" id="FactorScoresRow">
+<a class="viewcode-back" href="../../api_engine.html#engine.types.FactorScoresRow">[docs]</a>
+<span class="k">class</span><span class="w"> </span><span class="nc">FactorScoresRow</span><span class="p">(</span><span class="n">_BaseRow</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Per-stock, per-date sector-neutral z-scores (raw + orthogonalised).&quot;&quot;&quot;</span>
+
+    <span class="n">date</span><span class="p">:</span> <span class="n">date</span>
+    <span class="n">symbol</span><span class="p">:</span> <span class="nb">str</span>
+    <span class="n">gics_sector</span><span class="p">:</span> <span class="nb">str</span>
+    <span class="c1"># Raw z-scores</span>
+    <span class="n">momentum_z</span><span class="p">:</span> <span class="nb">float</span>
+    <span class="n">value_z</span><span class="p">:</span> <span class="nb">float</span>
+    <span class="n">quality_z</span><span class="p">:</span> <span class="nb">float</span>
+    <span class="n">sentiment_z</span><span class="p">:</span> <span class="nb">float</span>
+    <span class="c1"># Orthogonalised z-scores (§5.14)</span>
+    <span class="n">momentum_z_ortho</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">float</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span>
+    <span class="n">value_z_ortho</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">float</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span>
+    <span class="n">quality_z_ortho</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">float</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span>
+    <span class="n">sentiment_z_ortho</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">float</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span>
+    <span class="n">composite_z</span><span class="p">:</span> <span class="nb">float</span></div>
+
+
+
+<div class="viewcode-block" id="FactorICRow">
+<a class="viewcode-back" href="../../api_engine.html#engine.types.FactorICRow">[docs]</a>
+<span class="k">class</span><span class="w"> </span><span class="nc">FactorICRow</span><span class="p">(</span><span class="n">_BaseRow</span><span class="p">):</span>
+    <span class="n">date</span><span class="p">:</span> <span class="n">date</span>
+    <span class="n">factor</span><span class="p">:</span> <span class="n">FactorName</span>
+    <span class="n">ic_spearman</span><span class="p">:</span> <span class="nb">float</span>
+    <span class="n">ic_pearson</span><span class="p">:</span> <span class="nb">float</span>
+    <span class="n">forward_return</span><span class="p">:</span> <span class="nb">float</span></div>
+
+
+
+<div class="viewcode-block" id="FactorPremiaRow">
+<a class="viewcode-back" href="../../api_engine.html#engine.types.FactorPremiaRow">[docs]</a>
+<span class="k">class</span><span class="w"> </span><span class="nc">FactorPremiaRow</span><span class="p">(</span><span class="n">_BaseRow</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;§5.9 Fama-MacBeth per-factor monthly premium with t-stat.&quot;&quot;&quot;</span>
+
+    <span class="n">date</span><span class="p">:</span> <span class="n">date</span>
+    <span class="n">factor</span><span class="p">:</span> <span class="n">FactorName</span>
+    <span class="n">fama_macbeth_beta</span><span class="p">:</span> <span class="nb">float</span>
+    <span class="n">t_stat</span><span class="p">:</span> <span class="nb">float</span>
+    <span class="n">r_squared</span><span class="p">:</span> <span class="nb">float</span>
+    <span class="n">n_stocks</span><span class="p">:</span> <span class="nb">int</span></div>
+
+
+
+<div class="viewcode-block" id="RegimeLogRow">
+<a class="viewcode-back" href="../../api_engine.html#engine.types.RegimeLogRow">[docs]</a>
+<span class="k">class</span><span class="w"> </span><span class="nc">RegimeLogRow</span><span class="p">(</span><span class="n">_BaseRow</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;§7.6 regime + dispersion + dynamic-weight log per date.&quot;&quot;&quot;</span>
+
+    <span class="n">date</span><span class="p">:</span> <span class="n">date</span>
+    <span class="n">vix_level</span><span class="p">:</span> <span class="nb">float</span>
+    <span class="n">vix_percentile</span><span class="p">:</span> <span class="nb">float</span>
+    <span class="n">regime_pct</span><span class="p">:</span> <span class="n">Regime</span>
+    <span class="n">regime_hmm</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Regime</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span>
+    <span class="n">hmm_prob_high</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">float</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span>
+    <span class="n">dispersion_momentum</span><span class="p">:</span> <span class="nb">float</span>
+    <span class="n">dispersion_value</span><span class="p">:</span> <span class="nb">float</span>
+    <span class="n">dispersion_quality</span><span class="p">:</span> <span class="nb">float</span>
+    <span class="n">dispersion_sentiment</span><span class="p">:</span> <span class="nb">float</span>
+    <span class="n">w_momentum</span><span class="p">:</span> <span class="nb">float</span>
+    <span class="n">w_value</span><span class="p">:</span> <span class="nb">float</span>
+    <span class="n">w_quality</span><span class="p">:</span> <span class="nb">float</span>
+    <span class="n">w_sentiment</span><span class="p">:</span> <span class="nb">float</span></div>
+
+
+
+<div class="viewcode-block" id="ExposureLogRow">
+<a class="viewcode-back" href="../../api_engine.html#engine.types.ExposureLogRow">[docs]</a>
+<span class="k">class</span><span class="w"> </span><span class="nc">ExposureLogRow</span><span class="p">(</span><span class="n">_BaseRow</span><span class="p">):</span>
+    <span class="n">date</span><span class="p">:</span> <span class="n">date</span>
+    <span class="n">gross_exposure</span><span class="p">:</span> <span class="nb">float</span>
+    <span class="n">net_exposure</span><span class="p">:</span> <span class="nb">float</span>
+    <span class="n">portfolio_beta</span><span class="p">:</span> <span class="nb">float</span>
+    <span class="n">var_99</span><span class="p">:</span> <span class="nb">float</span>
+    <span class="n">es_99</span><span class="p">:</span> <span class="nb">float</span>
+    <span class="n">position_scale</span><span class="p">:</span> <span class="nb">float</span>
+    <span class="n">vol_target_scalar</span><span class="p">:</span> <span class="nb">float</span>
+    <span class="n">dd_control_scalar</span><span class="p">:</span> <span class="nb">float</span>
+    <span class="n">drawdown_12m</span><span class="p">:</span> <span class="nb">float</span>
+    <span class="n">turnover_1way</span><span class="p">:</span> <span class="nb">float</span>
+    <span class="n">cost_drag_20bp</span><span class="p">:</span> <span class="nb">float</span>
+    <span class="n">cost_drag_30bp</span><span class="p">:</span> <span class="nb">float</span>
+    <span class="n">long_alpha</span><span class="p">:</span> <span class="nb">float</span>
+    <span class="n">short_alpha</span><span class="p">:</span> <span class="nb">float</span>
+    <span class="n">hhi_concentration</span><span class="p">:</span> <span class="nb">float</span>
+    <span class="n">n_stocks_long</span><span class="p">:</span> <span class="nb">int</span>
+    <span class="n">n_stocks_short</span><span class="p">:</span> <span class="nb">int</span>
+    <span class="n">n_stocks_filtered_liquidity</span><span class="p">:</span> <span class="nb">int</span>
+    <span class="n">n_stocks_filtered_htb</span><span class="p">:</span> <span class="nb">int</span></div>
+
+
+
+<div class="viewcode-block" id="SensitivityGridRow">
+<a class="viewcode-back" href="../../api_engine.html#engine.types.SensitivityGridRow">[docs]</a>
+<span class="k">class</span><span class="w"> </span><span class="nc">SensitivityGridRow</span><span class="p">(</span><span class="n">_BaseRow</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;§5.5 CPCV fold results — one row per (γ, λ, cv_fold).&quot;&quot;&quot;</span>
+
+    <span class="n">gamma</span><span class="p">:</span> <span class="nb">float</span>
+    <span class="n">lambda_magnitude</span><span class="p">:</span> <span class="nb">float</span>
+    <span class="n">cv_fold</span><span class="p">:</span> <span class="nb">int</span>
+    <span class="n">sharpe_net</span><span class="p">:</span> <span class="nb">float</span>
+    <span class="n">sharpe_deflated</span><span class="p">:</span> <span class="nb">float</span>
+    <span class="n">max_dd</span><span class="p">:</span> <span class="nb">float</span>
+    <span class="n">info_ratio</span><span class="p">:</span> <span class="nb">float</span>
+    <span class="n">turnover</span><span class="p">:</span> <span class="nb">float</span></div>
+
+
+
+<div class="viewcode-block" id="AblationRow">
+<a class="viewcode-back" href="../../api_engine.html#engine.types.AblationRow">[docs]</a>
+<span class="k">class</span><span class="w"> </span><span class="nc">AblationRow</span><span class="p">(</span><span class="n">_BaseRow</span><span class="p">):</span>
+    <span class="n">variant</span><span class="p">:</span> <span class="nb">str</span>                      <span class="c1"># e.g. &quot;full_4factor&quot;, &quot;no_momentum&quot;</span>
+    <span class="n">sharpe_net</span><span class="p">:</span> <span class="nb">float</span>
+    <span class="n">max_dd</span><span class="p">:</span> <span class="nb">float</span>
+    <span class="n">info_ratio</span><span class="p">:</span> <span class="nb">float</span>
+    <span class="n">alpha_ff5</span><span class="p">:</span> <span class="nb">float</span>
+    <span class="n">alpha_tstat</span><span class="p">:</span> <span class="nb">float</span>
+    <span class="n">turnover</span><span class="p">:</span> <span class="nb">float</span></div>
+
+
+
+<div class="viewcode-block" id="BanditLogRow">
+<a class="viewcode-back" href="../../api_engine.html#engine.types.BanditLogRow">[docs]</a>
+<span class="k">class</span><span class="w"> </span><span class="nc">BanditLogRow</span><span class="p">(</span><span class="n">_BaseRow</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;§5.4 Thompson Sampling per-date posteriors + selected arm.&quot;&quot;&quot;</span>
+
+    <span class="n">date</span><span class="p">:</span> <span class="n">date</span>
+    <span class="n">arm_selected</span><span class="p">:</span> <span class="nb">int</span>
+    <span class="n">realised_reward</span><span class="p">:</span> <span class="nb">float</span>
+    <span class="n">arm_posterior_mean_json</span><span class="p">:</span> <span class="nb">str</span>          <span class="c1"># JSON-packed K-vector</span>
+    <span class="n">arm_posterior_std_json</span><span class="p">:</span> <span class="nb">str</span>
+    <span class="n">context_vector_json</span><span class="p">:</span> <span class="nb">str</span></div>
+
+
+
+<div class="viewcode-block" id="MonteCarloRow">
+<a class="viewcode-back" href="../../api_engine.html#engine.types.MonteCarloRow">[docs]</a>
+<span class="k">class</span><span class="w"> </span><span class="nc">MonteCarloRow</span><span class="p">(</span><span class="n">_BaseRow</span><span class="p">):</span>
+    <span class="n">path_id</span><span class="p">:</span> <span class="nb">int</span>
+    <span class="n">date</span><span class="p">:</span> <span class="n">date</span>
+    <span class="n">nav</span><span class="p">:</span> <span class="nb">float</span></div>
+
+
+
+<div class="viewcode-block" id="TradeLedgerRow">
+<a class="viewcode-back" href="../../api_engine.html#engine.types.TradeLedgerRow">[docs]</a>
+<span class="k">class</span><span class="w"> </span><span class="nc">TradeLedgerRow</span><span class="p">(</span><span class="n">_BaseRow</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;§7.9 Immutable per-trade record.&quot;&quot;&quot;</span>
+
+    <span class="n">date</span><span class="p">:</span> <span class="n">date</span>
+    <span class="n">symbol</span><span class="p">:</span> <span class="nb">str</span>
+    <span class="n">side</span><span class="p">:</span> <span class="n">Leg</span>
+    <span class="n">action</span><span class="p">:</span> <span class="n">Literal</span><span class="p">[</span><span class="s2">&quot;open&quot;</span><span class="p">,</span> <span class="s2">&quot;close&quot;</span><span class="p">,</span> <span class="s2">&quot;adjust&quot;</span><span class="p">]</span>
+    <span class="n">old_weight</span><span class="p">:</span> <span class="nb">float</span>
+    <span class="n">new_weight</span><span class="p">:</span> <span class="nb">float</span>
+    <span class="n">notional_usd</span><span class="p">:</span> <span class="nb">float</span>
+    <span class="n">predicted_impact_bp</span><span class="p">:</span> <span class="nb">float</span>
+    <span class="n">proportional_cost_bp</span><span class="p">:</span> <span class="nb">float</span>
+    <span class="n">leg_id</span><span class="p">:</span> <span class="nb">str</span>
+    <span class="n">rebalance_id</span><span class="p">:</span> <span class="nb">str</span>
+    <span class="n">seed</span><span class="p">:</span> <span class="nb">int</span>
+    <span class="n">data_snapshot_sha256</span><span class="p">:</span> <span class="nb">str</span></div>
+
+
+
+<span class="c1"># =============================================================================</span>
+<span class="c1"># In-memory domain objects used inside the engine (not persisted)</span>
+<span class="c1"># =============================================================================</span>
+<div class="viewcode-block" id="UniverseSnapshot">
+<a class="viewcode-back" href="../../api_engine.html#engine.types.UniverseSnapshot">[docs]</a>
+<span class="k">class</span><span class="w"> </span><span class="nc">UniverseSnapshot</span><span class="p">(</span><span class="n">_BaseRow</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Point-in-time universe context at a rebalance date.&quot;&quot;&quot;</span>
+
+    <span class="n">date</span><span class="p">:</span> <span class="n">date</span>
+    <span class="n">symbols</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span>
+    <span class="n">gics_map</span><span class="p">:</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">str</span><span class="p">]</span>           <span class="c1"># symbol -&gt; GICS sector</span>
+    <span class="n">currency_map</span><span class="p">:</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">str</span><span class="p">]</span>       <span class="c1"># symbol -&gt; ISO currency</span></div>
+
+
+
+<div class="viewcode-block" id="FactorPayload">
+<a class="viewcode-back" href="../../api_engine.html#engine.types.FactorPayload">[docs]</a>
+<span class="k">class</span><span class="w"> </span><span class="nc">FactorPayload</span><span class="p">(</span><span class="n">_BaseRow</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Raw factor scores pre-z-score.&quot;&quot;&quot;</span>
+
+    <span class="n">date</span><span class="p">:</span> <span class="n">date</span>
+    <span class="n">momentum</span><span class="p">:</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">float</span><span class="p">]</span> <span class="o">=</span> <span class="n">Field</span><span class="p">(</span><span class="n">default_factory</span><span class="o">=</span><span class="nb">dict</span><span class="p">)</span>
+    <span class="n">value</span><span class="p">:</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">float</span><span class="p">]</span> <span class="o">=</span> <span class="n">Field</span><span class="p">(</span><span class="n">default_factory</span><span class="o">=</span><span class="nb">dict</span><span class="p">)</span>
+    <span class="n">quality</span><span class="p">:</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">float</span><span class="p">]</span> <span class="o">=</span> <span class="n">Field</span><span class="p">(</span><span class="n">default_factory</span><span class="o">=</span><span class="nb">dict</span><span class="p">)</span>
+    <span class="n">sentiment</span><span class="p">:</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">float</span><span class="p">]</span> <span class="o">=</span> <span class="n">Field</span><span class="p">(</span><span class="n">default_factory</span><span class="o">=</span><span class="nb">dict</span><span class="p">)</span></div>
+
+
+
+<span class="c1"># =============================================================================</span>
+<span class="c1"># Protocol declarations (Strategy pattern — swappable components, §7.1)</span>
+<span class="c1"># =============================================================================</span>
+<span class="n">__all__</span> <span class="o">=</span> <span class="p">[</span>
+    <span class="s2">&quot;AblationRow&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;BanditLogRow&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;ExposureLogRow&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;FactorICRow&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;FactorName&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;FactorPayload&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;FactorPremiaRow&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;FactorScoresRow&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;Leg&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;MonteCarloRow&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;PortfolioReturnsRow&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;PortfolioWeightsRow&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;Regime&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;RegimeLogRow&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;SensitivityGridRow&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;Strategy&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;TradeLedgerRow&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;UniverseSnapshot&quot;</span><span class="p">,</span>
+<span class="p">]</span>
+</pre></div>
+
+                </article>
+              
+              
+              
+              
+              
+                <footer class="prev-next-footer d-print-none">
+                  
+<div class="prev-next-area">
+</div>
+                </footer>
+              
+            </div>
+            
+            
+              
+            
+          </div>
+          <footer class="bd-footer-content">
+            
+          </footer>
+        
+      </main>
+    </div>
+  </div>
+  
+  <!-- Scripts loaded after <body> so the DOM is not blocked -->
+  <script defer src="../../_static/scripts/bootstrap.js?digest=8878045cc6db502f8baf"></script>
+<script defer src="../../_static/scripts/pydata-sphinx-theme.js?digest=8878045cc6db502f8baf"></script>
+
+  <footer class="bd-footer">
+<div class="bd-footer__inner bd-page-width">
+  
+    <div class="footer-items__start">
+      
+        <div class="footer-item">
+
+  <p class="copyright">
+    
+      © Copyright 2026, Team Kolmogorov.
+      <br/>
+    
+  </p>
+</div>
+      
+        <div class="footer-item">
+
+  <p class="sphinx-version">
+    Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 8.2.3.
+    <br/>
+  </p>
+</div>
+      
+    </div>
+  
+  
+  
+    <div class="footer-items__end">
+      
+        <div class="footer-item">
+<p class="theme-version">
+  <!-- # L10n: Setting the PST URL as an argument as this does not need to be localized -->
+  Built with the <a href="https://pydata-sphinx-theme.readthedocs.io/en/stable/index.html">PyData Sphinx Theme</a> 0.16.1.
+</p></div>
+      
+    </div>
+  
+</div>
+
+  </footer>
+  </body>
+</html>

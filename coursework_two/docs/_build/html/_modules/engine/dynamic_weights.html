@@ -1,0 +1,636 @@
+
+<!DOCTYPE html>
+
+
+<html lang="en" data-content_root="../../" >
+
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>engine.dynamic_weights &#8212; CW2 Backtest Engine — Team Kolmogorov</title>
+  
+  
+  
+  <script data-cfasync="false">
+    document.documentElement.dataset.mode = localStorage.getItem("mode") || "";
+    document.documentElement.dataset.theme = localStorage.getItem("theme") || "";
+  </script>
+  <!--
+    this give us a css class that will be invisible only if js is disabled
+  -->
+  <noscript>
+    <style>
+      .pst-js-only { display: none !important; }
+
+    </style>
+  </noscript>
+  
+  <!-- Loaded before other Sphinx assets -->
+  <link href="../../_static/styles/theme.css?digest=8878045cc6db502f8baf" rel="stylesheet" />
+<link href="../../_static/styles/pydata-sphinx-theme.css?digest=8878045cc6db502f8baf" rel="stylesheet" />
+
+    <link rel="stylesheet" type="text/css" href="../../_static/pygments.css?v=8f2a1f02" />
+  
+  <!-- So that users can add custom icons -->
+  <script src="../../_static/scripts/fontawesome.js?digest=8878045cc6db502f8baf"></script>
+  <!-- Pre-loaded scripts that we'll load fully later -->
+  <link rel="preload" as="script" href="../../_static/scripts/bootstrap.js?digest=8878045cc6db502f8baf" />
+<link rel="preload" as="script" href="../../_static/scripts/pydata-sphinx-theme.js?digest=8878045cc6db502f8baf" />
+
+    <script src="../../_static/documentation_options.js?v=d5a15cff"></script>
+    <script src="../../_static/doctools.js?v=9bcbadda"></script>
+    <script src="../../_static/sphinx_highlight.js?v=dc90522c"></script>
+    <script>DOCUMENTATION_OPTIONS.pagename = '_modules/engine/dynamic_weights';</script>
+    <link rel="index" title="Index" href="../../genindex.html" />
+    <link rel="search" title="Search" href="../../search.html" />
+  <meta name="viewport" content="width=device-width, initial-scale=1"/>
+  <meta name="docsearch:language" content="en"/>
+  <meta name="docsearch:version" content="" />
+  </head>
+  
+  
+  <body data-bs-spy="scroll" data-bs-target=".bd-toc-nav" data-offset="180" data-bs-root-margin="0px 0px -60%" data-default-mode="">
+
+  
+  
+  <div id="pst-skip-link" class="skip-link d-print-none"><a href="#main-content">Skip to main content</a></div>
+  
+  <div id="pst-scroll-pixel-helper"></div>
+  
+  <button type="button" class="btn rounded-pill" id="pst-back-to-top">
+    <i class="fa-solid fa-arrow-up"></i>Back to top</button>
+
+  
+  <dialog id="pst-search-dialog">
+    
+<form class="bd-search d-flex align-items-center"
+      action="../../search.html"
+      method="get">
+  <i class="fa-solid fa-magnifying-glass"></i>
+  <input type="search"
+         class="form-control"
+         name="q"
+         placeholder="Search the docs ..."
+         aria-label="Search the docs ..."
+         autocomplete="off"
+         autocorrect="off"
+         autocapitalize="off"
+         spellcheck="false"/>
+  <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd>K</kbd></span>
+</form>
+  </dialog>
+
+  <div class="pst-async-banner-revealer d-none">
+  <aside id="bd-header-version-warning" class="d-none d-print-none" aria-label="Version warning"></aside>
+</div>
+
+  
+    <header class="bd-header navbar navbar-expand-lg bd-navbar d-print-none">
+<div class="bd-header__inner bd-page-width">
+  <button class="pst-navbar-icon sidebar-toggle primary-toggle" aria-label="Site navigation">
+    <span class="fa-solid fa-bars"></span>
+  </button>
+  
+  
+  <div class="col-lg-3 navbar-header-items__start">
+    
+      <div class="navbar-item">
+
+  
+    
+  
+
+<a class="navbar-brand logo" href="../../index.html">
+  
+  
+  
+  
+  
+  
+    <p class="title logo__title">CW2 Backtest Engine — Team Kolmogorov</p>
+  
+</a></div>
+    
+  </div>
+  
+  <div class="col-lg-9 navbar-header-items">
+    
+    <div class="me-auto navbar-header-items__center">
+      
+        <div class="navbar-item">
+<nav>
+  <ul class="bd-navbar-elements navbar-nav">
+    
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../installation.html">
+    Installation
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../architecture.html">
+    Architecture
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../usage.html">
+    Usage
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../api_engine.html">
+    Engine API Reference
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../api_analytics.html">
+    Analytics API Reference
+  </a>
+</li>
+
+  </ul>
+</nav></div>
+      
+    </div>
+    
+    
+    <div class="navbar-header-items__end">
+      
+        <div class="navbar-item navbar-persistent--container">
+          
+
+<button class="btn search-button-field search-button__button pst-js-only" title="Search" aria-label="Search" data-bs-placement="bottom" data-bs-toggle="tooltip">
+ <i class="fa-solid fa-magnifying-glass"></i>
+ <span class="search-button__default-text">Search</span>
+ <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd class="kbd-shortcut__modifier">K</kbd></span>
+</button>
+        </div>
+      
+      
+        <div class="navbar-item">
+
+<button class="btn btn-sm nav-link pst-navbar-icon theme-switch-button pst-js-only" aria-label="Color mode" data-bs-title="Color mode"  data-bs-placement="bottom" data-bs-toggle="tooltip">
+  <i class="theme-switch fa-solid fa-sun                fa-lg" data-mode="light" title="Light"></i>
+  <i class="theme-switch fa-solid fa-moon               fa-lg" data-mode="dark"  title="Dark"></i>
+  <i class="theme-switch fa-solid fa-circle-half-stroke fa-lg" data-mode="auto"  title="System Settings"></i>
+</button></div>
+      
+    </div>
+    
+  </div>
+  
+  
+    <div class="navbar-persistent--mobile">
+
+<button class="btn search-button-field search-button__button pst-js-only" title="Search" aria-label="Search" data-bs-placement="bottom" data-bs-toggle="tooltip">
+ <i class="fa-solid fa-magnifying-glass"></i>
+ <span class="search-button__default-text">Search</span>
+ <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd class="kbd-shortcut__modifier">K</kbd></span>
+</button>
+    </div>
+  
+
+  
+</div>
+
+    </header>
+  
+
+  <div class="bd-container">
+    <div class="bd-container__inner bd-page-width">
+      
+      
+      
+        
+      
+      <dialog id="pst-primary-sidebar-modal"></dialog>
+      <div id="pst-primary-sidebar" class="bd-sidebar-primary bd-sidebar hide-on-wide">
+        
+
+  
+  <div class="sidebar-header-items sidebar-primary__section">
+    
+    
+      <div class="sidebar-header-items__center">
+        
+          
+          
+            <div class="navbar-item">
+<nav>
+  <ul class="bd-navbar-elements navbar-nav">
+    
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../installation.html">
+    Installation
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../architecture.html">
+    Architecture
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../usage.html">
+    Usage
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../api_engine.html">
+    Engine API Reference
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../api_analytics.html">
+    Analytics API Reference
+  </a>
+</li>
+
+  </ul>
+</nav></div>
+          
+        
+      </div>
+    
+    
+    
+      <div class="sidebar-header-items__end">
+        
+          <div class="navbar-item">
+
+<button class="btn btn-sm nav-link pst-navbar-icon theme-switch-button pst-js-only" aria-label="Color mode" data-bs-title="Color mode"  data-bs-placement="bottom" data-bs-toggle="tooltip">
+  <i class="theme-switch fa-solid fa-sun                fa-lg" data-mode="light" title="Light"></i>
+  <i class="theme-switch fa-solid fa-moon               fa-lg" data-mode="dark"  title="Dark"></i>
+  <i class="theme-switch fa-solid fa-circle-half-stroke fa-lg" data-mode="auto"  title="System Settings"></i>
+</button></div>
+        
+      </div>
+    
+  </div>
+  
+  
+  <div class="sidebar-primary-items__end sidebar-primary__section">
+      <div class="sidebar-primary-item">
+<div id="ethical-ad-placement"
+      class="flat"
+      data-ea-publisher="readthedocs"
+      data-ea-type="readthedocs-sidebar"
+      data-ea-manual="true">
+</div></div>
+  </div>
+
+
+      </div>
+      
+      <main id="main-content" class="bd-main" role="main">
+        
+        
+          <div class="bd-content">
+            <div class="bd-article-container">
+              
+              <div class="bd-header-article d-print-none">
+<div class="header-article-items header-article__inner">
+  
+    <div class="header-article-items__start">
+      
+        <div class="header-article-item">
+
+<nav aria-label="Breadcrumb" class="d-print-none">
+  <ul class="bd-breadcrumbs">
+    
+    <li class="breadcrumb-item breadcrumb-home">
+      <a href="../../index.html" class="nav-link" aria-label="Home">
+        <i class="fa-solid fa-home"></i>
+      </a>
+    </li>
+    
+    <li class="breadcrumb-item"><a href="../index.html" class="nav-link">Module code</a></li>
+    
+    <li class="breadcrumb-item active" aria-current="page"><span class="ellipsis">engine.dynamic_weights</span></li>
+  </ul>
+</nav>
+</div>
+      
+    </div>
+  
+  
+</div>
+</div>
+              
+              
+              
+                
+<div id="searchbox"></div>
+                <article class="bd-article">
+                  
+  <h1>Source code for engine.dynamic_weights</h1><div class="highlight"><pre>
+<span></span><span class="sd">&quot;&quot;&quot;Dynamic factor-weight selection: VIX regime × factor dispersion tilting.</span>
+
+<span class="sd">Implements CW1 report §3.5 equations (1)–(3):</span>
+<span class="sd">    D_{f,t} = z̄_{f,t}^{TopQ} − z̄_{f,t}^{BottomQ}</span>
+<span class="sd">    w*_{f,t} = w_base_f × (1 + λ^(r_t)_f) × (1 + γ·D_{f,t})</span>
+<span class="sd">    w_{f,t}  = w*_{f,t} / Σ_k w*_{k,t}</span>
+
+<span class="sd">Regime classification</span>
+<span class="sd">---------------------</span>
+<span class="sd">VIX level at ``rebalance_date - 1`` compared to trailing 252-day percentile:</span>
+<span class="sd">    • low  if pct &lt; P30</span>
+<span class="sd">    • high if pct &gt; P80</span>
+<span class="sd">    • normal otherwise</span>
+
+<span class="sd">References</span>
+<span class="sd">----------</span>
+<span class="sd">CW1 report §3.5; Bender et al. (2018); Daniel &amp; Moskowitz (2016); Hamilton (1989).</span>
+<span class="sd">&quot;&quot;&quot;</span>
+
+<span class="kn">from</span><span class="w"> </span><span class="nn">__future__</span><span class="w"> </span><span class="kn">import</span> <span class="n">annotations</span>
+
+<span class="kn">import</span><span class="w"> </span><span class="nn">logging</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">dataclasses</span><span class="w"> </span><span class="kn">import</span> <span class="n">dataclass</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">typing</span><span class="w"> </span><span class="kn">import</span> <span class="n">Optional</span>
+
+<span class="kn">import</span><span class="w"> </span><span class="nn">numpy</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">np</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">pandas</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">pd</span>
+
+<span class="kn">from</span><span class="w"> </span><span class="nn">engine.config</span><span class="w"> </span><span class="kn">import</span> <span class="n">Config</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">engine.types</span><span class="w"> </span><span class="kn">import</span> <span class="n">Regime</span>
+
+<span class="n">logger</span> <span class="o">=</span> <span class="n">logging</span><span class="o">.</span><span class="n">getLogger</span><span class="p">(</span><span class="vm">__name__</span><span class="p">)</span>
+
+
+<span class="c1"># =============================================================================</span>
+<span class="c1"># VIX regime classification — percentile method (baseline) + HMM (T3 stretch)</span>
+<span class="c1"># =============================================================================</span>
+<div class="viewcode-block" id="classify_regime_percentile">
+<a class="viewcode-back" href="../../api_engine.html#engine.dynamic_weights.classify_regime_percentile">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">classify_regime_percentile</span><span class="p">(</span>
+    <span class="n">vix_series</span><span class="p">:</span> <span class="n">pd</span><span class="o">.</span><span class="n">Series</span><span class="p">,</span> <span class="n">low_pct</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span> <span class="n">high_pct</span><span class="p">:</span> <span class="nb">float</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">tuple</span><span class="p">[</span><span class="n">Regime</span><span class="p">,</span> <span class="nb">float</span><span class="p">]:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Classify VIX regime at latest observation via trailing percentile.&quot;&quot;&quot;</span>
+    <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">vix_series</span><span class="p">)</span> <span class="o">&lt;</span> <span class="mi">20</span><span class="p">:</span>
+        <span class="k">return</span> <span class="n">Regime</span><span class="o">.</span><span class="n">NORMAL</span><span class="p">,</span> <span class="mf">0.5</span>
+    <span class="n">current</span> <span class="o">=</span> <span class="nb">float</span><span class="p">(</span><span class="n">vix_series</span><span class="o">.</span><span class="n">iloc</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">])</span>
+    <span class="n">pct</span> <span class="o">=</span> <span class="nb">float</span><span class="p">((</span><span class="n">vix_series</span><span class="o">.</span><span class="n">rank</span><span class="p">(</span><span class="n">pct</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span><span class="o">.</span><span class="n">iloc</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]))</span>
+    <span class="k">if</span> <span class="n">pct</span> <span class="o">&lt;</span> <span class="n">low_pct</span><span class="p">:</span>
+        <span class="k">return</span> <span class="n">Regime</span><span class="o">.</span><span class="n">LOW</span><span class="p">,</span> <span class="n">pct</span>
+    <span class="k">if</span> <span class="n">pct</span> <span class="o">&gt;</span> <span class="n">high_pct</span><span class="p">:</span>
+        <span class="k">return</span> <span class="n">Regime</span><span class="o">.</span><span class="n">HIGH</span><span class="p">,</span> <span class="n">pct</span>
+    <span class="k">return</span> <span class="n">Regime</span><span class="o">.</span><span class="n">NORMAL</span><span class="p">,</span> <span class="n">pct</span></div>
+
+
+
+<div class="viewcode-block" id="classify_regime_hmm">
+<a class="viewcode-back" href="../../api_engine.html#engine.dynamic_weights.classify_regime_hmm">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">classify_regime_hmm</span><span class="p">(</span><span class="n">vix_series</span><span class="p">:</span> <span class="n">pd</span><span class="o">.</span><span class="n">Series</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">tuple</span><span class="p">[</span><span class="n">Regime</span><span class="p">,</span> <span class="nb">float</span><span class="p">]:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;§5.6 Gaussian HMM regime classification (optional T3 stretch).</span>
+
+<span class="sd">    Requires ``hmmlearn`` — returns gracefully (falls back to percentile)</span>
+<span class="sd">    if the package is missing.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">try</span><span class="p">:</span>
+        <span class="kn">from</span><span class="w"> </span><span class="nn">hmmlearn.hmm</span><span class="w"> </span><span class="kn">import</span> <span class="n">GaussianHMM</span>
+    <span class="k">except</span> <span class="ne">Exception</span><span class="p">:</span>  <span class="c1"># pragma: no cover</span>
+        <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;hmmlearn unavailable; HMM regime skipped&quot;</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">Regime</span><span class="o">.</span><span class="n">NORMAL</span><span class="p">,</span> <span class="mf">0.5</span>
+
+    <span class="n">data</span> <span class="o">=</span> <span class="n">vix_series</span><span class="o">.</span><span class="n">dropna</span><span class="p">()</span><span class="o">.</span><span class="n">apply</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">log</span><span class="p">)</span><span class="o">.</span><span class="n">diff</span><span class="p">()</span><span class="o">.</span><span class="n">dropna</span><span class="p">()</span><span class="o">.</span><span class="n">values</span><span class="o">.</span><span class="n">reshape</span><span class="p">(</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span>
+    <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">data</span><span class="p">)</span> <span class="o">&lt;</span> <span class="mi">50</span><span class="p">:</span>
+        <span class="k">return</span> <span class="n">Regime</span><span class="o">.</span><span class="n">NORMAL</span><span class="p">,</span> <span class="mf">0.5</span>
+    <span class="k">try</span><span class="p">:</span>
+        <span class="n">hmm</span> <span class="o">=</span> <span class="n">GaussianHMM</span><span class="p">(</span><span class="n">n_components</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span> <span class="n">n_iter</span><span class="o">=</span><span class="mi">50</span><span class="p">,</span> <span class="n">random_state</span><span class="o">=</span><span class="mi">42</span><span class="p">)</span>
+        <span class="n">hmm</span><span class="o">.</span><span class="n">fit</span><span class="p">(</span><span class="n">data</span><span class="p">)</span>
+        <span class="n">probs</span> <span class="o">=</span> <span class="n">hmm</span><span class="o">.</span><span class="n">predict_proba</span><span class="p">(</span><span class="n">data</span><span class="p">)</span>
+        <span class="c1"># Identify high-vol state as the one with larger mean |return|</span>
+        <span class="n">vol_means</span> <span class="o">=</span> <span class="p">[</span><span class="nb">abs</span><span class="p">(</span><span class="n">hmm</span><span class="o">.</span><span class="n">means_</span><span class="p">[</span><span class="n">i</span><span class="p">][</span><span class="mi">0</span><span class="p">])</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">2</span><span class="p">)]</span>
+        <span class="n">high_state</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">argmax</span><span class="p">(</span><span class="n">vol_means</span><span class="p">))</span>
+        <span class="n">prob_high</span> <span class="o">=</span> <span class="nb">float</span><span class="p">(</span><span class="n">probs</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="n">high_state</span><span class="p">])</span>
+        <span class="k">if</span> <span class="n">prob_high</span> <span class="o">&gt;</span> <span class="mf">0.7</span><span class="p">:</span>
+            <span class="k">return</span> <span class="n">Regime</span><span class="o">.</span><span class="n">HIGH</span><span class="p">,</span> <span class="n">prob_high</span>
+        <span class="k">if</span> <span class="n">prob_high</span> <span class="o">&lt;</span> <span class="mf">0.3</span><span class="p">:</span>
+            <span class="k">return</span> <span class="n">Regime</span><span class="o">.</span><span class="n">LOW</span><span class="p">,</span> <span class="n">prob_high</span>
+        <span class="k">return</span> <span class="n">Regime</span><span class="o">.</span><span class="n">NORMAL</span><span class="p">,</span> <span class="n">prob_high</span>
+    <span class="k">except</span> <span class="ne">Exception</span> <span class="k">as</span> <span class="n">exc</span><span class="p">:</span>  <span class="c1"># pragma: no cover</span>
+        <span class="n">logger</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span><span class="s2">&quot;HMM regime fit failed: </span><span class="si">%s</span><span class="s2">&quot;</span><span class="p">,</span> <span class="n">exc</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">Regime</span><span class="o">.</span><span class="n">NORMAL</span><span class="p">,</span> <span class="mf">0.5</span></div>
+
+
+
+<span class="c1"># =============================================================================</span>
+<span class="c1"># Factor dispersion D_{f,t} — cross-sectional top-vs-bottom quartile z-spread</span>
+<span class="c1"># =============================================================================</span>
+<div class="viewcode-block" id="factor_dispersion">
+<a class="viewcode-back" href="../../api_engine.html#engine.dynamic_weights.factor_dispersion">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">factor_dispersion</span><span class="p">(</span>
+    <span class="n">z_scores</span><span class="p">:</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">,</span> <span class="n">long_q</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">0.25</span><span class="p">,</span> <span class="n">short_q</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">0.25</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="n">pd</span><span class="o">.</span><span class="n">Series</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Top-quartile mean z − bottom-quartile mean z, per factor.&quot;&quot;&quot;</span>
+    <span class="n">out</span> <span class="o">=</span> <span class="p">{}</span>
+    <span class="k">for</span> <span class="n">f</span> <span class="ow">in</span> <span class="n">z_scores</span><span class="o">.</span><span class="n">columns</span><span class="p">:</span>
+        <span class="n">s</span> <span class="o">=</span> <span class="n">z_scores</span><span class="p">[</span><span class="n">f</span><span class="p">]</span><span class="o">.</span><span class="n">dropna</span><span class="p">()</span>
+        <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">s</span><span class="p">)</span> <span class="o">&lt;</span> <span class="mi">10</span><span class="p">:</span>
+            <span class="n">out</span><span class="p">[</span><span class="n">f</span><span class="p">]</span> <span class="o">=</span> <span class="mf">0.0</span>
+            <span class="k">continue</span>
+        <span class="n">top</span> <span class="o">=</span> <span class="n">s</span><span class="o">.</span><span class="n">quantile</span><span class="p">(</span><span class="mi">1</span> <span class="o">-</span> <span class="n">long_q</span><span class="p">)</span>
+        <span class="n">bot</span> <span class="o">=</span> <span class="n">s</span><span class="o">.</span><span class="n">quantile</span><span class="p">(</span><span class="n">short_q</span><span class="p">)</span>
+        <span class="n">out</span><span class="p">[</span><span class="n">f</span><span class="p">]</span> <span class="o">=</span> <span class="nb">float</span><span class="p">(</span><span class="n">s</span><span class="p">[</span><span class="n">s</span> <span class="o">&gt;=</span> <span class="n">top</span><span class="p">]</span><span class="o">.</span><span class="n">mean</span><span class="p">()</span> <span class="o">-</span> <span class="n">s</span><span class="p">[</span><span class="n">s</span> <span class="o">&lt;=</span> <span class="n">bot</span><span class="p">]</span><span class="o">.</span><span class="n">mean</span><span class="p">())</span>
+    <span class="k">return</span> <span class="n">pd</span><span class="o">.</span><span class="n">Series</span><span class="p">(</span><span class="n">out</span><span class="p">)</span></div>
+
+
+
+<span class="c1"># =============================================================================</span>
+<span class="c1"># Weight engines — Strategy pattern (PLAN §7.1)</span>
+<span class="c1"># =============================================================================</span>
+<div class="viewcode-block" id="StaticWeights">
+<a class="viewcode-back" href="../../api_engine.html#engine.dynamic_weights.StaticWeights">[docs]</a>
+<span class="nd">@dataclass</span>
+<span class="k">class</span><span class="w"> </span><span class="nc">StaticWeights</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Static composite weights from ``cfg.factors.base_weights``.</span>
+
+<span class="sd">    Implemented composite is 50/50 momentum + value (CW1&#39;s original</span>
+<span class="sd">    30/30/25/15 four-factor proposal was reduced to two factors based</span>
+<span class="sd">    on out-of-sample IC evidence — see report §§1.2, 2.2.1, 4.2).</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="n">cfg</span><span class="p">:</span> <span class="n">Config</span>
+
+<div class="viewcode-block" id="StaticWeights.compute">
+<a class="viewcode-back" href="../../api_engine.html#engine.dynamic_weights.StaticWeights.compute">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">compute</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span>
+        <span class="n">z_scores</span><span class="p">:</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">,</span>
+        <span class="n">vix_series</span><span class="p">:</span> <span class="n">pd</span><span class="o">.</span><span class="n">Series</span><span class="p">,</span>
+        <span class="n">use_hmm</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">tuple</span><span class="p">[</span><span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">float</span><span class="p">],</span> <span class="n">Regime</span><span class="p">,</span> <span class="nb">float</span><span class="p">,</span> <span class="n">pd</span><span class="o">.</span><span class="n">Series</span><span class="p">]:</span>
+        <span class="n">bw</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">cfg</span><span class="o">.</span><span class="n">factors</span><span class="o">.</span><span class="n">base_weights</span>
+        <span class="n">w</span> <span class="o">=</span> <span class="p">{</span>
+            <span class="s2">&quot;momentum&quot;</span><span class="p">:</span> <span class="n">bw</span><span class="o">.</span><span class="n">momentum</span><span class="p">,</span>
+            <span class="s2">&quot;value&quot;</span><span class="p">:</span> <span class="n">bw</span><span class="o">.</span><span class="n">value</span><span class="p">,</span>
+            <span class="s2">&quot;quality&quot;</span><span class="p">:</span> <span class="n">bw</span><span class="o">.</span><span class="n">quality</span><span class="p">,</span>
+            <span class="s2">&quot;sentiment&quot;</span><span class="p">:</span> <span class="n">bw</span><span class="o">.</span><span class="n">sentiment</span><span class="p">,</span>
+        <span class="p">}</span>
+        <span class="n">regime</span><span class="p">,</span> <span class="n">vix_pct</span> <span class="o">=</span> <span class="n">classify_regime_percentile</span><span class="p">(</span>
+            <span class="n">vix_series</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">cfg</span><span class="o">.</span><span class="n">dynamic_weights</span><span class="o">.</span><span class="n">vix_low_pct</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">cfg</span><span class="o">.</span><span class="n">dynamic_weights</span><span class="o">.</span><span class="n">vix_high_pct</span>
+        <span class="p">)</span>
+        <span class="n">disp</span> <span class="o">=</span> <span class="n">factor_dispersion</span><span class="p">(</span>
+            <span class="n">z_scores</span><span class="p">,</span>
+            <span class="n">long_q</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">cfg</span><span class="o">.</span><span class="n">portfolio</span><span class="o">.</span><span class="n">long_quartile</span><span class="p">,</span>
+            <span class="n">short_q</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">cfg</span><span class="o">.</span><span class="n">portfolio</span><span class="o">.</span><span class="n">short_quartile</span><span class="p">,</span>
+        <span class="p">)</span>
+        <span class="k">return</span> <span class="n">w</span><span class="p">,</span> <span class="n">regime</span><span class="p">,</span> <span class="n">vix_pct</span><span class="p">,</span> <span class="n">disp</span></div>
+</div>
+
+
+
+<div class="viewcode-block" id="DynamicGridWeights">
+<a class="viewcode-back" href="../../api_engine.html#engine.dynamic_weights.DynamicGridWeights">[docs]</a>
+<span class="nd">@dataclass</span>
+<span class="k">class</span><span class="w"> </span><span class="nc">DynamicGridWeights</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;§3.5 VIX × dispersion dynamic tilt (Eqs 1–3 of CW1 report).</span>
+
+<span class="sd">    ``gamma`` and ``lambda_tilts`` can be overridden (e.g., during CPCV grid</span>
+<span class="sd">    search) without reloading the full config.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="n">cfg</span><span class="p">:</span> <span class="n">Config</span>
+    <span class="n">gamma_override</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">float</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span>
+    <span class="n">lambda_scale_override</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">float</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span>   <span class="c1"># multiplier on regime_tilts</span>
+
+<div class="viewcode-block" id="DynamicGridWeights.compute">
+<a class="viewcode-back" href="../../api_engine.html#engine.dynamic_weights.DynamicGridWeights.compute">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">compute</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span>
+        <span class="n">z_scores</span><span class="p">:</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">,</span>
+        <span class="n">vix_series</span><span class="p">:</span> <span class="n">pd</span><span class="o">.</span><span class="n">Series</span><span class="p">,</span>
+        <span class="n">use_hmm</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">tuple</span><span class="p">[</span><span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">float</span><span class="p">],</span> <span class="n">Regime</span><span class="p">,</span> <span class="nb">float</span><span class="p">,</span> <span class="n">pd</span><span class="o">.</span><span class="n">Series</span><span class="p">]:</span>
+        <span class="n">regime</span><span class="p">,</span> <span class="n">vix_pct</span> <span class="o">=</span> <span class="p">(</span>
+            <span class="n">classify_regime_hmm</span><span class="p">(</span><span class="n">vix_series</span><span class="p">)</span> <span class="k">if</span> <span class="n">use_hmm</span>
+            <span class="k">else</span> <span class="n">classify_regime_percentile</span><span class="p">(</span>
+                <span class="n">vix_series</span><span class="p">,</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">cfg</span><span class="o">.</span><span class="n">dynamic_weights</span><span class="o">.</span><span class="n">vix_low_pct</span><span class="p">,</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">cfg</span><span class="o">.</span><span class="n">dynamic_weights</span><span class="o">.</span><span class="n">vix_high_pct</span><span class="p">,</span>
+            <span class="p">)</span>
+        <span class="p">)</span>
+        <span class="n">disp</span> <span class="o">=</span> <span class="n">factor_dispersion</span><span class="p">(</span>
+            <span class="n">z_scores</span><span class="p">,</span>
+            <span class="n">long_q</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">cfg</span><span class="o">.</span><span class="n">portfolio</span><span class="o">.</span><span class="n">long_quartile</span><span class="p">,</span>
+            <span class="n">short_q</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">cfg</span><span class="o">.</span><span class="n">portfolio</span><span class="o">.</span><span class="n">short_quartile</span><span class="p">,</span>
+        <span class="p">)</span>
+        <span class="n">bw</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">cfg</span><span class="o">.</span><span class="n">factors</span><span class="o">.</span><span class="n">base_weights</span>
+        <span class="n">base</span> <span class="o">=</span> <span class="p">{</span><span class="s2">&quot;momentum&quot;</span><span class="p">:</span> <span class="n">bw</span><span class="o">.</span><span class="n">momentum</span><span class="p">,</span> <span class="s2">&quot;value&quot;</span><span class="p">:</span> <span class="n">bw</span><span class="o">.</span><span class="n">value</span><span class="p">,</span> <span class="s2">&quot;quality&quot;</span><span class="p">:</span> <span class="n">bw</span><span class="o">.</span><span class="n">quality</span><span class="p">,</span> <span class="s2">&quot;sentiment&quot;</span><span class="p">:</span> <span class="n">bw</span><span class="o">.</span><span class="n">sentiment</span><span class="p">}</span>
+
+        <span class="n">tilts</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">cfg</span><span class="o">.</span><span class="n">dynamic_weights</span><span class="o">.</span><span class="n">regime_tilts</span><span class="p">[</span><span class="n">regime</span><span class="o">.</span><span class="n">value</span><span class="p">]</span>
+        <span class="n">scale</span> <span class="o">=</span> <span class="mf">1.0</span> <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">lambda_scale_override</span> <span class="ow">is</span> <span class="kc">None</span> <span class="k">else</span> <span class="bp">self</span><span class="o">.</span><span class="n">lambda_scale_override</span>
+        <span class="n">gamma</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">cfg</span><span class="o">.</span><span class="n">dynamic_weights</span><span class="o">.</span><span class="n">gamma</span> <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">gamma_override</span> <span class="ow">is</span> <span class="kc">None</span> <span class="k">else</span> <span class="bp">self</span><span class="o">.</span><span class="n">gamma_override</span>
+
+        <span class="n">w_star</span> <span class="o">=</span> <span class="p">{}</span>
+        <span class="k">for</span> <span class="n">f</span> <span class="ow">in</span> <span class="n">base</span><span class="p">:</span>
+            <span class="n">tilt</span> <span class="o">=</span> <span class="n">tilts</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">f</span><span class="p">,</span> <span class="mf">0.0</span><span class="p">)</span> <span class="o">*</span> <span class="n">scale</span>
+            <span class="n">d_f</span> <span class="o">=</span> <span class="nb">float</span><span class="p">(</span><span class="n">disp</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">f</span><span class="p">,</span> <span class="mf">0.0</span><span class="p">))</span>
+            <span class="n">w_star</span><span class="p">[</span><span class="n">f</span><span class="p">]</span> <span class="o">=</span> <span class="n">base</span><span class="p">[</span><span class="n">f</span><span class="p">]</span> <span class="o">*</span> <span class="p">(</span><span class="mi">1</span> <span class="o">+</span> <span class="n">tilt</span><span class="p">)</span> <span class="o">*</span> <span class="p">(</span><span class="mi">1</span> <span class="o">+</span> <span class="n">gamma</span> <span class="o">*</span> <span class="n">d_f</span><span class="p">)</span>
+            <span class="n">w_star</span><span class="p">[</span><span class="n">f</span><span class="p">]</span> <span class="o">=</span> <span class="nb">max</span><span class="p">(</span><span class="n">w_star</span><span class="p">[</span><span class="n">f</span><span class="p">],</span> <span class="mf">0.0</span><span class="p">)</span>  <span class="c1"># Enforce non-negative</span>
+
+        <span class="n">total</span> <span class="o">=</span> <span class="nb">sum</span><span class="p">(</span><span class="n">w_star</span><span class="o">.</span><span class="n">values</span><span class="p">())</span>
+        <span class="k">if</span> <span class="n">total</span> <span class="o">&lt;=</span> <span class="mi">0</span><span class="p">:</span>
+            <span class="k">return</span> <span class="n">base</span><span class="p">,</span> <span class="n">regime</span><span class="p">,</span> <span class="n">vix_pct</span><span class="p">,</span> <span class="n">disp</span>
+        <span class="n">w_norm</span> <span class="o">=</span> <span class="p">{</span><span class="n">k</span><span class="p">:</span> <span class="n">v</span> <span class="o">/</span> <span class="n">total</span> <span class="k">for</span> <span class="n">k</span><span class="p">,</span> <span class="n">v</span> <span class="ow">in</span> <span class="n">w_star</span><span class="o">.</span><span class="n">items</span><span class="p">()}</span>
+        <span class="k">return</span> <span class="n">w_norm</span><span class="p">,</span> <span class="n">regime</span><span class="p">,</span> <span class="n">vix_pct</span><span class="p">,</span> <span class="n">disp</span></div>
+</div>
+
+
+
+<span class="n">__all__</span> <span class="o">=</span> <span class="p">[</span>
+    <span class="s2">&quot;DynamicGridWeights&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;StaticWeights&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;classify_regime_hmm&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;classify_regime_percentile&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;factor_dispersion&quot;</span><span class="p">,</span>
+<span class="p">]</span>
+</pre></div>
+
+                </article>
+              
+              
+              
+              
+              
+                <footer class="prev-next-footer d-print-none">
+                  
+<div class="prev-next-area">
+</div>
+                </footer>
+              
+            </div>
+            
+            
+              
+            
+          </div>
+          <footer class="bd-footer-content">
+            
+          </footer>
+        
+      </main>
+    </div>
+  </div>
+  
+  <!-- Scripts loaded after <body> so the DOM is not blocked -->
+  <script defer src="../../_static/scripts/bootstrap.js?digest=8878045cc6db502f8baf"></script>
+<script defer src="../../_static/scripts/pydata-sphinx-theme.js?digest=8878045cc6db502f8baf"></script>
+
+  <footer class="bd-footer">
+<div class="bd-footer__inner bd-page-width">
+  
+    <div class="footer-items__start">
+      
+        <div class="footer-item">
+
+  <p class="copyright">
+    
+      © Copyright 2026, Team Kolmogorov.
+      <br/>
+    
+  </p>
+</div>
+      
+        <div class="footer-item">
+
+  <p class="sphinx-version">
+    Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 8.2.3.
+    <br/>
+  </p>
+</div>
+      
+    </div>
+  
+  
+  
+    <div class="footer-items__end">
+      
+        <div class="footer-item">
+<p class="theme-version">
+  <!-- # L10n: Setting the PST URL as an argument as this does not need to be localized -->
+  Built with the <a href="https://pydata-sphinx-theme.readthedocs.io/en/stable/index.html">PyData Sphinx Theme</a> 0.16.1.
+</p></div>
+      
+    </div>
+  
+</div>
+
+  </footer>
+  </body>
+</html>

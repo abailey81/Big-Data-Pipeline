@@ -1,0 +1,95 @@
+[tool.poetry]
+name = "ift-coursework-two"
+version = "0.3.3"
+description = "Team Kolmogorov — CW2 Multi-Factor L/S Equity Backtest Engine"
+authors = ["Team Kolmogorov <team@kolmogorov.ucl>"]
+readme = "README.md"
+packages = [
+    { include = "engine" },
+    { include = "analytics" },
+]
+
+[tool.poetry.dependencies]
+python = ">=3.10,<3.14"
+numpy = ">=1.26.0,<3.0.0"
+pandas = "^2.2.0"
+scipy = ">=1.13.0"
+scikit-learn = "^1.4.0"
+statsmodels = "^0.14.0"
+matplotlib = "^3.8.0"
+seaborn = "^0.13.0"
+pyarrow = ">=18.0.0"
+sqlalchemy = "^2.0.38"
+psycopg2-binary = "^2.9.9"
+pyyaml = "^6.0.1"
+pydantic = "^2.10.0"
+pydantic-settings = "^2.1.0"
+rich = "^13.7.0"
+joblib = "^1.3.0"
+lightgbm = { version = "^4.1.0", optional = true }
+hmmlearn = { version = "^0.3.0", optional = true }
+pandas-market-calendars = "^4.4.0"
+
+[tool.poetry.extras]
+ml = ["lightgbm", "hmmlearn"]
+
+[tool.poetry.group.dev.dependencies]
+pytest = "^8.3.0"
+pytest-cov = "^6.0.0"
+pytest-mock = "^3.12.0"
+black = "^24.1.0"
+isort = "^5.13.0"
+flake8 = "^7.0.0"
+sphinx = "^8.1.3"
+pydata-sphinx-theme = "^0.16.1"
+bandit = "^1.8.0"
+
+[tool.poetry.scripts]
+cw2-backtest = "engine.runner:main"
+
+[build-system]
+requires = ["poetry-core"]
+build-backend = "poetry.core.masonry.api"
+
+[tool.black]
+line-length = 110
+target-version = ["py310"]
+
+[tool.isort]
+profile = "black"
+line_length = 110
+
+[tool.pytest.ini_options]
+testpaths = ["test"]
+python_files = ["test_*.py"]
+python_classes = ["Test*"]
+python_functions = ["test_*"]
+markers = [
+    "unit: unit tests (fast, mocked)",
+    "integration: integration tests (requires CW1 DB)",
+    "slow: long-running tests (bootstrap, CPCV)",
+]
+addopts = "-v --strict-markers"
+
+[tool.coverage.run]
+source = ["engine", "analytics"]
+omit = [
+    "*/test/*",
+    "*/__init__.py",
+    "engine/runner.py",
+]
+
+[tool.coverage.report]
+exclude_lines = [
+    "pragma: no cover",
+    "raise NotImplementedError",
+    "if __name__ == .__main__.:",
+    "pass",
+]
+
+[tool.bandit]
+# Skip B608 — all f-string-into-sqlalchemy.text() sites interpolate only the
+# regex-validated schema identifier (engine/config.py DatabaseConfig).  User-
+# controllable values always use :param placeholders.  Manual review complete.
+skips = ["B608"]
+exclude_dirs = ["test", ".venv", "docs/_build"]

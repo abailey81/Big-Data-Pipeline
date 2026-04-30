@@ -1,0 +1,1303 @@
+
+<!DOCTYPE html>
+
+
+<html lang="en" data-content_root="../../" >
+
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>engine.backtest &#8212; CW2 Backtest Engine — Team Kolmogorov</title>
+  
+  
+  
+  <script data-cfasync="false">
+    document.documentElement.dataset.mode = localStorage.getItem("mode") || "";
+    document.documentElement.dataset.theme = localStorage.getItem("theme") || "";
+  </script>
+  <!--
+    this give us a css class that will be invisible only if js is disabled
+  -->
+  <noscript>
+    <style>
+      .pst-js-only { display: none !important; }
+
+    </style>
+  </noscript>
+  
+  <!-- Loaded before other Sphinx assets -->
+  <link href="../../_static/styles/theme.css?digest=8878045cc6db502f8baf" rel="stylesheet" />
+<link href="../../_static/styles/pydata-sphinx-theme.css?digest=8878045cc6db502f8baf" rel="stylesheet" />
+
+    <link rel="stylesheet" type="text/css" href="../../_static/pygments.css?v=8f2a1f02" />
+  
+  <!-- So that users can add custom icons -->
+  <script src="../../_static/scripts/fontawesome.js?digest=8878045cc6db502f8baf"></script>
+  <!-- Pre-loaded scripts that we'll load fully later -->
+  <link rel="preload" as="script" href="../../_static/scripts/bootstrap.js?digest=8878045cc6db502f8baf" />
+<link rel="preload" as="script" href="../../_static/scripts/pydata-sphinx-theme.js?digest=8878045cc6db502f8baf" />
+
+    <script src="../../_static/documentation_options.js?v=d5a15cff"></script>
+    <script src="../../_static/doctools.js?v=9bcbadda"></script>
+    <script src="../../_static/sphinx_highlight.js?v=dc90522c"></script>
+    <script>DOCUMENTATION_OPTIONS.pagename = '_modules/engine/backtest';</script>
+    <link rel="index" title="Index" href="../../genindex.html" />
+    <link rel="search" title="Search" href="../../search.html" />
+  <meta name="viewport" content="width=device-width, initial-scale=1"/>
+  <meta name="docsearch:language" content="en"/>
+  <meta name="docsearch:version" content="" />
+  </head>
+  
+  
+  <body data-bs-spy="scroll" data-bs-target=".bd-toc-nav" data-offset="180" data-bs-root-margin="0px 0px -60%" data-default-mode="">
+
+  
+  
+  <div id="pst-skip-link" class="skip-link d-print-none"><a href="#main-content">Skip to main content</a></div>
+  
+  <div id="pst-scroll-pixel-helper"></div>
+  
+  <button type="button" class="btn rounded-pill" id="pst-back-to-top">
+    <i class="fa-solid fa-arrow-up"></i>Back to top</button>
+
+  
+  <dialog id="pst-search-dialog">
+    
+<form class="bd-search d-flex align-items-center"
+      action="../../search.html"
+      method="get">
+  <i class="fa-solid fa-magnifying-glass"></i>
+  <input type="search"
+         class="form-control"
+         name="q"
+         placeholder="Search the docs ..."
+         aria-label="Search the docs ..."
+         autocomplete="off"
+         autocorrect="off"
+         autocapitalize="off"
+         spellcheck="false"/>
+  <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd>K</kbd></span>
+</form>
+  </dialog>
+
+  <div class="pst-async-banner-revealer d-none">
+  <aside id="bd-header-version-warning" class="d-none d-print-none" aria-label="Version warning"></aside>
+</div>
+
+  
+    <header class="bd-header navbar navbar-expand-lg bd-navbar d-print-none">
+<div class="bd-header__inner bd-page-width">
+  <button class="pst-navbar-icon sidebar-toggle primary-toggle" aria-label="Site navigation">
+    <span class="fa-solid fa-bars"></span>
+  </button>
+  
+  
+  <div class="col-lg-3 navbar-header-items__start">
+    
+      <div class="navbar-item">
+
+  
+    
+  
+
+<a class="navbar-brand logo" href="../../index.html">
+  
+  
+  
+  
+  
+  
+    <p class="title logo__title">CW2 Backtest Engine — Team Kolmogorov</p>
+  
+</a></div>
+    
+  </div>
+  
+  <div class="col-lg-9 navbar-header-items">
+    
+    <div class="me-auto navbar-header-items__center">
+      
+        <div class="navbar-item">
+<nav>
+  <ul class="bd-navbar-elements navbar-nav">
+    
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../installation.html">
+    Installation
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../architecture.html">
+    Architecture
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../usage.html">
+    Usage
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../api_engine.html">
+    Engine API Reference
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../api_analytics.html">
+    Analytics API Reference
+  </a>
+</li>
+
+  </ul>
+</nav></div>
+      
+    </div>
+    
+    
+    <div class="navbar-header-items__end">
+      
+        <div class="navbar-item navbar-persistent--container">
+          
+
+<button class="btn search-button-field search-button__button pst-js-only" title="Search" aria-label="Search" data-bs-placement="bottom" data-bs-toggle="tooltip">
+ <i class="fa-solid fa-magnifying-glass"></i>
+ <span class="search-button__default-text">Search</span>
+ <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd class="kbd-shortcut__modifier">K</kbd></span>
+</button>
+        </div>
+      
+      
+        <div class="navbar-item">
+
+<button class="btn btn-sm nav-link pst-navbar-icon theme-switch-button pst-js-only" aria-label="Color mode" data-bs-title="Color mode"  data-bs-placement="bottom" data-bs-toggle="tooltip">
+  <i class="theme-switch fa-solid fa-sun                fa-lg" data-mode="light" title="Light"></i>
+  <i class="theme-switch fa-solid fa-moon               fa-lg" data-mode="dark"  title="Dark"></i>
+  <i class="theme-switch fa-solid fa-circle-half-stroke fa-lg" data-mode="auto"  title="System Settings"></i>
+</button></div>
+      
+    </div>
+    
+  </div>
+  
+  
+    <div class="navbar-persistent--mobile">
+
+<button class="btn search-button-field search-button__button pst-js-only" title="Search" aria-label="Search" data-bs-placement="bottom" data-bs-toggle="tooltip">
+ <i class="fa-solid fa-magnifying-glass"></i>
+ <span class="search-button__default-text">Search</span>
+ <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd class="kbd-shortcut__modifier">K</kbd></span>
+</button>
+    </div>
+  
+
+  
+</div>
+
+    </header>
+  
+
+  <div class="bd-container">
+    <div class="bd-container__inner bd-page-width">
+      
+      
+      
+        
+      
+      <dialog id="pst-primary-sidebar-modal"></dialog>
+      <div id="pst-primary-sidebar" class="bd-sidebar-primary bd-sidebar hide-on-wide">
+        
+
+  
+  <div class="sidebar-header-items sidebar-primary__section">
+    
+    
+      <div class="sidebar-header-items__center">
+        
+          
+          
+            <div class="navbar-item">
+<nav>
+  <ul class="bd-navbar-elements navbar-nav">
+    
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../installation.html">
+    Installation
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../architecture.html">
+    Architecture
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../usage.html">
+    Usage
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../api_engine.html">
+    Engine API Reference
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../api_analytics.html">
+    Analytics API Reference
+  </a>
+</li>
+
+  </ul>
+</nav></div>
+          
+        
+      </div>
+    
+    
+    
+      <div class="sidebar-header-items__end">
+        
+          <div class="navbar-item">
+
+<button class="btn btn-sm nav-link pst-navbar-icon theme-switch-button pst-js-only" aria-label="Color mode" data-bs-title="Color mode"  data-bs-placement="bottom" data-bs-toggle="tooltip">
+  <i class="theme-switch fa-solid fa-sun                fa-lg" data-mode="light" title="Light"></i>
+  <i class="theme-switch fa-solid fa-moon               fa-lg" data-mode="dark"  title="Dark"></i>
+  <i class="theme-switch fa-solid fa-circle-half-stroke fa-lg" data-mode="auto"  title="System Settings"></i>
+</button></div>
+        
+      </div>
+    
+  </div>
+  
+  
+  <div class="sidebar-primary-items__end sidebar-primary__section">
+      <div class="sidebar-primary-item">
+<div id="ethical-ad-placement"
+      class="flat"
+      data-ea-publisher="readthedocs"
+      data-ea-type="readthedocs-sidebar"
+      data-ea-manual="true">
+</div></div>
+  </div>
+
+
+      </div>
+      
+      <main id="main-content" class="bd-main" role="main">
+        
+        
+          <div class="bd-content">
+            <div class="bd-article-container">
+              
+              <div class="bd-header-article d-print-none">
+<div class="header-article-items header-article__inner">
+  
+    <div class="header-article-items__start">
+      
+        <div class="header-article-item">
+
+<nav aria-label="Breadcrumb" class="d-print-none">
+  <ul class="bd-breadcrumbs">
+    
+    <li class="breadcrumb-item breadcrumb-home">
+      <a href="../../index.html" class="nav-link" aria-label="Home">
+        <i class="fa-solid fa-home"></i>
+      </a>
+    </li>
+    
+    <li class="breadcrumb-item"><a href="../index.html" class="nav-link">Module code</a></li>
+    
+    <li class="breadcrumb-item active" aria-current="page"><span class="ellipsis">engine.backtest</span></li>
+  </ul>
+</nav>
+</div>
+      
+    </div>
+  
+  
+</div>
+</div>
+              
+              
+              
+                
+<div id="searchbox"></div>
+                <article class="bd-article">
+                  
+  <h1>Source code for engine.backtest</h1><div class="highlight"><pre>
+<span></span><span class="sd">&quot;&quot;&quot;Dependency-injected backtest engine (PLAN §7.1).</span>
+
+<span class="sd">Ten swappable components compose the monthly-rebalancing loop:</span>
+<span class="sd">    data_loader · factor_engine · zscore_engine · weight_engine ·</span>
+<span class="sd">    portfolio_engine · risk_scaler · cost_model · executor · ledger ·</span>
+<span class="sd">    metric_tracker</span>
+
+<span class="sd">Each component is a plain dataclass with a well-defined interface, so every</span>
+<span class="sd">variant (Denoised LW vs HRP, static vs dynamic vs bandit) is a one-line</span>
+<span class="sd">swap — no forked code paths.</span>
+
+<span class="sd">Output: the seven Parquet files of the §6 Data Contract.</span>
+<span class="sd">&quot;&quot;&quot;</span>
+
+<span class="kn">from</span><span class="w"> </span><span class="nn">__future__</span><span class="w"> </span><span class="kn">import</span> <span class="n">annotations</span>
+
+<span class="kn">import</span><span class="w"> </span><span class="nn">logging</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">uuid</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">dataclasses</span><span class="w"> </span><span class="kn">import</span> <span class="n">dataclass</span><span class="p">,</span> <span class="n">field</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">datetime</span><span class="w"> </span><span class="kn">import</span> <span class="n">date</span><span class="p">,</span> <span class="n">timedelta</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">pathlib</span><span class="w"> </span><span class="kn">import</span> <span class="n">Path</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">typing</span><span class="w"> </span><span class="kn">import</span> <span class="n">Any</span><span class="p">,</span> <span class="n">Literal</span><span class="p">,</span> <span class="n">Optional</span>
+
+<span class="kn">import</span><span class="w"> </span><span class="nn">numpy</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">np</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">pandas</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">pd</span>
+
+<span class="k">try</span><span class="p">:</span>
+    <span class="kn">import</span><span class="w"> </span><span class="nn">pandas_market_calendars</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">mcal</span>
+    <span class="n">_HAS_MCAL</span> <span class="o">=</span> <span class="kc">True</span>
+<span class="k">except</span> <span class="ne">Exception</span><span class="p">:</span>
+    <span class="n">_HAS_MCAL</span> <span class="o">=</span> <span class="kc">False</span>
+
+<span class="kn">from</span><span class="w"> </span><span class="nn">engine.attribution</span><span class="w"> </span><span class="kn">import</span> <span class="n">fama_macbeth_one_date</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">engine.bandit</span><span class="w"> </span><span class="kn">import</span> <span class="n">BanditWeights</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">engine.benchmark</span><span class="w"> </span><span class="kn">import</span> <span class="n">CashMarketBlend</span><span class="p">,</span> <span class="n">EqualWeightBenchmark</span><span class="p">,</span> <span class="n">SPXBenchmark</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">engine.config</span><span class="w"> </span><span class="kn">import</span> <span class="n">Config</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">engine.costs</span><span class="w"> </span><span class="kn">import</span> <span class="n">CostModel</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">engine.data_loader</span><span class="w"> </span><span class="kn">import</span> <span class="n">DataLoader</span><span class="p">,</span> <span class="n">PITContext</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">engine.dynamic_weights</span><span class="w"> </span><span class="kn">import</span> <span class="n">DynamicGridWeights</span><span class="p">,</span> <span class="n">StaticWeights</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">engine.factors</span><span class="w"> </span><span class="kn">import</span> <span class="n">FactorEngine</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">engine.portfolio</span><span class="w"> </span><span class="kn">import</span> <span class="n">PortfolioEngine</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">engine.risk_scaler</span><span class="w"> </span><span class="kn">import</span> <span class="n">CompositeRiskScaler</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">engine.types</span><span class="w"> </span><span class="kn">import</span> <span class="p">(</span>
+    <span class="n">BanditLogRow</span><span class="p">,</span>
+    <span class="n">ExposureLogRow</span><span class="p">,</span>
+    <span class="n">FactorICRow</span><span class="p">,</span>
+    <span class="n">FactorPremiaRow</span><span class="p">,</span>
+    <span class="n">FactorScoresRow</span><span class="p">,</span>
+    <span class="n">Leg</span><span class="p">,</span>
+    <span class="n">PortfolioReturnsRow</span><span class="p">,</span>
+    <span class="n">PortfolioWeightsRow</span><span class="p">,</span>
+    <span class="n">Regime</span><span class="p">,</span>
+    <span class="n">RegimeLogRow</span><span class="p">,</span>
+    <span class="n">Strategy</span><span class="p">,</span>
+    <span class="n">TradeLedgerRow</span><span class="p">,</span>
+<span class="p">)</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">engine.zscore</span><span class="w"> </span><span class="kn">import</span> <span class="n">ZScoreEngine</span>
+
+<span class="n">logger</span> <span class="o">=</span> <span class="n">logging</span><span class="o">.</span><span class="n">getLogger</span><span class="p">(</span><span class="vm">__name__</span><span class="p">)</span>
+
+
+<span class="c1"># =============================================================================</span>
+<span class="c1"># Calendar (§7.2)</span>
+<span class="c1"># =============================================================================</span>
+<div class="viewcode-block" id="monthly_rebalance_dates">
+<a class="viewcode-back" href="../../api_engine.html#engine.backtest.monthly_rebalance_dates">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">monthly_rebalance_dates</span><span class="p">(</span><span class="n">start</span><span class="p">:</span> <span class="n">date</span><span class="p">,</span> <span class="n">end</span><span class="p">:</span> <span class="n">date</span><span class="p">,</span> <span class="n">calendar</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;NYSE&quot;</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">list</span><span class="p">[</span><span class="n">date</span><span class="p">]:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Last trading day of each month between start and end.&quot;&quot;&quot;</span>
+    <span class="k">if</span> <span class="n">_HAS_MCAL</span><span class="p">:</span>
+        <span class="n">cal</span> <span class="o">=</span> <span class="n">mcal</span><span class="o">.</span><span class="n">get_calendar</span><span class="p">(</span><span class="n">calendar</span><span class="p">)</span>
+        <span class="n">sched</span> <span class="o">=</span> <span class="n">cal</span><span class="o">.</span><span class="n">schedule</span><span class="p">(</span><span class="n">start_date</span><span class="o">=</span><span class="n">start</span><span class="p">,</span> <span class="n">end_date</span><span class="o">=</span><span class="n">end</span><span class="p">)</span>
+        <span class="n">days</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">to_datetime</span><span class="p">(</span><span class="n">sched</span><span class="o">.</span><span class="n">index</span><span class="o">.</span><span class="n">date</span><span class="p">)</span>
+        <span class="n">out</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="n">last_m</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="n">last_d</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="k">for</span> <span class="n">d</span> <span class="ow">in</span> <span class="n">days</span><span class="p">:</span>
+            <span class="n">ym</span> <span class="o">=</span> <span class="p">(</span><span class="n">d</span><span class="o">.</span><span class="n">year</span><span class="p">,</span> <span class="n">d</span><span class="o">.</span><span class="n">month</span><span class="p">)</span>
+            <span class="k">if</span> <span class="n">last_m</span> <span class="ow">and</span> <span class="n">ym</span> <span class="o">!=</span> <span class="n">last_m</span> <span class="ow">and</span> <span class="n">last_d</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+                <span class="n">out</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">last_d</span><span class="o">.</span><span class="n">date</span><span class="p">())</span>
+            <span class="n">last_m</span> <span class="o">=</span> <span class="n">ym</span>
+            <span class="n">last_d</span> <span class="o">=</span> <span class="n">d</span>
+        <span class="k">if</span> <span class="n">last_d</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">out</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">last_d</span><span class="o">.</span><span class="n">date</span><span class="p">())</span>
+        <span class="k">return</span> <span class="n">out</span>
+    <span class="c1"># Fallback: pandas month-end</span>
+    <span class="n">rng</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">date_range</span><span class="p">(</span><span class="n">start</span><span class="p">,</span> <span class="n">end</span><span class="p">,</span> <span class="n">freq</span><span class="o">=</span><span class="s2">&quot;BME&quot;</span><span class="p">)</span>
+    <span class="k">return</span> <span class="p">[</span><span class="n">d</span><span class="o">.</span><span class="n">date</span><span class="p">()</span> <span class="k">for</span> <span class="n">d</span> <span class="ow">in</span> <span class="n">rng</span><span class="p">]</span></div>
+
+
+
+<span class="c1"># =============================================================================</span>
+<span class="c1"># BacktestResult — collects all Parquet-contract outputs</span>
+<span class="c1"># =============================================================================</span>
+<div class="viewcode-block" id="BacktestResult">
+<a class="viewcode-back" href="../../api_engine.html#engine.backtest.BacktestResult">[docs]</a>
+<span class="nd">@dataclass</span>
+<span class="k">class</span><span class="w"> </span><span class="nc">BacktestResult</span><span class="p">:</span>
+    <span class="n">returns</span><span class="p">:</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span>
+    <span class="n">weights</span><span class="p">:</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span>
+    <span class="n">factor_scores</span><span class="p">:</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span>
+    <span class="n">factor_ic</span><span class="p">:</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span>
+    <span class="n">factor_premia</span><span class="p">:</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span>
+    <span class="n">regime_log</span><span class="p">:</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span>
+    <span class="n">exposure_log</span><span class="p">:</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span>
+    <span class="n">bandit_log</span><span class="p">:</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span>
+    <span class="n">trade_ledger</span><span class="p">:</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span>
+    <span class="n">config_hash</span><span class="p">:</span> <span class="nb">str</span>
+    <span class="n">data_snapshot_sha256</span><span class="p">:</span> <span class="nb">str</span>
+    <span class="n">git_sha</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="kc">None</span>
+    <span class="n">seed</span><span class="p">:</span> <span class="nb">int</span>
+
+<div class="viewcode-block" id="BacktestResult.save">
+<a class="viewcode-back" href="../../api_engine.html#engine.backtest.BacktestResult.save">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">save</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">out_dir</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="n">Path</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="n">p</span> <span class="o">=</span> <span class="n">Path</span><span class="p">(</span><span class="n">out_dir</span><span class="p">)</span>
+        <span class="n">p</span><span class="o">.</span><span class="n">mkdir</span><span class="p">(</span><span class="n">parents</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">exist_ok</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">returns</span><span class="o">.</span><span class="n">to_parquet</span><span class="p">(</span><span class="n">p</span> <span class="o">/</span> <span class="s2">&quot;portfolio_returns.parquet&quot;</span><span class="p">,</span> <span class="n">index</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">weights</span><span class="o">.</span><span class="n">to_parquet</span><span class="p">(</span><span class="n">p</span> <span class="o">/</span> <span class="s2">&quot;portfolio_weights.parquet&quot;</span><span class="p">,</span> <span class="n">index</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">factor_scores</span><span class="o">.</span><span class="n">to_parquet</span><span class="p">(</span><span class="n">p</span> <span class="o">/</span> <span class="s2">&quot;factor_scores.parquet&quot;</span><span class="p">,</span> <span class="n">index</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">factor_ic</span><span class="o">.</span><span class="n">to_parquet</span><span class="p">(</span><span class="n">p</span> <span class="o">/</span> <span class="s2">&quot;factor_ic.parquet&quot;</span><span class="p">,</span> <span class="n">index</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">factor_premia</span><span class="o">.</span><span class="n">to_parquet</span><span class="p">(</span><span class="n">p</span> <span class="o">/</span> <span class="s2">&quot;factor_premia.parquet&quot;</span><span class="p">,</span> <span class="n">index</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">regime_log</span><span class="o">.</span><span class="n">to_parquet</span><span class="p">(</span><span class="n">p</span> <span class="o">/</span> <span class="s2">&quot;regime_log.parquet&quot;</span><span class="p">,</span> <span class="n">index</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">exposure_log</span><span class="o">.</span><span class="n">to_parquet</span><span class="p">(</span><span class="n">p</span> <span class="o">/</span> <span class="s2">&quot;exposure_log.parquet&quot;</span><span class="p">,</span> <span class="n">index</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">bandit_log</span><span class="o">.</span><span class="n">to_parquet</span><span class="p">(</span><span class="n">p</span> <span class="o">/</span> <span class="s2">&quot;bandit_log.parquet&quot;</span><span class="p">,</span> <span class="n">index</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">trade_ledger</span><span class="o">.</span><span class="n">to_parquet</span><span class="p">(</span><span class="n">p</span> <span class="o">/</span> <span class="s2">&quot;trade_ledger.parquet&quot;</span><span class="p">,</span> <span class="n">index</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+        <span class="n">meta</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">(</span>
+            <span class="p">[{</span><span class="s2">&quot;config_hash&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">config_hash</span><span class="p">,</span>
+              <span class="s2">&quot;data_snapshot_sha256&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">data_snapshot_sha256</span><span class="p">,</span>
+              <span class="s2">&quot;git_sha&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">git_sha</span> <span class="ow">or</span> <span class="s2">&quot;&quot;</span><span class="p">,</span>
+              <span class="s2">&quot;seed&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">seed</span><span class="p">,</span>
+              <span class="s2">&quot;n_rebalances&quot;</span><span class="p">:</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">returns</span><span class="p">)}]</span>
+        <span class="p">)</span>
+        <span class="n">meta</span><span class="o">.</span><span class="n">to_parquet</span><span class="p">(</span><span class="n">p</span> <span class="o">/</span> <span class="s2">&quot;backtest_metadata.parquet&quot;</span><span class="p">,</span> <span class="n">index</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span></div>
+</div>
+
+
+
+<span class="c1"># =============================================================================</span>
+<span class="c1"># Backtest engine</span>
+<span class="c1"># =============================================================================</span>
+<div class="viewcode-block" id="BacktestEngine">
+<a class="viewcode-back" href="../../api_engine.html#engine.backtest.BacktestEngine">[docs]</a>
+<span class="nd">@dataclass</span>
+<span class="k">class</span><span class="w"> </span><span class="nc">BacktestEngine</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Main event-driven backtest loop with strict PIT discipline.&quot;&quot;&quot;</span>
+
+    <span class="n">cfg</span><span class="p">:</span> <span class="n">Config</span>
+    <span class="n">data_loader</span><span class="p">:</span> <span class="n">DataLoader</span>
+    <span class="n">factor_engine</span><span class="p">:</span> <span class="n">FactorEngine</span>
+    <span class="n">zscore_engine</span><span class="p">:</span> <span class="n">ZScoreEngine</span>
+    <span class="n">portfolio_engine</span><span class="p">:</span> <span class="n">PortfolioEngine</span>
+    <span class="n">cost_model</span><span class="p">:</span> <span class="n">CostModel</span>
+
+    <span class="c1"># Outputs</span>
+    <span class="n">_returns_rows</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="nb">dict</span><span class="p">]</span> <span class="o">=</span> <span class="n">field</span><span class="p">(</span><span class="n">default_factory</span><span class="o">=</span><span class="nb">list</span><span class="p">)</span>
+    <span class="n">_weights_rows</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="nb">dict</span><span class="p">]</span> <span class="o">=</span> <span class="n">field</span><span class="p">(</span><span class="n">default_factory</span><span class="o">=</span><span class="nb">list</span><span class="p">)</span>
+    <span class="n">_factor_rows</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="nb">dict</span><span class="p">]</span> <span class="o">=</span> <span class="n">field</span><span class="p">(</span><span class="n">default_factory</span><span class="o">=</span><span class="nb">list</span><span class="p">)</span>
+    <span class="n">_ic_rows</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="nb">dict</span><span class="p">]</span> <span class="o">=</span> <span class="n">field</span><span class="p">(</span><span class="n">default_factory</span><span class="o">=</span><span class="nb">list</span><span class="p">)</span>
+    <span class="n">_premia_rows</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="nb">dict</span><span class="p">]</span> <span class="o">=</span> <span class="n">field</span><span class="p">(</span><span class="n">default_factory</span><span class="o">=</span><span class="nb">list</span><span class="p">)</span>
+    <span class="n">_regime_rows</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="nb">dict</span><span class="p">]</span> <span class="o">=</span> <span class="n">field</span><span class="p">(</span><span class="n">default_factory</span><span class="o">=</span><span class="nb">list</span><span class="p">)</span>
+    <span class="n">_exposure_rows</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="nb">dict</span><span class="p">]</span> <span class="o">=</span> <span class="n">field</span><span class="p">(</span><span class="n">default_factory</span><span class="o">=</span><span class="nb">list</span><span class="p">)</span>
+    <span class="n">_bandit_rows</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="nb">dict</span><span class="p">]</span> <span class="o">=</span> <span class="n">field</span><span class="p">(</span><span class="n">default_factory</span><span class="o">=</span><span class="nb">list</span><span class="p">)</span>
+    <span class="n">_ledger_rows</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="nb">dict</span><span class="p">]</span> <span class="o">=</span> <span class="n">field</span><span class="p">(</span><span class="n">default_factory</span><span class="o">=</span><span class="nb">list</span><span class="p">)</span>
+
+    <span class="n">_prev_weights</span><span class="p">:</span> <span class="nb">dict</span><span class="p">[</span><span class="n">Strategy</span><span class="p">,</span> <span class="n">pd</span><span class="o">.</span><span class="n">Series</span><span class="p">]</span> <span class="o">=</span> <span class="n">field</span><span class="p">(</span><span class="n">default_factory</span><span class="o">=</span><span class="nb">dict</span><span class="p">)</span>
+    <span class="c1"># Separate cache for cost-drag calculation in `_assemble_portfolio_returns_row`.</span>
+    <span class="c1"># The `_prev_weights` dict is mutated to the CURRENT weights before the</span>
+    <span class="c1"># assembler runs, so a turnover query against it would compare</span>
+    <span class="c1"># w_current to w_current (= 0).  We snapshot the pre-update weights here</span>
+    <span class="c1"># so `_recent_turnover` sees (new, old) not (new, empty).</span>
+    <span class="n">_prev_weights_for_cost</span><span class="p">:</span> <span class="nb">dict</span><span class="p">[</span><span class="n">Strategy</span><span class="p">,</span> <span class="n">pd</span><span class="o">.</span><span class="n">Series</span><span class="p">]</span> <span class="o">=</span> <span class="n">field</span><span class="p">(</span><span class="n">default_factory</span><span class="o">=</span><span class="nb">dict</span><span class="p">)</span>
+    <span class="n">_prev_longs</span><span class="p">:</span> <span class="nb">dict</span><span class="p">[</span><span class="n">Strategy</span><span class="p">,</span> <span class="nb">list</span><span class="p">[</span><span class="nb">str</span><span class="p">]]</span> <span class="o">=</span> <span class="n">field</span><span class="p">(</span><span class="n">default_factory</span><span class="o">=</span><span class="nb">dict</span><span class="p">)</span>
+    <span class="n">_prev_shorts</span><span class="p">:</span> <span class="nb">dict</span><span class="p">[</span><span class="n">Strategy</span><span class="p">,</span> <span class="nb">list</span><span class="p">[</span><span class="nb">str</span><span class="p">]]</span> <span class="o">=</span> <span class="n">field</span><span class="p">(</span><span class="n">default_factory</span><span class="o">=</span><span class="nb">dict</span><span class="p">)</span>
+    <span class="n">_nav</span><span class="p">:</span> <span class="nb">dict</span><span class="p">[</span><span class="n">Strategy</span><span class="p">,</span> <span class="nb">float</span><span class="p">]</span> <span class="o">=</span> <span class="n">field</span><span class="p">(</span><span class="n">default_factory</span><span class="o">=</span><span class="nb">dict</span><span class="p">)</span>
+    <span class="n">_ic_rolling</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">float</span><span class="p">]]</span> <span class="o">=</span> <span class="n">field</span><span class="p">(</span><span class="n">default_factory</span><span class="o">=</span><span class="nb">list</span><span class="p">)</span>   <span class="c1"># 3mo IC window</span>
+    <span class="n">_prev_factor_z</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span>  <span class="c1"># for Fama-MacBeth</span>
+    <span class="n">_data_snapshot_sha256</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;&quot;</span>   <span class="c1"># cached once at run() start for ledger rows</span>
+    <span class="c1"># HRP side-run state (PLAN §5.3 robustness comparison — shares the</span>
+    <span class="c1"># DYNAMIC_GRID factor weights but constructs the per-leg book via HRP</span>
+    <span class="c1"># instead of score-weighting, so the report can show HRP vs the primary</span>
+    <span class="c1"># book head-to-head.  Stored in portfolio_returns.hrp_net_20bp.)</span>
+    <span class="n">_hrp_prev_w</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">pd</span><span class="o">.</span><span class="n">Series</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span>
+    <span class="n">_hrp_monthly_returns</span><span class="p">:</span> <span class="nb">dict</span> <span class="o">=</span> <span class="n">field</span><span class="p">(</span><span class="n">default_factory</span><span class="o">=</span><span class="nb">dict</span><span class="p">)</span>
+    <span class="c1"># Long/short leg realised monthly returns (PLAN §6 data contract —</span>
+    <span class="c1"># populated under DYNAMIC_GRID and merged into portfolio_returns.parquet</span>
+    <span class="c1"># alongside hrp_net_20bp).</span>
+    <span class="n">_long_leg_returns</span><span class="p">:</span> <span class="nb">dict</span> <span class="o">=</span> <span class="n">field</span><span class="p">(</span><span class="n">default_factory</span><span class="o">=</span><span class="nb">dict</span><span class="p">)</span>
+    <span class="n">_short_leg_returns</span><span class="p">:</span> <span class="nb">dict</span> <span class="o">=</span> <span class="n">field</span><span class="p">(</span><span class="n">default_factory</span><span class="o">=</span><span class="nb">dict</span><span class="p">)</span>
+
+    <span class="c1"># ------------------------------------------------------------------</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">_initial_nav</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">float</span><span class="p">:</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">cfg</span><span class="o">.</span><span class="n">backtest</span><span class="o">.</span><span class="n">initial_nav</span>
+
+    <span class="c1"># ------------------------------------------------------------------</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">_long_short_symbols</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span>
+        <span class="n">composite</span><span class="p">:</span> <span class="n">pd</span><span class="o">.</span><span class="n">Series</span><span class="p">,</span>
+        <span class="n">prev_longs</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">list</span><span class="p">[</span><span class="nb">str</span><span class="p">]]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="n">prev_shorts</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">list</span><span class="p">[</span><span class="nb">str</span><span class="p">]]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="n">z_threshold</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">0.0</span><span class="p">,</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">tuple</span><span class="p">[</span><span class="nb">list</span><span class="p">[</span><span class="nb">str</span><span class="p">],</span> <span class="nb">list</span><span class="p">[</span><span class="nb">str</span><span class="p">]]:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Quartile-based leg selection with **hysteresis band** to reduce turnover.</span>
+
+<span class="sd">        Standard academic/industry practice (Grinold &amp; Kahn 2000 Ch. 12): a</span>
+<span class="sd">        currently-held long is retained if its composite rank remains in the</span>
+<span class="sd">        top 30%; new longs require top 20%.  Same for shorts, inverted.  This</span>
+<span class="sd">        reduces border-churn without altering the underlying quartile rule.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">q_long</span> <span class="o">=</span> <span class="n">composite</span><span class="o">.</span><span class="n">quantile</span><span class="p">(</span><span class="mi">1</span> <span class="o">-</span> <span class="bp">self</span><span class="o">.</span><span class="n">cfg</span><span class="o">.</span><span class="n">portfolio</span><span class="o">.</span><span class="n">long_quartile</span><span class="p">)</span>
+        <span class="n">q_short</span> <span class="o">=</span> <span class="n">composite</span><span class="o">.</span><span class="n">quantile</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">cfg</span><span class="o">.</span><span class="n">portfolio</span><span class="o">.</span><span class="n">short_quartile</span><span class="p">)</span>
+        <span class="c1"># Core longs/shorts per spec + threshold filter (task §2 &quot;threshold filters&quot;)</span>
+        <span class="n">core_longs</span> <span class="o">=</span> <span class="n">composite</span><span class="p">[(</span><span class="n">composite</span> <span class="o">&gt;=</span> <span class="n">q_long</span><span class="p">)</span> <span class="o">&amp;</span> <span class="p">(</span><span class="n">composite</span> <span class="o">&gt;=</span> <span class="n">z_threshold</span><span class="p">)]</span><span class="o">.</span><span class="n">index</span><span class="o">.</span><span class="n">tolist</span><span class="p">()</span>
+        <span class="n">core_shorts</span> <span class="o">=</span> <span class="n">composite</span><span class="p">[(</span><span class="n">composite</span> <span class="o">&lt;=</span> <span class="n">q_short</span><span class="p">)</span> <span class="o">&amp;</span> <span class="p">(</span><span class="n">composite</span> <span class="o">&lt;=</span> <span class="o">-</span><span class="n">z_threshold</span><span class="p">)]</span><span class="o">.</span><span class="n">index</span><span class="o">.</span><span class="n">tolist</span><span class="p">()</span>
+        <span class="c1"># Hysteresis bands — widen retention zone by 5 percentile points</span>
+        <span class="n">hy_long</span> <span class="o">=</span> <span class="n">composite</span><span class="o">.</span><span class="n">quantile</span><span class="p">(</span><span class="mi">1</span> <span class="o">-</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">cfg</span><span class="o">.</span><span class="n">portfolio</span><span class="o">.</span><span class="n">long_quartile</span> <span class="o">+</span> <span class="mf">0.05</span><span class="p">))</span>
+        <span class="n">hy_short</span> <span class="o">=</span> <span class="n">composite</span><span class="o">.</span><span class="n">quantile</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">cfg</span><span class="o">.</span><span class="n">portfolio</span><span class="o">.</span><span class="n">short_quartile</span> <span class="o">+</span> <span class="mf">0.05</span><span class="p">)</span>
+        <span class="n">longs</span> <span class="o">=</span> <span class="nb">set</span><span class="p">(</span><span class="n">core_longs</span><span class="p">)</span>
+        <span class="n">shorts</span> <span class="o">=</span> <span class="nb">set</span><span class="p">(</span><span class="n">core_shorts</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">prev_longs</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">longs</span> <span class="o">|=</span> <span class="p">{</span><span class="n">s</span> <span class="k">for</span> <span class="n">s</span> <span class="ow">in</span> <span class="n">prev_longs</span> <span class="k">if</span> <span class="n">s</span> <span class="ow">in</span> <span class="n">composite</span><span class="o">.</span><span class="n">index</span> <span class="ow">and</span> <span class="n">composite</span><span class="p">[</span><span class="n">s</span><span class="p">]</span> <span class="o">&gt;=</span> <span class="n">hy_long</span><span class="p">}</span>
+        <span class="k">if</span> <span class="n">prev_shorts</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">shorts</span> <span class="o">|=</span> <span class="p">{</span><span class="n">s</span> <span class="k">for</span> <span class="n">s</span> <span class="ow">in</span> <span class="n">prev_shorts</span> <span class="k">if</span> <span class="n">s</span> <span class="ow">in</span> <span class="n">composite</span><span class="o">.</span><span class="n">index</span> <span class="ow">and</span> <span class="n">composite</span><span class="p">[</span><span class="n">s</span><span class="p">]</span> <span class="o">&lt;=</span> <span class="n">hy_short</span><span class="p">}</span>
+        <span class="c1"># Never allow overlap</span>
+        <span class="n">shorts</span> <span class="o">-=</span> <span class="n">longs</span>
+        <span class="k">return</span> <span class="nb">sorted</span><span class="p">(</span><span class="n">longs</span><span class="p">),</span> <span class="nb">sorted</span><span class="p">(</span><span class="n">shorts</span><span class="p">)</span>
+
+    <span class="c1"># ------------------------------------------------------------------</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">_apply_momentum_filter</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span> <span class="n">longs</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="nb">str</span><span class="p">],</span> <span class="n">momentum</span><span class="p">:</span> <span class="n">pd</span><span class="o">.</span><span class="n">Series</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">list</span><span class="p">[</span><span class="nb">str</span><span class="p">]:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Antonacci (2016) absolute-momentum filter: drop negative-momentum longs.&quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">cfg</span><span class="o">.</span><span class="n">dynamic_weights</span><span class="o">.</span><span class="n">absolute_momentum_filter</span><span class="p">:</span>
+            <span class="k">return</span> <span class="n">longs</span>
+        <span class="k">return</span> <span class="p">[</span><span class="n">s</span> <span class="k">for</span> <span class="n">s</span> <span class="ow">in</span> <span class="n">longs</span> <span class="k">if</span> <span class="n">s</span> <span class="ow">in</span> <span class="n">momentum</span><span class="o">.</span><span class="n">index</span> <span class="ow">and</span> <span class="n">momentum</span><span class="p">[</span><span class="n">s</span><span class="p">]</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">]</span>
+
+    <span class="c1"># ------------------------------------------------------------------</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">_simple_forward_return</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span> <span class="n">ctx_next</span><span class="p">:</span> <span class="n">PITContext</span><span class="p">,</span> <span class="n">symbols</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="nb">str</span><span class="p">],</span> <span class="n">window_days</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">21</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">pd</span><span class="o">.</span><span class="n">Series</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Next rebalance&#39;s realised return for each symbol (approx 1M).&quot;&quot;&quot;</span>
+        <span class="n">px</span> <span class="o">=</span> <span class="n">ctx_next</span><span class="o">.</span><span class="n">prices</span>
+        <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">px</span><span class="p">)</span> <span class="o">&lt;</span> <span class="n">window_days</span> <span class="o">+</span> <span class="mi">1</span><span class="p">:</span>
+            <span class="k">return</span> <span class="n">pd</span><span class="o">.</span><span class="n">Series</span><span class="p">(</span><span class="n">dtype</span><span class="o">=</span><span class="nb">float</span><span class="p">)</span>
+        <span class="n">recent</span> <span class="o">=</span> <span class="n">px</span><span class="o">.</span><span class="n">iloc</span><span class="p">[</span><span class="o">-</span><span class="n">window_days</span> <span class="o">-</span> <span class="mi">1</span><span class="p">:]</span>
+        <span class="n">r</span> <span class="o">=</span> <span class="n">recent</span><span class="o">.</span><span class="n">iloc</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span> <span class="o">/</span> <span class="n">recent</span><span class="o">.</span><span class="n">iloc</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">-</span> <span class="mi">1</span>
+        <span class="k">return</span> <span class="n">r</span><span class="o">.</span><span class="n">reindex</span><span class="p">(</span><span class="n">symbols</span><span class="p">)</span>
+
+    <span class="c1"># ------------------------------------------------------------------</span>
+<div class="viewcode-block" id="BacktestEngine.run">
+<a class="viewcode-back" href="../../api_engine.html#engine.backtest.BacktestEngine.run">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">run</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span>
+        <span class="n">start</span><span class="p">:</span> <span class="n">date</span><span class="p">,</span>
+        <span class="n">end</span><span class="p">:</span> <span class="n">date</span><span class="p">,</span>
+        <span class="n">strategies_to_run</span><span class="p">:</span> <span class="nb">tuple</span><span class="p">[</span><span class="n">Strategy</span><span class="p">,</span> <span class="o">...</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span>
+            <span class="n">Strategy</span><span class="o">.</span><span class="n">STATIC</span><span class="p">,</span>
+            <span class="n">Strategy</span><span class="o">.</span><span class="n">DYNAMIC_GRID</span><span class="p">,</span>
+            <span class="n">Strategy</span><span class="o">.</span><span class="n">DYNAMIC_BANDIT</span><span class="p">,</span>
+        <span class="p">),</span>
+        <span class="n">use_hmm</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
+        <span class="n">risk_scaler_factory</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">BacktestResult</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Run the backtest end-to-end from ``start`` to ``end`` (inclusive).</span>
+
+<span class="sd">        Each strategy variant runs in lock-step on the *same* rebalance dates,</span>
+<span class="sd">        sharing PIT context (expensive DB queries) but forking at weight</span>
+<span class="sd">        selection.  Output: single BacktestResult covering all variants.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">rebalance_dates</span> <span class="o">=</span> <span class="n">monthly_rebalance_dates</span><span class="p">(</span><span class="n">start</span><span class="p">,</span> <span class="n">end</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">cfg</span><span class="o">.</span><span class="n">dates</span><span class="o">.</span><span class="n">trading_calendar</span><span class="p">)</span>
+        <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;Running backtest: </span><span class="si">%d</span><span class="s2"> rebalance dates </span><span class="si">%s</span><span class="s2"> → </span><span class="si">%s</span><span class="s2">&quot;</span><span class="p">,</span>
+                    <span class="nb">len</span><span class="p">(</span><span class="n">rebalance_dates</span><span class="p">),</span> <span class="n">rebalance_dates</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">rebalance_dates</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">])</span>
+        <span class="c1"># Cache the snapshot hash once so every TradeLedgerRow carries the same</span>
+        <span class="c1"># reproducibility fingerprint without re-hashing on every trade.</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_data_snapshot_sha256</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">data_loader</span><span class="o">.</span><span class="n">data_snapshot_sha256</span><span class="p">()</span>
+        <span class="k">except</span> <span class="ne">Exception</span> <span class="k">as</span> <span class="n">exc</span><span class="p">:</span>
+            <span class="n">logger</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span><span class="s2">&quot;Could not fetch data_snapshot_sha256: </span><span class="si">%s</span><span class="s2">&quot;</span><span class="p">,</span> <span class="n">exc</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_data_snapshot_sha256</span> <span class="o">=</span> <span class="s2">&quot;unknown&quot;</span>
+
+        <span class="c1"># Per-strategy state</span>
+        <span class="n">static_engine</span> <span class="o">=</span> <span class="n">StaticWeights</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">cfg</span><span class="p">)</span>
+        <span class="n">dynamic_engine</span> <span class="o">=</span> <span class="n">DynamicGridWeights</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">cfg</span><span class="p">)</span>
+        <span class="n">bandit_engine</span> <span class="o">=</span> <span class="n">BanditWeights</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">cfg</span><span class="p">)</span>
+        <span class="c1"># Benchmark engines</span>
+        <span class="n">ew_bench</span> <span class="o">=</span> <span class="n">EqualWeightBenchmark</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">cfg</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">data_loader</span><span class="p">)</span>
+        <span class="n">spx_bench</span> <span class="o">=</span> <span class="n">SPXBenchmark</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">cfg</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">data_loader</span><span class="p">)</span>
+        <span class="n">blend_bench</span> <span class="o">=</span> <span class="n">CashMarketBlend</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">cfg</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">data_loader</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_ew_bench_weights_prev</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">pd</span><span class="o">.</span><span class="n">Series</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span>
+
+        <span class="n">risk_scalers</span><span class="p">:</span> <span class="nb">dict</span><span class="p">[</span><span class="n">Strategy</span><span class="p">,</span> <span class="n">CompositeRiskScaler</span><span class="p">]</span> <span class="o">=</span> <span class="p">{}</span>
+        <span class="k">for</span> <span class="n">s</span> <span class="ow">in</span> <span class="n">strategies_to_run</span><span class="p">:</span>
+            <span class="n">risk_scalers</span><span class="p">[</span><span class="n">s</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span><span class="n">risk_scaler_factory</span><span class="p">()</span> <span class="k">if</span> <span class="n">risk_scaler_factory</span> <span class="k">else</span> <span class="n">CompositeRiskScaler</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">cfg</span><span class="p">))</span>
+
+        <span class="k">for</span> <span class="n">s</span> <span class="ow">in</span> <span class="n">strategies_to_run</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_nav</span><span class="p">[</span><span class="n">s</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_initial_nav</span><span class="p">()</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_prev_weights</span><span class="p">[</span><span class="n">s</span><span class="p">]</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">Series</span><span class="p">(</span><span class="n">dtype</span><span class="o">=</span><span class="nb">float</span><span class="p">)</span>
+
+        <span class="c1"># Context cache</span>
+        <span class="n">prev_ctx</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">PITContext</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span>
+
+        <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">rb_date</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">rebalance_dates</span><span class="p">):</span>
+            <span class="n">ctx</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">data_loader</span><span class="o">.</span><span class="n">build_context</span><span class="p">(</span>
+                <span class="n">rb_date</span><span class="p">,</span> <span class="n">price_lookback_days</span><span class="o">=</span><span class="mi">756</span><span class="p">,</span> <span class="n">apply_liquidity_filter</span><span class="o">=</span><span class="kc">True</span>
+            <span class="p">)</span>
+
+            <span class="c1"># 1) Compute raw factors + z-scores</span>
+            <span class="n">payload</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">factor_engine</span><span class="o">.</span><span class="n">compute_all</span><span class="p">(</span><span class="n">ctx</span><span class="p">)</span>
+            <span class="n">raw</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">factor_engine</span><span class="o">.</span><span class="n">to_long_df</span><span class="p">(</span><span class="n">payload</span><span class="p">,</span> <span class="n">ctx</span><span class="o">.</span><span class="n">universe</span><span class="o">.</span><span class="n">symbols</span><span class="p">)</span>
+            <span class="n">z_raw</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">zscore_engine</span><span class="o">.</span><span class="n">zscore_cross_section</span><span class="p">(</span><span class="n">raw</span><span class="p">,</span> <span class="n">ctx</span><span class="o">.</span><span class="n">universe</span><span class="o">.</span><span class="n">gics_map</span><span class="p">)</span>
+            <span class="n">z_ortho</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">zscore_engine</span><span class="o">.</span><span class="n">apply_orthogonalisation</span><span class="p">(</span><span class="n">z_raw</span><span class="p">,</span> <span class="n">ctx</span><span class="o">.</span><span class="n">universe</span><span class="o">.</span><span class="n">gics_map</span><span class="p">)</span>
+
+            <span class="c1"># 2) Compute forward returns (using prev context → this context)</span>
+            <span class="k">if</span> <span class="n">prev_ctx</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+                <span class="n">fwd_ret</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_simple_forward_return</span><span class="p">(</span><span class="n">ctx</span><span class="p">,</span> <span class="nb">list</span><span class="p">(</span><span class="n">z_ortho</span><span class="o">.</span><span class="n">index</span><span class="p">))</span>
+                <span class="c1"># Log factor IC at prior date (so IC_{t-1} → r_t alignment is correct)</span>
+                <span class="n">ic_df</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">zscore_engine</span><span class="o">.</span><span class="n">factor_ic</span><span class="p">(</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">_prev_factor_z</span> <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_prev_factor_z</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="k">else</span> <span class="n">z_ortho</span><span class="p">,</span> <span class="n">fwd_ret</span>
+                <span class="p">)</span>
+                <span class="k">for</span> <span class="n">_</span><span class="p">,</span> <span class="n">row</span> <span class="ow">in</span> <span class="n">ic_df</span><span class="o">.</span><span class="n">iterrows</span><span class="p">():</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">_ic_rows</span><span class="o">.</span><span class="n">append</span><span class="p">({</span>
+                        <span class="s2">&quot;date&quot;</span><span class="p">:</span> <span class="n">prev_ctx</span><span class="o">.</span><span class="n">rebalance_date</span><span class="p">,</span>
+                        <span class="s2">&quot;factor&quot;</span><span class="p">:</span> <span class="n">row</span><span class="p">[</span><span class="s2">&quot;factor&quot;</span><span class="p">],</span>
+                        <span class="s2">&quot;ic_spearman&quot;</span><span class="p">:</span> <span class="nb">float</span><span class="p">(</span><span class="n">row</span><span class="p">[</span><span class="s2">&quot;ic_spearman&quot;</span><span class="p">])</span> <span class="k">if</span> <span class="ow">not</span> <span class="n">pd</span><span class="o">.</span><span class="n">isna</span><span class="p">(</span><span class="n">row</span><span class="p">[</span><span class="s2">&quot;ic_spearman&quot;</span><span class="p">])</span> <span class="k">else</span> <span class="mf">0.0</span><span class="p">,</span>
+                        <span class="s2">&quot;ic_pearson&quot;</span><span class="p">:</span> <span class="nb">float</span><span class="p">(</span><span class="n">row</span><span class="p">[</span><span class="s2">&quot;ic_pearson&quot;</span><span class="p">])</span> <span class="k">if</span> <span class="ow">not</span> <span class="n">pd</span><span class="o">.</span><span class="n">isna</span><span class="p">(</span><span class="n">row</span><span class="p">[</span><span class="s2">&quot;ic_pearson&quot;</span><span class="p">])</span> <span class="k">else</span> <span class="mf">0.0</span><span class="p">,</span>
+                        <span class="s2">&quot;forward_return&quot;</span><span class="p">:</span> <span class="nb">float</span><span class="p">(</span><span class="n">fwd_ret</span><span class="o">.</span><span class="n">mean</span><span class="p">())</span> <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">fwd_ret</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">0</span> <span class="k">else</span> <span class="mf">0.0</span><span class="p">,</span>
+                    <span class="p">})</span>
+
+                <span class="c1"># Fama-MacBeth one-step</span>
+                <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_prev_factor_z</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+                    <span class="n">fmb</span> <span class="o">=</span> <span class="n">fama_macbeth_one_date</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_prev_factor_z</span><span class="p">,</span> <span class="n">fwd_ret</span><span class="p">)</span>
+                    <span class="k">if</span> <span class="n">fmb</span><span class="p">:</span>
+                        <span class="k">for</span> <span class="n">f</span> <span class="ow">in</span> <span class="p">(</span><span class="s2">&quot;momentum&quot;</span><span class="p">,</span> <span class="s2">&quot;value&quot;</span><span class="p">,</span> <span class="s2">&quot;quality&quot;</span><span class="p">,</span> <span class="s2">&quot;sentiment&quot;</span><span class="p">):</span>
+                            <span class="k">if</span> <span class="n">f</span> <span class="ow">in</span> <span class="n">fmb</span><span class="p">:</span>
+                                <span class="bp">self</span><span class="o">.</span><span class="n">_premia_rows</span><span class="o">.</span><span class="n">append</span><span class="p">({</span>
+                                    <span class="s2">&quot;date&quot;</span><span class="p">:</span> <span class="n">prev_ctx</span><span class="o">.</span><span class="n">rebalance_date</span><span class="p">,</span>
+                                    <span class="s2">&quot;factor&quot;</span><span class="p">:</span> <span class="n">f</span><span class="p">,</span>
+                                    <span class="s2">&quot;fama_macbeth_beta&quot;</span><span class="p">:</span> <span class="n">fmb</span><span class="p">[</span><span class="n">f</span><span class="p">],</span>
+                                    <span class="s2">&quot;t_stat&quot;</span><span class="p">:</span> <span class="n">fmb</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;t_</span><span class="si">{</span><span class="n">f</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">,</span> <span class="nb">float</span><span class="p">(</span><span class="s2">&quot;nan&quot;</span><span class="p">)),</span>
+                                    <span class="s2">&quot;r_squared&quot;</span><span class="p">:</span> <span class="n">fmb</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;r_squared&quot;</span><span class="p">,</span> <span class="nb">float</span><span class="p">(</span><span class="s2">&quot;nan&quot;</span><span class="p">)),</span>
+                                    <span class="s2">&quot;n_stocks&quot;</span><span class="p">:</span> <span class="n">fmb</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;n&quot;</span><span class="p">,</span> <span class="mi">0</span><span class="p">),</span>
+                                <span class="p">})</span>
+
+            <span class="c1"># 3) Select weights per strategy variant</span>
+            <span class="c1"># Use trailing-252d VIX z for bandit context</span>
+            <span class="n">vix_z</span> <span class="o">=</span> <span class="nb">float</span><span class="p">(</span>
+                <span class="p">(</span><span class="n">ctx</span><span class="o">.</span><span class="n">vix</span><span class="o">.</span><span class="n">iloc</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span> <span class="o">-</span> <span class="n">ctx</span><span class="o">.</span><span class="n">vix</span><span class="o">.</span><span class="n">iloc</span><span class="p">[</span><span class="o">-</span><span class="mi">252</span><span class="p">:]</span><span class="o">.</span><span class="n">mean</span><span class="p">())</span> <span class="o">/</span> <span class="nb">max</span><span class="p">(</span><span class="n">ctx</span><span class="o">.</span><span class="n">vix</span><span class="o">.</span><span class="n">iloc</span><span class="p">[</span><span class="o">-</span><span class="mi">252</span><span class="p">:]</span><span class="o">.</span><span class="n">std</span><span class="p">(),</span> <span class="mf">1e-6</span><span class="p">)</span>
+            <span class="p">)</span> <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">ctx</span><span class="o">.</span><span class="n">vix</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">10</span> <span class="k">else</span> <span class="mf">0.0</span>
+            <span class="c1"># 3-month mean IC per factor (from running window)</span>
+            <span class="n">ic_3mo</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_compute_rolling_ic_3mo</span><span class="p">()</span>
+
+            <span class="c1"># --- STATIC ---</span>
+            <span class="n">fw_static</span><span class="p">,</span> <span class="n">regime</span><span class="p">,</span> <span class="n">vix_pct</span><span class="p">,</span> <span class="n">disp</span> <span class="o">=</span> <span class="n">static_engine</span><span class="o">.</span><span class="n">compute</span><span class="p">(</span><span class="n">z_ortho</span><span class="p">,</span> <span class="n">ctx</span><span class="o">.</span><span class="n">vix</span><span class="p">,</span> <span class="n">use_hmm</span><span class="o">=</span><span class="n">use_hmm</span><span class="p">)</span>
+            <span class="c1"># --- DYNAMIC (grid) ---</span>
+            <span class="n">fw_dyn</span><span class="p">,</span> <span class="n">_</span><span class="p">,</span> <span class="n">_</span><span class="p">,</span> <span class="n">_</span> <span class="o">=</span> <span class="n">dynamic_engine</span><span class="o">.</span><span class="n">compute</span><span class="p">(</span><span class="n">z_ortho</span><span class="p">,</span> <span class="n">ctx</span><span class="o">.</span><span class="n">vix</span><span class="p">,</span> <span class="n">use_hmm</span><span class="o">=</span><span class="n">use_hmm</span><span class="p">)</span>
+            <span class="c1"># --- BANDIT ---</span>
+            <span class="n">fw_bandit</span><span class="p">,</span> <span class="n">arm_idx</span><span class="p">,</span> <span class="n">ctx_vec</span> <span class="o">=</span> <span class="n">bandit_engine</span><span class="o">.</span><span class="n">select</span><span class="p">(</span>
+                <span class="n">vix_level_z</span><span class="o">=</span><span class="n">vix_z</span><span class="p">,</span>
+                <span class="n">regime_flag</span><span class="o">=</span><span class="n">regime</span><span class="o">.</span><span class="n">value</span><span class="p">,</span>
+                <span class="n">dispersion</span><span class="o">=</span><span class="n">disp</span><span class="o">.</span><span class="n">to_dict</span><span class="p">(),</span>
+                <span class="n">ic_3mo</span><span class="o">=</span><span class="n">ic_3mo</span><span class="p">,</span>
+            <span class="p">)</span>
+
+            <span class="c1"># 4) Compose weights &amp; backtest each variant</span>
+            <span class="k">for</span> <span class="n">strategy</span><span class="p">,</span> <span class="n">fweights</span> <span class="ow">in</span> <span class="p">(</span>
+                <span class="p">(</span><span class="n">Strategy</span><span class="o">.</span><span class="n">STATIC</span><span class="p">,</span> <span class="n">fw_static</span><span class="p">),</span>
+                <span class="p">(</span><span class="n">Strategy</span><span class="o">.</span><span class="n">DYNAMIC_GRID</span><span class="p">,</span> <span class="n">fw_dyn</span><span class="p">),</span>
+                <span class="p">(</span><span class="n">Strategy</span><span class="o">.</span><span class="n">DYNAMIC_BANDIT</span><span class="p">,</span> <span class="n">fw_bandit</span><span class="p">),</span>
+            <span class="p">):</span>
+                <span class="k">if</span> <span class="n">strategy</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">strategies_to_run</span><span class="p">:</span>
+                    <span class="k">continue</span>
+                <span class="n">composite</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">zscore_engine</span><span class="o">.</span><span class="n">composite</span><span class="p">(</span><span class="n">z_ortho</span><span class="p">,</span> <span class="n">fweights</span><span class="p">)</span>
+                <span class="n">longs</span><span class="p">,</span> <span class="n">shorts</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_long_short_symbols</span><span class="p">(</span>
+                    <span class="n">composite</span><span class="p">,</span>
+                    <span class="n">prev_longs</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">_prev_longs</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">strategy</span><span class="p">),</span>
+                    <span class="n">prev_shorts</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">_prev_shorts</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">strategy</span><span class="p">),</span>
+                <span class="p">)</span>
+                <span class="n">longs</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_apply_momentum_filter</span><span class="p">(</span><span class="n">longs</span><span class="p">,</span> <span class="n">raw</span><span class="p">[</span><span class="s2">&quot;momentum&quot;</span><span class="p">])</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">_prev_longs</span><span class="p">[</span><span class="n">strategy</span><span class="p">]</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="n">longs</span><span class="p">)</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">_prev_shorts</span><span class="p">[</span><span class="n">strategy</span><span class="p">]</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="n">shorts</span><span class="p">)</span>
+                <span class="n">composite_series</span> <span class="o">=</span> <span class="n">composite</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
+                <span class="c1"># Construct per-leg weights</span>
+                <span class="n">trailing_ret</span> <span class="o">=</span> <span class="n">ctx</span><span class="o">.</span><span class="n">returns_usd</span><span class="o">.</span><span class="n">iloc</span><span class="p">[</span><span class="o">-</span><span class="bp">self</span><span class="o">.</span><span class="n">cfg</span><span class="o">.</span><span class="n">estimation_windows</span><span class="o">.</span><span class="n">covariance_days</span><span class="p">:]</span>
+                <span class="n">prev_w</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_prev_weights</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">strategy</span><span class="p">,</span> <span class="n">pd</span><span class="o">.</span><span class="n">Series</span><span class="p">(</span><span class="n">dtype</span><span class="o">=</span><span class="nb">float</span><span class="p">))</span>
+                <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">cfg</span><span class="o">.</span><span class="n">portfolio</span><span class="o">.</span><span class="n">construction</span> <span class="o">==</span> <span class="s2">&quot;score_weighted&quot;</span><span class="p">:</span>
+                    <span class="c1"># Factor-weighted allocation — task-permitted CW2 design</span>
+                    <span class="n">w_long</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">portfolio_engine</span><span class="o">.</span><span class="n">score_weighted_leg</span><span class="p">(</span><span class="n">longs</span><span class="p">,</span> <span class="n">composite_series</span><span class="p">,</span> <span class="n">is_long</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+                    <span class="n">w_short</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">portfolio_engine</span><span class="o">.</span><span class="n">score_weighted_leg</span><span class="p">(</span><span class="n">shorts</span><span class="p">,</span> <span class="n">composite_series</span><span class="p">,</span> <span class="n">is_long</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+                <span class="k">else</span><span class="p">:</span>
+                    <span class="n">w_long</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">portfolio_engine</span><span class="o">.</span><span class="n">optimise_leg</span><span class="p">(</span><span class="n">trailing_ret</span><span class="p">,</span> <span class="n">longs</span><span class="p">,</span> <span class="n">prev_w</span><span class="p">)</span>
+                    <span class="n">w_short</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">portfolio_engine</span><span class="o">.</span><span class="n">optimise_leg</span><span class="p">(</span><span class="n">trailing_ret</span><span class="p">,</span> <span class="n">shorts</span><span class="p">,</span> <span class="n">prev_w</span><span class="p">)</span>
+                <span class="c1"># Dollar-neutral scaling: long = +0.5, short = −0.5 (→ gross = 1.0)</span>
+                <span class="n">w_long</span> <span class="o">=</span> <span class="n">w_long</span> <span class="o">*</span> <span class="mf">0.5</span>
+                <span class="n">w_short</span> <span class="o">=</span> <span class="o">-</span><span class="n">w_short</span> <span class="o">*</span> <span class="mf">0.5</span>
+                <span class="n">w_combined</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">concat</span><span class="p">([</span><span class="n">w_long</span><span class="p">,</span> <span class="n">w_short</span><span class="p">])</span>
+
+                <span class="c1"># Compose weights: apply risk scaler</span>
+                <span class="n">daily_port_ret</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_simulate_daily_port_returns</span><span class="p">(</span>
+                    <span class="n">w_combined</span><span class="p">,</span> <span class="n">ctx</span><span class="o">.</span><span class="n">returns_usd</span>
+                <span class="p">)</span>
+                <span class="n">rs</span> <span class="o">=</span> <span class="n">risk_scalers</span><span class="p">[</span><span class="n">strategy</span><span class="p">]</span>
+                <span class="n">w_scaled</span><span class="p">,</span> <span class="n">risk_diag</span> <span class="o">=</span> <span class="n">rs</span><span class="o">.</span><span class="n">apply</span><span class="p">(</span><span class="n">w_combined</span><span class="p">,</span> <span class="n">daily_port_ret</span><span class="p">)</span>
+                <span class="c1"># Cap gross exposure at 2.0 — standard market-neutral L/S</span>
+                <span class="c1"># (1.0 long + 1.0 short) per CW1 §3.5 spec.</span>
+                <span class="n">gross</span> <span class="o">=</span> <span class="n">w_scaled</span><span class="o">.</span><span class="n">abs</span><span class="p">()</span><span class="o">.</span><span class="n">sum</span><span class="p">()</span>
+                <span class="k">if</span> <span class="n">gross</span> <span class="o">&gt;</span> <span class="mf">2.0</span><span class="p">:</span>
+                    <span class="n">w_scaled</span> <span class="o">=</span> <span class="n">w_scaled</span> <span class="o">*</span> <span class="p">(</span><span class="mf">2.0</span> <span class="o">/</span> <span class="n">gross</span><span class="p">)</span>
+
+                <span class="c1"># Approx monthly return from next-context prices</span>
+                <span class="k">if</span> <span class="n">i</span> <span class="o">+</span> <span class="mi">1</span> <span class="o">&lt;</span> <span class="nb">len</span><span class="p">(</span><span class="n">rebalance_dates</span><span class="p">):</span>
+                    <span class="n">next_rb</span> <span class="o">=</span> <span class="n">rebalance_dates</span><span class="p">[</span><span class="n">i</span> <span class="o">+</span> <span class="mi">1</span><span class="p">]</span>
+                    <span class="n">r_gross</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_simulate_monthly_return</span><span class="p">(</span><span class="n">w_scaled</span><span class="p">,</span> <span class="n">rb_date</span><span class="p">,</span> <span class="n">next_rb</span><span class="p">)</span>
+                    <span class="c1"># PLAN §6 data contract + §8.4 L/S decomposition — the</span>
+                    <span class="c1"># canonical DYNAMIC_GRID book reports its long-leg and</span>
+                    <span class="c1"># short-leg realised monthly returns separately, so the</span>
+                    <span class="c1"># report&#39;s Figure 12 (L/S decomposition) can be driven</span>
+                    <span class="c1"># from portfolio_returns rather than the exposure_log</span>
+                    <span class="c1"># proxy alone.  Other strategies share the column via</span>
+                    <span class="c1"># the assemble step but only DYNAMIC_GRID persists here.</span>
+                    <span class="k">if</span> <span class="n">strategy</span> <span class="o">==</span> <span class="n">Strategy</span><span class="o">.</span><span class="n">DYNAMIC_GRID</span><span class="p">:</span>
+                        <span class="n">w_long_only</span> <span class="o">=</span> <span class="n">w_scaled</span><span class="p">[</span><span class="n">w_scaled</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">]</span>
+                        <span class="n">w_short_only</span> <span class="o">=</span> <span class="n">w_scaled</span><span class="p">[</span><span class="n">w_scaled</span> <span class="o">&lt;</span> <span class="mi">0</span><span class="p">]</span>
+                        <span class="bp">self</span><span class="o">.</span><span class="n">_long_leg_returns</span><span class="p">[</span><span class="n">rb_date</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span>
+                            <span class="bp">self</span><span class="o">.</span><span class="n">_simulate_monthly_return</span><span class="p">(</span><span class="n">w_long_only</span><span class="p">,</span> <span class="n">rb_date</span><span class="p">,</span> <span class="n">next_rb</span><span class="p">)</span>
+                            <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">w_long_only</span><span class="p">)</span> <span class="k">else</span> <span class="mf">0.0</span>
+                        <span class="p">)</span>
+                        <span class="bp">self</span><span class="o">.</span><span class="n">_short_leg_returns</span><span class="p">[</span><span class="n">rb_date</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span>
+                            <span class="bp">self</span><span class="o">.</span><span class="n">_simulate_monthly_return</span><span class="p">(</span><span class="n">w_short_only</span><span class="p">,</span> <span class="n">rb_date</span><span class="p">,</span> <span class="n">next_rb</span><span class="p">)</span>
+                            <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">w_short_only</span><span class="p">)</span> <span class="k">else</span> <span class="mf">0.0</span>
+                        <span class="p">)</span>
+                <span class="k">else</span><span class="p">:</span>
+                    <span class="n">r_gross</span> <span class="o">=</span> <span class="mf">0.0</span>
+
+                <span class="c1"># Compute costs</span>
+                <span class="n">turnover</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">cost_model</span><span class="o">.</span><span class="n">one_way_turnover</span><span class="p">(</span><span class="n">w_scaled</span><span class="p">,</span> <span class="n">prev_w</span><span class="p">)</span>
+                <span class="n">drag_20</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">cost_model</span><span class="o">.</span><span class="n">headline_drag</span><span class="p">(</span><span class="n">turnover</span><span class="p">)</span>
+                <span class="c1"># Per-trade audit log (PLAN §7.9) — every symbol with a</span>
+                <span class="c1"># non-trivial weight change is an immutable record.  Gated by</span>
+                <span class="c1"># |Δw| &gt; 1e-6 to suppress floating-point noise, and by strategy</span>
+                <span class="c1"># DYNAMIC_GRID as the canonical book so the ledger doesn&#39;t</span>
+                <span class="c1"># triple-count the variants (the variants share the same</span>
+                <span class="c1"># signal; writing one record per trade keeps the ledger</span>
+                <span class="c1"># auditable and PLAN-compliant).</span>
+                <span class="k">if</span> <span class="n">strategy</span> <span class="o">==</span> <span class="n">Strategy</span><span class="o">.</span><span class="n">DYNAMIC_GRID</span><span class="p">:</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">_emit_trade_ledger</span><span class="p">(</span>
+                        <span class="n">rb_date</span><span class="o">=</span><span class="n">rb_date</span><span class="p">,</span>
+                        <span class="n">new_w</span><span class="o">=</span><span class="n">w_scaled</span><span class="p">,</span>
+                        <span class="n">old_w</span><span class="o">=</span><span class="n">prev_w</span><span class="p">,</span>
+                        <span class="n">strategy</span><span class="o">=</span><span class="n">strategy</span><span class="p">,</span>
+                    <span class="p">)</span>
+                <span class="n">drag_30</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">cost_model</span><span class="o">.</span><span class="n">sensitivity_drag</span><span class="p">(</span><span class="n">turnover</span><span class="p">)</span>
+                <span class="n">r_net_20</span> <span class="o">=</span> <span class="n">r_gross</span> <span class="o">-</span> <span class="n">drag_20</span>
+                <span class="n">r_net_30</span> <span class="o">=</span> <span class="n">r_gross</span> <span class="o">-</span> <span class="n">drag_30</span>
+
+                <span class="c1"># Update NAV</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">_nav</span><span class="p">[</span><span class="n">strategy</span><span class="p">]</span> <span class="o">*=</span> <span class="p">(</span><span class="mi">1</span> <span class="o">+</span> <span class="n">r_net_20</span><span class="p">)</span>
+                <span class="n">rs</span><span class="o">.</span><span class="n">record_nav</span><span class="p">(</span><span class="n">pd</span><span class="o">.</span><span class="n">Timestamp</span><span class="p">(</span><span class="n">rb_date</span><span class="p">),</span> <span class="bp">self</span><span class="o">.</span><span class="n">_nav</span><span class="p">[</span><span class="n">strategy</span><span class="p">])</span>
+
+                <span class="c1"># Store — snapshot the pre-update weights so the cost-drag</span>
+                <span class="c1"># calculation in _assemble_portfolio_returns_row sees the</span>
+                <span class="c1"># correct rebalance-to-rebalance turnover (PR-6 fix).</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">_prev_weights_for_cost</span><span class="p">[</span><span class="n">strategy</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_prev_weights</span><span class="o">.</span><span class="n">get</span><span class="p">(</span>
+                    <span class="n">strategy</span><span class="p">,</span> <span class="n">pd</span><span class="o">.</span><span class="n">Series</span><span class="p">(</span><span class="n">dtype</span><span class="o">=</span><span class="nb">float</span><span class="p">)</span>
+                <span class="p">)</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">_prev_weights</span><span class="p">[</span><span class="n">strategy</span><span class="p">]</span> <span class="o">=</span> <span class="n">w_scaled</span>
+                <span class="k">if</span> <span class="n">strategy</span> <span class="o">==</span> <span class="n">Strategy</span><span class="o">.</span><span class="n">DYNAMIC_BANDIT</span><span class="p">:</span>
+                    <span class="n">bandit_engine</span><span class="o">.</span><span class="n">update_reward</span><span class="p">(</span><span class="n">r_net_20</span><span class="p">)</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">_bandit_rows</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">bandit_engine</span><span class="o">.</span><span class="n">log_row</span><span class="p">(</span><span class="n">rb_date</span><span class="p">))</span>
+
+                <span class="c1"># Persist weights</span>
+                <span class="k">for</span> <span class="n">sym</span><span class="p">,</span> <span class="n">w</span> <span class="ow">in</span> <span class="n">w_scaled</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+                    <span class="k">if</span> <span class="nb">abs</span><span class="p">(</span><span class="n">w</span><span class="p">)</span> <span class="o">&lt;</span> <span class="mf">1e-8</span><span class="p">:</span>
+                        <span class="k">continue</span>
+                    <span class="n">leg</span> <span class="o">=</span> <span class="n">Leg</span><span class="o">.</span><span class="n">LONG</span> <span class="k">if</span> <span class="n">w</span> <span class="o">&gt;</span> <span class="mi">0</span> <span class="k">else</span> <span class="n">Leg</span><span class="o">.</span><span class="n">SHORT</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">_weights_rows</span><span class="o">.</span><span class="n">append</span><span class="p">({</span>
+                        <span class="s2">&quot;date&quot;</span><span class="p">:</span> <span class="n">rb_date</span><span class="p">,</span>
+                        <span class="s2">&quot;symbol&quot;</span><span class="p">:</span> <span class="n">sym</span><span class="p">,</span>
+                        <span class="s2">&quot;weight&quot;</span><span class="p">:</span> <span class="nb">float</span><span class="p">(</span><span class="n">w</span><span class="p">),</span>
+                        <span class="s2">&quot;leg&quot;</span><span class="p">:</span> <span class="n">leg</span><span class="o">.</span><span class="n">value</span><span class="p">,</span>
+                        <span class="s2">&quot;strategy&quot;</span><span class="p">:</span> <span class="n">strategy</span><span class="o">.</span><span class="n">value</span><span class="p">,</span>
+                    <span class="p">})</span>
+
+                <span class="c1"># HRP side-run (PLAN §5.3) — same factor weights &amp; symbols,</span>
+                <span class="c1"># HRP portfolio construction.  Written only once per</span>
+                <span class="c1"># rebalance under DYNAMIC_GRID as the canonical book.</span>
+                <span class="k">if</span> <span class="n">strategy</span> <span class="o">==</span> <span class="n">Strategy</span><span class="o">.</span><span class="n">DYNAMIC_GRID</span><span class="p">:</span>
+                    <span class="k">try</span><span class="p">:</span>
+                        <span class="n">hrp_w_long</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">portfolio_engine</span><span class="o">.</span><span class="n">optimise_leg</span><span class="p">(</span>
+                            <span class="n">trailing_ret</span><span class="p">,</span> <span class="n">longs</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_hrp_prev_w</span><span class="p">,</span>
+                            <span class="n">construction_override</span><span class="o">=</span><span class="s2">&quot;hrp&quot;</span><span class="p">,</span>
+                        <span class="p">)</span>
+                        <span class="n">hrp_w_short</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">portfolio_engine</span><span class="o">.</span><span class="n">optimise_leg</span><span class="p">(</span>
+                            <span class="n">trailing_ret</span><span class="p">,</span> <span class="n">shorts</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_hrp_prev_w</span><span class="p">,</span>
+                            <span class="n">construction_override</span><span class="o">=</span><span class="s2">&quot;hrp&quot;</span><span class="p">,</span>
+                        <span class="p">)</span>
+                        <span class="n">hrp_combined</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">concat</span><span class="p">(</span>
+                            <span class="p">[</span><span class="n">hrp_w_long</span> <span class="o">*</span> <span class="mf">0.5</span><span class="p">,</span> <span class="o">-</span><span class="n">hrp_w_short</span> <span class="o">*</span> <span class="mf">0.5</span><span class="p">]</span>
+                        <span class="p">)</span>
+                        <span class="n">hrp_combined</span> <span class="o">=</span> <span class="n">hrp_combined</span><span class="o">.</span><span class="n">groupby</span><span class="p">(</span><span class="n">hrp_combined</span><span class="o">.</span><span class="n">index</span><span class="p">)</span><span class="o">.</span><span class="n">sum</span><span class="p">()</span>
+                        <span class="k">if</span> <span class="n">i</span> <span class="o">+</span> <span class="mi">1</span> <span class="o">&lt;</span> <span class="nb">len</span><span class="p">(</span><span class="n">rebalance_dates</span><span class="p">):</span>
+                            <span class="n">next_rb_h</span> <span class="o">=</span> <span class="n">rebalance_dates</span><span class="p">[</span><span class="n">i</span> <span class="o">+</span> <span class="mi">1</span><span class="p">]</span>
+                            <span class="n">r_hrp</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_simulate_monthly_return</span><span class="p">(</span>
+                                <span class="n">hrp_combined</span><span class="p">,</span> <span class="n">rb_date</span><span class="p">,</span> <span class="n">next_rb_h</span>
+                            <span class="p">)</span>
+                            <span class="n">to_hrp</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">cost_model</span><span class="o">.</span><span class="n">one_way_turnover</span><span class="p">(</span>
+                                <span class="n">hrp_combined</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_hrp_prev_w</span>
+                            <span class="p">)</span>
+                            <span class="bp">self</span><span class="o">.</span><span class="n">_hrp_monthly_returns</span><span class="p">[</span><span class="n">rb_date</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span>
+                                <span class="n">r_hrp</span> <span class="o">-</span> <span class="bp">self</span><span class="o">.</span><span class="n">cost_model</span><span class="o">.</span><span class="n">headline_drag</span><span class="p">(</span><span class="n">to_hrp</span><span class="p">)</span>
+                            <span class="p">)</span>
+                        <span class="bp">self</span><span class="o">.</span><span class="n">_hrp_prev_w</span> <span class="o">=</span> <span class="n">hrp_combined</span>
+                    <span class="k">except</span> <span class="ne">Exception</span> <span class="k">as</span> <span class="n">exc</span><span class="p">:</span>
+                        <span class="n">logger</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span><span class="s2">&quot;HRP side-run failed at </span><span class="si">%s</span><span class="s2">: </span><span class="si">%s</span><span class="s2">&quot;</span><span class="p">,</span> <span class="n">rb_date</span><span class="p">,</span> <span class="n">exc</span><span class="p">)</span>
+
+                <span class="c1"># Exposure log (only once — use dynamic_grid as canonical)</span>
+                <span class="k">if</span> <span class="n">strategy</span> <span class="o">==</span> <span class="n">Strategy</span><span class="o">.</span><span class="n">DYNAMIC_GRID</span><span class="p">:</span>
+                    <span class="n">long_alpha</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_leg_alpha</span><span class="p">(</span><span class="n">w_scaled</span><span class="p">[</span><span class="n">w_scaled</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">],</span> <span class="n">ctx</span><span class="p">,</span> <span class="n">rb_date</span><span class="p">)</span>
+                    <span class="n">short_alpha</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_leg_alpha</span><span class="p">(</span><span class="o">-</span><span class="n">w_scaled</span><span class="p">[</span><span class="n">w_scaled</span> <span class="o">&lt;</span> <span class="mi">0</span><span class="p">],</span> <span class="n">ctx</span><span class="p">,</span> <span class="n">rb_date</span><span class="p">)</span>
+                    <span class="n">port_beta</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_compute_portfolio_beta</span><span class="p">(</span><span class="n">daily_port_ret</span><span class="p">,</span> <span class="n">rb_date</span><span class="p">)</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">_exposure_rows</span><span class="o">.</span><span class="n">append</span><span class="p">({</span>
+                        <span class="s2">&quot;date&quot;</span><span class="p">:</span> <span class="n">rb_date</span><span class="p">,</span>
+                        <span class="s2">&quot;gross_exposure&quot;</span><span class="p">:</span> <span class="nb">float</span><span class="p">(</span><span class="n">w_scaled</span><span class="o">.</span><span class="n">abs</span><span class="p">()</span><span class="o">.</span><span class="n">sum</span><span class="p">()),</span>
+                        <span class="s2">&quot;net_exposure&quot;</span><span class="p">:</span> <span class="nb">float</span><span class="p">(</span><span class="n">w_scaled</span><span class="o">.</span><span class="n">sum</span><span class="p">()),</span>
+                        <span class="s2">&quot;portfolio_beta&quot;</span><span class="p">:</span> <span class="n">port_beta</span><span class="p">,</span>   <span class="c1"># empirical β vs ^GSPC over trailing 252 days</span>
+                        <span class="s2">&quot;var_99&quot;</span><span class="p">:</span> <span class="n">risk_diag</span><span class="p">[</span><span class="s2">&quot;var_99&quot;</span><span class="p">],</span>
+                        <span class="s2">&quot;es_99&quot;</span><span class="p">:</span> <span class="n">risk_diag</span><span class="p">[</span><span class="s2">&quot;es_99&quot;</span><span class="p">],</span>
+                        <span class="s2">&quot;position_scale&quot;</span><span class="p">:</span> <span class="n">risk_diag</span><span class="p">[</span><span class="s2">&quot;position_scale&quot;</span><span class="p">],</span>
+                        <span class="s2">&quot;vol_target_scalar&quot;</span><span class="p">:</span> <span class="n">risk_diag</span><span class="p">[</span><span class="s2">&quot;vol_target_scalar&quot;</span><span class="p">],</span>
+                        <span class="s2">&quot;dd_control_scalar&quot;</span><span class="p">:</span> <span class="n">risk_diag</span><span class="p">[</span><span class="s2">&quot;dd_control_scalar&quot;</span><span class="p">],</span>
+                        <span class="s2">&quot;drawdown_12m&quot;</span><span class="p">:</span> <span class="n">risk_diag</span><span class="p">[</span><span class="s2">&quot;drawdown_12m&quot;</span><span class="p">],</span>
+                        <span class="s2">&quot;turnover_1way&quot;</span><span class="p">:</span> <span class="n">turnover</span><span class="p">,</span>
+                        <span class="s2">&quot;cost_drag_20bp&quot;</span><span class="p">:</span> <span class="n">drag_20</span><span class="p">,</span>
+                        <span class="s2">&quot;cost_drag_30bp&quot;</span><span class="p">:</span> <span class="n">drag_30</span><span class="p">,</span>
+                        <span class="s2">&quot;long_alpha&quot;</span><span class="p">:</span> <span class="n">long_alpha</span><span class="p">,</span>
+                        <span class="s2">&quot;short_alpha&quot;</span><span class="p">:</span> <span class="n">short_alpha</span><span class="p">,</span>
+                        <span class="s2">&quot;hhi_concentration&quot;</span><span class="p">:</span> <span class="nb">float</span><span class="p">((</span><span class="n">w_scaled</span> <span class="o">**</span> <span class="mi">2</span><span class="p">)</span><span class="o">.</span><span class="n">sum</span><span class="p">()),</span>
+                        <span class="s2">&quot;n_stocks_long&quot;</span><span class="p">:</span> <span class="nb">int</span><span class="p">((</span><span class="n">w_scaled</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">)</span><span class="o">.</span><span class="n">sum</span><span class="p">()),</span>
+                        <span class="s2">&quot;n_stocks_short&quot;</span><span class="p">:</span> <span class="nb">int</span><span class="p">((</span><span class="n">w_scaled</span> <span class="o">&lt;</span> <span class="mi">0</span><span class="p">)</span><span class="o">.</span><span class="n">sum</span><span class="p">()),</span>
+                        <span class="s2">&quot;n_stocks_filtered_liquidity&quot;</span><span class="p">:</span> <span class="nb">len</span><span class="p">(</span><span class="n">ctx</span><span class="o">.</span><span class="n">universe</span><span class="o">.</span><span class="n">symbols</span><span class="p">),</span>  <span class="c1"># approx</span>
+                        <span class="s2">&quot;n_stocks_filtered_htb&quot;</span><span class="p">:</span> <span class="mi">0</span><span class="p">,</span>
+                    <span class="p">})</span>
+
+            <span class="c1"># Portfolio returns (aggregated)</span>
+            <span class="k">if</span> <span class="n">i</span> <span class="o">+</span> <span class="mi">1</span> <span class="o">&lt;</span> <span class="nb">len</span><span class="p">(</span><span class="n">rebalance_dates</span><span class="p">):</span>
+                <span class="n">next_rb</span> <span class="o">=</span> <span class="n">rebalance_dates</span><span class="p">[</span><span class="n">i</span> <span class="o">+</span> <span class="mi">1</span><span class="p">]</span>
+                <span class="c1"># Rebalance EW benchmark at rb_date using the *filtered* universe</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">_ew_bench_weights_prev</span> <span class="o">=</span> <span class="n">ew_bench</span><span class="o">.</span><span class="n">rebalance</span><span class="p">(</span><span class="n">ctx</span><span class="o">.</span><span class="n">universe</span><span class="o">.</span><span class="n">symbols</span><span class="p">)</span>
+                <span class="n">rets</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_assemble_portfolio_returns_row</span><span class="p">(</span>
+                    <span class="n">rb_date</span><span class="p">,</span> <span class="n">next_rb</span><span class="p">,</span> <span class="n">strategies_to_run</span><span class="p">,</span> <span class="n">ctx</span><span class="p">,</span> <span class="n">bandit_engine</span><span class="p">,</span>
+                    <span class="n">ew_bench</span><span class="o">=</span><span class="n">ew_bench</span><span class="p">,</span> <span class="n">spx_bench</span><span class="o">=</span><span class="n">spx_bench</span><span class="p">,</span> <span class="n">blend_bench</span><span class="o">=</span><span class="n">blend_bench</span><span class="p">,</span>
+                <span class="p">)</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">_returns_rows</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">rets</span><span class="p">)</span>
+
+            <span class="c1"># Regime + factor scores</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_regime_rows</span><span class="o">.</span><span class="n">append</span><span class="p">({</span>
+                <span class="s2">&quot;date&quot;</span><span class="p">:</span> <span class="n">rb_date</span><span class="p">,</span>
+                <span class="s2">&quot;vix_level&quot;</span><span class="p">:</span> <span class="nb">float</span><span class="p">(</span><span class="n">ctx</span><span class="o">.</span><span class="n">vix</span><span class="o">.</span><span class="n">iloc</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">])</span> <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">ctx</span><span class="o">.</span><span class="n">vix</span><span class="p">)</span> <span class="k">else</span> <span class="mf">0.0</span><span class="p">,</span>
+                <span class="s2">&quot;vix_percentile&quot;</span><span class="p">:</span> <span class="nb">float</span><span class="p">(</span><span class="n">vix_pct</span><span class="p">),</span>
+                <span class="s2">&quot;regime_pct&quot;</span><span class="p">:</span> <span class="n">regime</span><span class="o">.</span><span class="n">value</span><span class="p">,</span>
+                <span class="s2">&quot;regime_hmm&quot;</span><span class="p">:</span> <span class="kc">None</span><span class="p">,</span>
+                <span class="s2">&quot;hmm_prob_high&quot;</span><span class="p">:</span> <span class="kc">None</span><span class="p">,</span>
+                <span class="s2">&quot;dispersion_momentum&quot;</span><span class="p">:</span> <span class="nb">float</span><span class="p">(</span><span class="n">disp</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;momentum&quot;</span><span class="p">,</span> <span class="mf">0.0</span><span class="p">)),</span>
+                <span class="s2">&quot;dispersion_value&quot;</span><span class="p">:</span> <span class="nb">float</span><span class="p">(</span><span class="n">disp</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;value&quot;</span><span class="p">,</span> <span class="mf">0.0</span><span class="p">)),</span>
+                <span class="s2">&quot;dispersion_quality&quot;</span><span class="p">:</span> <span class="nb">float</span><span class="p">(</span><span class="n">disp</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;quality&quot;</span><span class="p">,</span> <span class="mf">0.0</span><span class="p">)),</span>
+                <span class="s2">&quot;dispersion_sentiment&quot;</span><span class="p">:</span> <span class="nb">float</span><span class="p">(</span><span class="n">disp</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;sentiment&quot;</span><span class="p">,</span> <span class="mf">0.0</span><span class="p">)),</span>
+                <span class="s2">&quot;w_momentum&quot;</span><span class="p">:</span> <span class="n">fw_dyn</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;momentum&quot;</span><span class="p">,</span> <span class="mf">0.3</span><span class="p">),</span>
+                <span class="s2">&quot;w_value&quot;</span><span class="p">:</span> <span class="n">fw_dyn</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;value&quot;</span><span class="p">,</span> <span class="mf">0.3</span><span class="p">),</span>
+                <span class="s2">&quot;w_quality&quot;</span><span class="p">:</span> <span class="n">fw_dyn</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;quality&quot;</span><span class="p">,</span> <span class="mf">0.25</span><span class="p">),</span>
+                <span class="s2">&quot;w_sentiment&quot;</span><span class="p">:</span> <span class="n">fw_dyn</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;sentiment&quot;</span><span class="p">,</span> <span class="mf">0.15</span><span class="p">),</span>
+            <span class="p">})</span>
+
+            <span class="c1"># Factor scores (per stock)</span>
+            <span class="n">composite_dyn</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">zscore_engine</span><span class="o">.</span><span class="n">composite</span><span class="p">(</span><span class="n">z_ortho</span><span class="p">,</span> <span class="n">fw_dyn</span><span class="p">)</span>
+            <span class="k">for</span> <span class="n">sym</span> <span class="ow">in</span> <span class="n">z_ortho</span><span class="o">.</span><span class="n">index</span><span class="p">:</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">_factor_rows</span><span class="o">.</span><span class="n">append</span><span class="p">({</span>
+                    <span class="s2">&quot;date&quot;</span><span class="p">:</span> <span class="n">rb_date</span><span class="p">,</span>
+                    <span class="s2">&quot;symbol&quot;</span><span class="p">:</span> <span class="n">sym</span><span class="p">,</span>
+                    <span class="s2">&quot;gics_sector&quot;</span><span class="p">:</span> <span class="n">ctx</span><span class="o">.</span><span class="n">universe</span><span class="o">.</span><span class="n">gics_map</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">sym</span><span class="p">,</span> <span class="s2">&quot;Unknown&quot;</span><span class="p">),</span>
+                    <span class="s2">&quot;momentum_z&quot;</span><span class="p">:</span> <span class="nb">float</span><span class="p">(</span><span class="n">z_raw</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span><span class="n">sym</span><span class="p">,</span> <span class="s2">&quot;momentum&quot;</span><span class="p">])</span> <span class="k">if</span> <span class="n">sym</span> <span class="ow">in</span> <span class="n">z_raw</span><span class="o">.</span><span class="n">index</span> <span class="k">else</span> <span class="mf">0.0</span><span class="p">,</span>
+                    <span class="s2">&quot;value_z&quot;</span><span class="p">:</span> <span class="nb">float</span><span class="p">(</span><span class="n">z_raw</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span><span class="n">sym</span><span class="p">,</span> <span class="s2">&quot;value&quot;</span><span class="p">])</span> <span class="k">if</span> <span class="n">sym</span> <span class="ow">in</span> <span class="n">z_raw</span><span class="o">.</span><span class="n">index</span> <span class="k">else</span> <span class="mf">0.0</span><span class="p">,</span>
+                    <span class="s2">&quot;quality_z&quot;</span><span class="p">:</span> <span class="nb">float</span><span class="p">(</span><span class="n">z_raw</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span><span class="n">sym</span><span class="p">,</span> <span class="s2">&quot;quality&quot;</span><span class="p">])</span> <span class="k">if</span> <span class="n">sym</span> <span class="ow">in</span> <span class="n">z_raw</span><span class="o">.</span><span class="n">index</span> <span class="k">else</span> <span class="mf">0.0</span><span class="p">,</span>
+                    <span class="s2">&quot;sentiment_z&quot;</span><span class="p">:</span> <span class="nb">float</span><span class="p">(</span><span class="n">z_raw</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span><span class="n">sym</span><span class="p">,</span> <span class="s2">&quot;sentiment&quot;</span><span class="p">])</span> <span class="k">if</span> <span class="n">sym</span> <span class="ow">in</span> <span class="n">z_raw</span><span class="o">.</span><span class="n">index</span> <span class="k">else</span> <span class="mf">0.0</span><span class="p">,</span>
+                    <span class="s2">&quot;momentum_z_ortho&quot;</span><span class="p">:</span> <span class="nb">float</span><span class="p">(</span><span class="n">z_ortho</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span><span class="n">sym</span><span class="p">,</span> <span class="s2">&quot;momentum&quot;</span><span class="p">])</span> <span class="k">if</span> <span class="n">sym</span> <span class="ow">in</span> <span class="n">z_ortho</span><span class="o">.</span><span class="n">index</span> <span class="k">else</span> <span class="mf">0.0</span><span class="p">,</span>
+                    <span class="s2">&quot;value_z_ortho&quot;</span><span class="p">:</span> <span class="nb">float</span><span class="p">(</span><span class="n">z_ortho</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span><span class="n">sym</span><span class="p">,</span> <span class="s2">&quot;value&quot;</span><span class="p">])</span> <span class="k">if</span> <span class="n">sym</span> <span class="ow">in</span> <span class="n">z_ortho</span><span class="o">.</span><span class="n">index</span> <span class="k">else</span> <span class="mf">0.0</span><span class="p">,</span>
+                    <span class="s2">&quot;quality_z_ortho&quot;</span><span class="p">:</span> <span class="nb">float</span><span class="p">(</span><span class="n">z_ortho</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span><span class="n">sym</span><span class="p">,</span> <span class="s2">&quot;quality&quot;</span><span class="p">])</span> <span class="k">if</span> <span class="n">sym</span> <span class="ow">in</span> <span class="n">z_ortho</span><span class="o">.</span><span class="n">index</span> <span class="k">else</span> <span class="mf">0.0</span><span class="p">,</span>
+                    <span class="s2">&quot;sentiment_z_ortho&quot;</span><span class="p">:</span> <span class="nb">float</span><span class="p">(</span><span class="n">z_ortho</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span><span class="n">sym</span><span class="p">,</span> <span class="s2">&quot;sentiment&quot;</span><span class="p">])</span> <span class="k">if</span> <span class="n">sym</span> <span class="ow">in</span> <span class="n">z_ortho</span><span class="o">.</span><span class="n">index</span> <span class="k">else</span> <span class="mf">0.0</span><span class="p">,</span>
+                    <span class="s2">&quot;composite_z&quot;</span><span class="p">:</span> <span class="nb">float</span><span class="p">(</span><span class="n">composite_dyn</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span><span class="n">sym</span><span class="p">])</span> <span class="k">if</span> <span class="n">sym</span> <span class="ow">in</span> <span class="n">composite_dyn</span><span class="o">.</span><span class="n">index</span> <span class="k">else</span> <span class="mf">0.0</span><span class="p">,</span>
+                <span class="p">})</span>
+
+            <span class="bp">self</span><span class="o">.</span><span class="n">_prev_factor_z</span> <span class="o">=</span> <span class="n">z_ortho</span>
+            <span class="n">prev_ctx</span> <span class="o">=</span> <span class="n">ctx</span>
+
+            <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;[</span><span class="si">%d</span><span class="s2">/</span><span class="si">%d</span><span class="s2">] </span><span class="si">%s</span><span class="s2">  regime=</span><span class="si">%s</span><span class="s2">  vix=</span><span class="si">%.2f</span><span class="s2">  nav_dyn=</span><span class="si">%.4f</span><span class="s2">&quot;</span><span class="p">,</span>
+                        <span class="n">i</span> <span class="o">+</span> <span class="mi">1</span><span class="p">,</span> <span class="nb">len</span><span class="p">(</span><span class="n">rebalance_dates</span><span class="p">),</span> <span class="n">rb_date</span><span class="p">,</span> <span class="n">regime</span><span class="o">.</span><span class="n">value</span><span class="p">,</span>
+                        <span class="nb">float</span><span class="p">(</span><span class="n">ctx</span><span class="o">.</span><span class="n">vix</span><span class="o">.</span><span class="n">iloc</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">])</span> <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">ctx</span><span class="o">.</span><span class="n">vix</span><span class="p">)</span> <span class="k">else</span> <span class="nb">float</span><span class="p">(</span><span class="s2">&quot;nan&quot;</span><span class="p">),</span>
+                        <span class="bp">self</span><span class="o">.</span><span class="n">_nav</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">Strategy</span><span class="o">.</span><span class="n">DYNAMIC_GRID</span><span class="p">,</span> <span class="mf">1.0</span><span class="p">))</span>
+
+        <span class="c1"># --- Finalise ---</span>
+        <span class="k">return</span> <span class="n">BacktestResult</span><span class="p">(</span>
+            <span class="n">returns</span><span class="o">=</span><span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_returns_rows</span><span class="p">),</span>
+            <span class="n">weights</span><span class="o">=</span><span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_weights_rows</span><span class="p">),</span>
+            <span class="n">factor_scores</span><span class="o">=</span><span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_factor_rows</span><span class="p">),</span>
+            <span class="n">factor_ic</span><span class="o">=</span><span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_ic_rows</span><span class="p">),</span>
+            <span class="n">factor_premia</span><span class="o">=</span><span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_premia_rows</span><span class="p">),</span>
+            <span class="n">regime_log</span><span class="o">=</span><span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_regime_rows</span><span class="p">),</span>
+            <span class="n">exposure_log</span><span class="o">=</span><span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_exposure_rows</span><span class="p">),</span>
+            <span class="n">bandit_log</span><span class="o">=</span><span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_bandit_rows</span><span class="p">),</span>
+            <span class="n">trade_ledger</span><span class="o">=</span><span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_ledger_rows</span><span class="p">),</span>
+            <span class="n">config_hash</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">cfg</span><span class="o">.</span><span class="n">config_hash</span><span class="p">(),</span>
+            <span class="n">data_snapshot_sha256</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">data_loader</span><span class="o">.</span><span class="n">data_snapshot_sha256</span><span class="p">(),</span>
+            <span class="n">git_sha</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">cfg</span><span class="o">.</span><span class="n">git_sha</span><span class="p">(),</span>
+            <span class="n">seed</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">cfg</span><span class="o">.</span><span class="n">backtest</span><span class="o">.</span><span class="n">random_seed</span><span class="p">,</span>
+        <span class="p">)</span></div>
+
+
+    <span class="c1"># ------------------------------------------------------------------</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">_compute_rolling_ic_3mo</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">float</span><span class="p">]:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;3-month mean IC per factor from the running IC log.&quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">_ic_rows</span><span class="p">:</span>
+            <span class="k">return</span> <span class="p">{</span><span class="s2">&quot;momentum&quot;</span><span class="p">:</span> <span class="mf">0.0</span><span class="p">,</span> <span class="s2">&quot;value&quot;</span><span class="p">:</span> <span class="mf">0.0</span><span class="p">,</span> <span class="s2">&quot;quality&quot;</span><span class="p">:</span> <span class="mf">0.0</span><span class="p">,</span> <span class="s2">&quot;sentiment&quot;</span><span class="p">:</span> <span class="mf">0.0</span><span class="p">}</span>
+        <span class="n">df</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_ic_rows</span><span class="p">)</span><span class="o">.</span><span class="n">tail</span><span class="p">(</span><span class="mi">12</span><span class="p">)</span>  <span class="c1"># 3 months ~ 3 rebalances = 3 factors/date</span>
+        <span class="n">out</span> <span class="o">=</span> <span class="p">{}</span>
+        <span class="k">for</span> <span class="n">f</span> <span class="ow">in</span> <span class="p">[</span><span class="s2">&quot;momentum&quot;</span><span class="p">,</span> <span class="s2">&quot;value&quot;</span><span class="p">,</span> <span class="s2">&quot;quality&quot;</span><span class="p">,</span> <span class="s2">&quot;sentiment&quot;</span><span class="p">]:</span>
+            <span class="n">sub</span> <span class="o">=</span> <span class="n">df</span><span class="p">[</span><span class="n">df</span><span class="p">[</span><span class="s2">&quot;factor&quot;</span><span class="p">]</span> <span class="o">==</span> <span class="n">f</span><span class="p">]</span>
+            <span class="n">out</span><span class="p">[</span><span class="n">f</span><span class="p">]</span> <span class="o">=</span> <span class="nb">float</span><span class="p">(</span><span class="n">sub</span><span class="p">[</span><span class="s2">&quot;ic_spearman&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">tail</span><span class="p">(</span><span class="mi">3</span><span class="p">)</span><span class="o">.</span><span class="n">mean</span><span class="p">())</span> <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">sub</span><span class="p">)</span> <span class="k">else</span> <span class="mf">0.0</span>
+        <span class="k">return</span> <span class="n">out</span>
+
+    <span class="c1"># ------------------------------------------------------------------</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">_simulate_daily_port_returns</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span> <span class="n">weights</span><span class="p">:</span> <span class="n">pd</span><span class="o">.</span><span class="n">Series</span><span class="p">,</span> <span class="n">returns</span><span class="p">:</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">pd</span><span class="o">.</span><span class="n">Series</span><span class="p">:</span>
+        <span class="n">aligned</span> <span class="o">=</span> <span class="n">returns</span><span class="o">.</span><span class="n">reindex</span><span class="p">(</span><span class="n">columns</span><span class="o">=</span><span class="n">weights</span><span class="o">.</span><span class="n">index</span><span class="p">,</span> <span class="n">fill_value</span><span class="o">=</span><span class="mf">0.0</span><span class="p">)</span><span class="o">.</span><span class="n">fillna</span><span class="p">(</span><span class="mf">0.0</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">aligned</span> <span class="o">@</span> <span class="n">weights</span>
+
+    <span class="c1"># ------------------------------------------------------------------</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">_emit_trade_ledger</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span>
+        <span class="n">rb_date</span><span class="p">:</span> <span class="n">date</span><span class="p">,</span>
+        <span class="n">new_w</span><span class="p">:</span> <span class="n">pd</span><span class="o">.</span><span class="n">Series</span><span class="p">,</span>
+        <span class="n">old_w</span><span class="p">:</span> <span class="n">pd</span><span class="o">.</span><span class="n">Series</span><span class="p">,</span>
+        <span class="n">strategy</span><span class="p">:</span> <span class="n">Strategy</span><span class="p">,</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Emit one ``TradeLedgerRow`` per non-trivial weight change (PLAN §7.9).</span>
+
+<span class="sd">        Called once per (rebalance_date × strategy) with the *pre-* and *post-*</span>
+<span class="sd">        rebalance weight books for that strategy.  ``rebalance_id`` is a UUID4</span>
+<span class="sd">        so every rebalance is uniquely identifiable in post-hoc audit.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="n">new_w</span> <span class="ow">is</span> <span class="kc">None</span> <span class="ow">or</span> <span class="nb">len</span><span class="p">(</span><span class="n">new_w</span><span class="p">)</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+            <span class="k">return</span>
+        <span class="n">old</span> <span class="o">=</span> <span class="n">old_w</span> <span class="k">if</span> <span class="n">old_w</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="k">else</span> <span class="n">pd</span><span class="o">.</span><span class="n">Series</span><span class="p">(</span><span class="n">dtype</span><span class="o">=</span><span class="nb">float</span><span class="p">)</span>
+        <span class="n">all_syms</span> <span class="o">=</span> <span class="n">new_w</span><span class="o">.</span><span class="n">index</span><span class="o">.</span><span class="n">union</span><span class="p">(</span><span class="n">old</span><span class="o">.</span><span class="n">index</span><span class="p">)</span>
+        <span class="n">new_aligned</span> <span class="o">=</span> <span class="n">new_w</span><span class="o">.</span><span class="n">reindex</span><span class="p">(</span><span class="n">all_syms</span><span class="p">,</span> <span class="n">fill_value</span><span class="o">=</span><span class="mf">0.0</span><span class="p">)</span>
+        <span class="n">old_aligned</span> <span class="o">=</span> <span class="n">old</span><span class="o">.</span><span class="n">reindex</span><span class="p">(</span><span class="n">all_syms</span><span class="p">,</span> <span class="n">fill_value</span><span class="o">=</span><span class="mf">0.0</span><span class="p">)</span>
+        <span class="n">delta</span> <span class="o">=</span> <span class="n">new_aligned</span> <span class="o">-</span> <span class="n">old_aligned</span>
+        <span class="n">traded</span> <span class="o">=</span> <span class="n">delta</span><span class="o">.</span><span class="n">abs</span><span class="p">()</span> <span class="o">&gt;</span> <span class="mf">1e-6</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">traded</span><span class="o">.</span><span class="n">any</span><span class="p">():</span>
+            <span class="k">return</span>
+        <span class="n">rebalance_id</span> <span class="o">=</span> <span class="n">uuid</span><span class="o">.</span><span class="n">uuid4</span><span class="p">()</span><span class="o">.</span><span class="n">hex</span>
+        <span class="n">nav</span> <span class="o">=</span> <span class="nb">float</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_nav</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">strategy</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_initial_nav</span><span class="p">()))</span>
+        <span class="n">cost_bp</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">cfg</span><span class="o">.</span><span class="n">costs</span><span class="o">.</span><span class="n">cost_per_side_bp_headline</span>
+        <span class="k">for</span> <span class="n">sym</span> <span class="ow">in</span> <span class="n">all_syms</span><span class="p">[</span><span class="n">traded</span><span class="p">]:</span>
+            <span class="n">nw</span> <span class="o">=</span> <span class="nb">float</span><span class="p">(</span><span class="n">new_aligned</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span><span class="n">sym</span><span class="p">])</span>
+            <span class="n">ow</span> <span class="o">=</span> <span class="nb">float</span><span class="p">(</span><span class="n">old_aligned</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span><span class="n">sym</span><span class="p">])</span>
+            <span class="n">dw</span> <span class="o">=</span> <span class="n">nw</span> <span class="o">-</span> <span class="n">ow</span>
+            <span class="k">if</span> <span class="nb">abs</span><span class="p">(</span><span class="n">ow</span><span class="p">)</span> <span class="o">&lt;</span> <span class="mf">1e-8</span> <span class="ow">and</span> <span class="nb">abs</span><span class="p">(</span><span class="n">nw</span><span class="p">)</span> <span class="o">&gt;=</span> <span class="mf">1e-8</span><span class="p">:</span>
+                <span class="n">action</span> <span class="o">=</span> <span class="s2">&quot;open&quot;</span>
+            <span class="k">elif</span> <span class="nb">abs</span><span class="p">(</span><span class="n">nw</span><span class="p">)</span> <span class="o">&lt;</span> <span class="mf">1e-8</span> <span class="ow">and</span> <span class="nb">abs</span><span class="p">(</span><span class="n">ow</span><span class="p">)</span> <span class="o">&gt;=</span> <span class="mf">1e-8</span><span class="p">:</span>
+                <span class="n">action</span> <span class="o">=</span> <span class="s2">&quot;close&quot;</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">action</span> <span class="o">=</span> <span class="s2">&quot;adjust&quot;</span>
+            <span class="n">side</span> <span class="o">=</span> <span class="s2">&quot;long&quot;</span> <span class="k">if</span> <span class="p">(</span><span class="n">nw</span> <span class="k">if</span> <span class="nb">abs</span><span class="p">(</span><span class="n">nw</span><span class="p">)</span> <span class="o">&gt;=</span> <span class="mf">1e-8</span> <span class="k">else</span> <span class="n">ow</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">0</span> <span class="k">else</span> <span class="s2">&quot;short&quot;</span>
+            <span class="n">notional</span> <span class="o">=</span> <span class="nb">abs</span><span class="p">(</span><span class="n">dw</span><span class="p">)</span> <span class="o">*</span> <span class="n">nav</span>
+            <span class="c1"># Simple sqrt-law market-impact stub (Almgren-Chriss 2001).  Full</span>
+            <span class="c1"># Kyle-λ / Amihud estimate lives in engine/attribution.py §5.11 and</span>
+            <span class="c1"># is written to a separate capacity report; here we record a</span>
+            <span class="c1"># reasonable per-trade predicted impact.</span>
+            <span class="n">predicted_impact_bp</span> <span class="o">=</span> <span class="nb">float</span><span class="p">(</span><span class="mf">5.0</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">sqrt</span><span class="p">(</span><span class="nb">abs</span><span class="p">(</span><span class="n">dw</span><span class="p">)))</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_ledger_rows</span><span class="o">.</span><span class="n">append</span><span class="p">({</span>
+                <span class="s2">&quot;date&quot;</span><span class="p">:</span> <span class="n">rb_date</span><span class="p">,</span>
+                <span class="s2">&quot;symbol&quot;</span><span class="p">:</span> <span class="n">sym</span><span class="p">,</span>
+                <span class="s2">&quot;side&quot;</span><span class="p">:</span> <span class="n">side</span><span class="p">,</span>
+                <span class="s2">&quot;action&quot;</span><span class="p">:</span> <span class="n">action</span><span class="p">,</span>
+                <span class="s2">&quot;old_weight&quot;</span><span class="p">:</span> <span class="n">ow</span><span class="p">,</span>
+                <span class="s2">&quot;new_weight&quot;</span><span class="p">:</span> <span class="n">nw</span><span class="p">,</span>
+                <span class="s2">&quot;notional_usd&quot;</span><span class="p">:</span> <span class="n">notional</span><span class="p">,</span>
+                <span class="s2">&quot;predicted_impact_bp&quot;</span><span class="p">:</span> <span class="n">predicted_impact_bp</span><span class="p">,</span>
+                <span class="s2">&quot;proportional_cost_bp&quot;</span><span class="p">:</span> <span class="nb">float</span><span class="p">(</span><span class="n">cost_bp</span><span class="p">),</span>
+                <span class="s2">&quot;leg_id&quot;</span><span class="p">:</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">strategy</span><span class="o">.</span><span class="n">value</span><span class="si">}</span><span class="s2">_</span><span class="si">{</span><span class="n">side</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;rebalance_id&quot;</span><span class="p">:</span> <span class="n">rebalance_id</span><span class="p">,</span>
+                <span class="s2">&quot;seed&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">cfg</span><span class="o">.</span><span class="n">backtest</span><span class="o">.</span><span class="n">random_seed</span><span class="p">,</span>
+                <span class="s2">&quot;data_snapshot_sha256&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">_data_snapshot_sha256</span> <span class="ow">or</span> <span class="s2">&quot;unknown&quot;</span><span class="p">,</span>
+            <span class="p">})</span>
+
+    <span class="c1"># ------------------------------------------------------------------</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">_compute_portfolio_beta</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span> <span class="n">daily_port_ret</span><span class="p">:</span> <span class="n">pd</span><span class="o">.</span><span class="n">Series</span><span class="p">,</span> <span class="n">rb_date</span><span class="p">:</span> <span class="n">date</span><span class="p">,</span> <span class="n">lookback</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">252</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">float</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Empirical portfolio β vs ^GSPC over trailing ``lookback`` days.</span>
+
+<span class="sd">        Replaces the previous ``portfolio_beta = 0.0`` stub flagged by the</span>
+<span class="sd">        CW2 audit (B3 / §3).  Computed via paired-period OLS:</span>
+
+<span class="sd">            β = Cov(r_port, r_SPX) / Var(r_SPX)</span>
+
+<span class="sd">        Per PLAN §8.4, the design target is ``|β| ≤ 0.1`` — writing an</span>
+<span class="sd">        empirical estimate here is what lets the report reference the target</span>
+<span class="sd">        versus a realised number rather than a hard-coded claim.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">r</span> <span class="o">=</span> <span class="n">daily_port_ret</span><span class="o">.</span><span class="n">dropna</span><span class="p">()</span>
+        <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">r</span><span class="p">)</span> <span class="o">&lt;</span> <span class="mi">20</span><span class="p">:</span>
+            <span class="k">return</span> <span class="mf">0.0</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="n">spx</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">data_loader</span><span class="o">.</span><span class="n">load_benchmark</span><span class="p">(</span><span class="n">rb_date</span><span class="p">,</span> <span class="n">lookback</span><span class="p">,</span> <span class="s2">&quot;^GSPC&quot;</span><span class="p">)</span>
+        <span class="k">except</span> <span class="ne">Exception</span> <span class="k">as</span> <span class="n">exc</span><span class="p">:</span>
+            <span class="n">logger</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span><span class="s2">&quot;SPX load for beta at </span><span class="si">%s</span><span class="s2"> failed: </span><span class="si">%s</span><span class="s2">&quot;</span><span class="p">,</span> <span class="n">rb_date</span><span class="p">,</span> <span class="n">exc</span><span class="p">)</span>
+            <span class="k">return</span> <span class="mf">0.0</span>
+        <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">spx</span><span class="p">)</span> <span class="o">&lt;</span> <span class="mi">20</span><span class="p">:</span>
+            <span class="k">return</span> <span class="mf">0.0</span>
+        <span class="n">spx_ret</span> <span class="o">=</span> <span class="n">spx</span><span class="o">.</span><span class="n">pct_change</span><span class="p">()</span><span class="o">.</span><span class="n">dropna</span><span class="p">()</span>
+        <span class="c1"># Align on intersection of dates</span>
+        <span class="n">df</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">concat</span><span class="p">([</span><span class="n">r</span><span class="o">.</span><span class="n">rename</span><span class="p">(</span><span class="s2">&quot;port&quot;</span><span class="p">),</span> <span class="n">spx_ret</span><span class="o">.</span><span class="n">rename</span><span class="p">(</span><span class="s2">&quot;spx&quot;</span><span class="p">)],</span> <span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span><span class="o">.</span><span class="n">dropna</span><span class="p">()</span>
+        <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">df</span><span class="p">)</span> <span class="o">&lt;</span> <span class="mi">20</span><span class="p">:</span>
+            <span class="k">return</span> <span class="mf">0.0</span>
+        <span class="n">cov</span> <span class="o">=</span> <span class="nb">float</span><span class="p">(</span><span class="n">df</span><span class="p">[</span><span class="s2">&quot;port&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">cov</span><span class="p">(</span><span class="n">df</span><span class="p">[</span><span class="s2">&quot;spx&quot;</span><span class="p">]))</span>
+        <span class="n">var</span> <span class="o">=</span> <span class="nb">float</span><span class="p">(</span><span class="n">df</span><span class="p">[</span><span class="s2">&quot;spx&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">var</span><span class="p">())</span>
+        <span class="k">if</span> <span class="n">var</span> <span class="o">&lt;=</span> <span class="mf">1e-12</span><span class="p">:</span>
+            <span class="k">return</span> <span class="mf">0.0</span>
+        <span class="k">return</span> <span class="n">cov</span> <span class="o">/</span> <span class="n">var</span>
+
+    <span class="c1"># ------------------------------------------------------------------</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">_simulate_monthly_return</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span> <span class="n">weights</span><span class="p">:</span> <span class="n">pd</span><span class="o">.</span><span class="n">Series</span><span class="p">,</span> <span class="n">rb_date</span><span class="p">:</span> <span class="n">date</span><span class="p">,</span> <span class="n">next_rb_date</span><span class="p">:</span> <span class="n">date</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">float</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Realised USD-converted return between rb_date and next_rb_date.</span>
+
+<span class="sd">        CW1 Eq. 2.5 applied per non-USD stock:  R_USD = (1+R_local)(FX_t/FX_{t-1}) - 1.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="kn">from</span><span class="w"> </span><span class="nn">sqlalchemy</span><span class="w"> </span><span class="kn">import</span> <span class="n">text</span>
+        <span class="n">symbols</span> <span class="o">=</span> <span class="n">weights</span><span class="o">.</span><span class="n">index</span><span class="o">.</span><span class="n">tolist</span><span class="p">()</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">symbols</span><span class="p">:</span>
+            <span class="k">return</span> <span class="mf">0.0</span>
+        <span class="n">query</span> <span class="o">=</span> <span class="n">text</span><span class="p">(</span>
+            <span class="sa">f</span><span class="s2">&quot;&quot;&quot;</span>
+<span class="s2">            SELECT cob_date, symbol, adj_close_price</span>
+<span class="s2">            FROM </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">data_loader</span><span class="o">.</span><span class="n">_schema</span><span class="si">}</span><span class="s2">.daily_prices</span>
+<span class="s2">            WHERE cob_date &gt;= :start AND cob_date &lt;= :end</span>
+<span class="s2">              AND symbol = ANY(:syms) AND adj_close_price IS NOT NULL</span>
+<span class="s2">            &quot;&quot;&quot;</span>
+        <span class="p">)</span>
+        <span class="n">df</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">read_sql</span><span class="p">(</span><span class="n">query</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">data_loader</span><span class="o">.</span><span class="n">_engine</span><span class="p">,</span>
+                         <span class="n">params</span><span class="o">=</span><span class="p">{</span><span class="s2">&quot;start&quot;</span><span class="p">:</span> <span class="n">rb_date</span><span class="p">,</span> <span class="s2">&quot;end&quot;</span><span class="p">:</span> <span class="n">next_rb_date</span><span class="p">,</span> <span class="s2">&quot;syms&quot;</span><span class="p">:</span> <span class="n">symbols</span><span class="p">})</span>
+        <span class="k">if</span> <span class="n">df</span><span class="o">.</span><span class="n">empty</span><span class="p">:</span>
+            <span class="k">return</span> <span class="mf">0.0</span>
+        <span class="n">wide</span> <span class="o">=</span> <span class="n">df</span><span class="o">.</span><span class="n">pivot_table</span><span class="p">(</span><span class="n">index</span><span class="o">=</span><span class="s2">&quot;cob_date&quot;</span><span class="p">,</span> <span class="n">columns</span><span class="o">=</span><span class="s2">&quot;symbol&quot;</span><span class="p">,</span>
+                              <span class="n">values</span><span class="o">=</span><span class="s2">&quot;adj_close_price&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">sort_index</span><span class="p">()</span>
+        <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">wide</span><span class="p">)</span> <span class="o">&lt;</span> <span class="mi">2</span><span class="p">:</span>
+            <span class="k">return</span> <span class="mf">0.0</span>
+
+        <span class="n">p_start</span> <span class="o">=</span> <span class="n">wide</span><span class="o">.</span><span class="n">iloc</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+        <span class="n">p_end</span> <span class="o">=</span> <span class="n">wide</span><span class="o">.</span><span class="n">iloc</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span>
+        <span class="n">r_local</span> <span class="o">=</span> <span class="p">(</span><span class="n">p_end</span> <span class="o">/</span> <span class="n">p_start</span> <span class="o">-</span> <span class="mi">1</span><span class="p">)</span><span class="o">.</span><span class="n">reindex</span><span class="p">(</span><span class="n">weights</span><span class="o">.</span><span class="n">index</span><span class="p">,</span> <span class="n">fill_value</span><span class="o">=</span><span class="mf">0.0</span><span class="p">)</span>
+
+        <span class="c1"># FX conversion for non-USD stocks</span>
+        <span class="n">universe</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">data_loader</span><span class="o">.</span><span class="n">load_universe</span><span class="p">(</span><span class="n">rb_date</span><span class="p">)</span>
+        <span class="kn">from</span><span class="w"> </span><span class="nn">engine.data_loader</span><span class="w"> </span><span class="kn">import</span> <span class="n">currency_to_fx_pair</span>
+        <span class="kn">from</span><span class="w"> </span><span class="nn">datetime</span><span class="w"> </span><span class="kn">import</span> <span class="n">timedelta</span> <span class="k">as</span> <span class="n">_td</span>
+        <span class="n">fx</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">data_loader</span><span class="o">.</span><span class="n">load_fx</span><span class="p">(</span><span class="n">next_rb_date</span> <span class="o">+</span> <span class="n">_td</span><span class="p">(</span><span class="n">days</span><span class="o">=</span><span class="mi">1</span><span class="p">),</span> <span class="mi">90</span><span class="p">)</span>
+        <span class="n">r_usd</span> <span class="o">=</span> <span class="n">r_local</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
+        <span class="k">for</span> <span class="n">sym</span> <span class="ow">in</span> <span class="n">weights</span><span class="o">.</span><span class="n">index</span><span class="p">:</span>
+            <span class="n">ccy</span> <span class="o">=</span> <span class="n">universe</span><span class="o">.</span><span class="n">currency_map</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">sym</span><span class="p">,</span> <span class="s2">&quot;USD&quot;</span><span class="p">)</span>
+            <span class="n">pair</span> <span class="o">=</span> <span class="n">currency_to_fx_pair</span><span class="p">(</span><span class="n">ccy</span><span class="p">)</span>
+            <span class="k">if</span> <span class="n">pair</span> <span class="ow">is</span> <span class="kc">None</span> <span class="ow">or</span> <span class="n">pair</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">fx</span><span class="o">.</span><span class="n">columns</span><span class="p">:</span>
+                <span class="k">continue</span>
+            <span class="n">fx_slice</span> <span class="o">=</span> <span class="n">fx</span><span class="p">[</span><span class="n">pair</span><span class="p">]</span><span class="o">.</span><span class="n">ffill</span><span class="p">()</span>
+            <span class="k">try</span><span class="p">:</span>
+                <span class="n">fx_start</span> <span class="o">=</span> <span class="nb">float</span><span class="p">(</span><span class="n">fx_slice</span><span class="o">.</span><span class="n">asof</span><span class="p">(</span><span class="n">pd</span><span class="o">.</span><span class="n">Timestamp</span><span class="p">(</span><span class="n">rb_date</span><span class="p">)))</span>
+                <span class="n">fx_end</span> <span class="o">=</span> <span class="nb">float</span><span class="p">(</span><span class="n">fx_slice</span><span class="o">.</span><span class="n">asof</span><span class="p">(</span><span class="n">pd</span><span class="o">.</span><span class="n">Timestamp</span><span class="p">(</span><span class="n">next_rb_date</span><span class="p">)))</span>
+            <span class="k">except</span> <span class="p">(</span><span class="ne">KeyError</span><span class="p">,</span> <span class="ne">ValueError</span><span class="p">,</span> <span class="ne">TypeError</span><span class="p">)</span> <span class="k">as</span> <span class="n">exc</span><span class="p">:</span>
+                <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s2">&quot;FX asof lookup failed for </span><span class="si">%s</span><span class="s2"> [</span><span class="si">%s</span><span class="s2">]: </span><span class="si">%s</span><span class="s2">&quot;</span><span class="p">,</span> <span class="n">pair</span><span class="p">,</span> <span class="n">sym</span><span class="p">,</span> <span class="n">exc</span><span class="p">)</span>
+                <span class="k">continue</span>
+            <span class="k">if</span> <span class="n">pd</span><span class="o">.</span><span class="n">isna</span><span class="p">(</span><span class="n">fx_start</span><span class="p">)</span> <span class="ow">or</span> <span class="n">pd</span><span class="o">.</span><span class="n">isna</span><span class="p">(</span><span class="n">fx_end</span><span class="p">)</span> <span class="ow">or</span> <span class="n">fx_start</span> <span class="o">&lt;=</span> <span class="mi">0</span><span class="p">:</span>
+                <span class="k">continue</span>
+            <span class="n">fx_ratio</span> <span class="o">=</span> <span class="n">fx_end</span> <span class="o">/</span> <span class="n">fx_start</span>
+            <span class="n">r_usd</span><span class="p">[</span><span class="n">sym</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span><span class="mi">1</span> <span class="o">+</span> <span class="n">r_local</span><span class="p">[</span><span class="n">sym</span><span class="p">])</span> <span class="o">*</span> <span class="n">fx_ratio</span> <span class="o">-</span> <span class="mi">1</span>
+
+        <span class="k">return</span> <span class="nb">float</span><span class="p">((</span><span class="n">weights</span> <span class="o">*</span> <span class="n">r_usd</span><span class="p">)</span><span class="o">.</span><span class="n">sum</span><span class="p">())</span>
+
+    <span class="c1"># ------------------------------------------------------------------</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">_assemble_portfolio_returns_row</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span>
+        <span class="n">rb_date</span><span class="p">:</span> <span class="n">date</span><span class="p">,</span>
+        <span class="n">next_rb_date</span><span class="p">:</span> <span class="n">date</span><span class="p">,</span>
+        <span class="n">strategies</span><span class="p">:</span> <span class="nb">tuple</span><span class="p">[</span><span class="n">Strategy</span><span class="p">,</span> <span class="o">...</span><span class="p">],</span>
+        <span class="n">ctx</span><span class="p">:</span> <span class="n">PITContext</span><span class="p">,</span>
+        <span class="n">bandit_engine</span><span class="p">:</span> <span class="n">BanditWeights</span><span class="p">,</span>
+        <span class="n">ew_bench</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">EqualWeightBenchmark</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="n">spx_bench</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">SPXBenchmark</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="n">blend_bench</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">CashMarketBlend</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">dict</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Compute one row of the portfolio_returns.parquet contract.&quot;&quot;&quot;</span>
+        <span class="n">row</span><span class="p">:</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">]</span> <span class="o">=</span> <span class="p">{</span><span class="s2">&quot;date&quot;</span><span class="p">:</span> <span class="n">rb_date</span><span class="p">}</span>
+        <span class="c1"># For each strategy, compute gross+net — we reuse the most recent</span>
+        <span class="c1"># weight entries already stored</span>
+        <span class="k">for</span> <span class="n">s</span> <span class="ow">in</span> <span class="n">strategies</span><span class="p">:</span>
+            <span class="n">w</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_prev_weights</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">s</span><span class="p">,</span> <span class="n">pd</span><span class="o">.</span><span class="n">Series</span><span class="p">(</span><span class="n">dtype</span><span class="o">=</span><span class="nb">float</span><span class="p">))</span>
+            <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">w</span><span class="p">)</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+                <span class="n">gross</span> <span class="o">=</span> <span class="mf">0.0</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">gross</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_simulate_monthly_return</span><span class="p">(</span><span class="n">w</span><span class="p">,</span> <span class="n">rb_date</span><span class="p">,</span> <span class="n">next_rb_date</span><span class="p">)</span>
+            <span class="n">turnover</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_recent_turnover</span><span class="p">(</span><span class="n">s</span><span class="p">)</span>
+            <span class="n">net20</span> <span class="o">=</span> <span class="n">gross</span> <span class="o">-</span> <span class="bp">self</span><span class="o">.</span><span class="n">cost_model</span><span class="o">.</span><span class="n">headline_drag</span><span class="p">(</span><span class="n">turnover</span><span class="p">)</span>
+            <span class="n">net30</span> <span class="o">=</span> <span class="n">gross</span> <span class="o">-</span> <span class="bp">self</span><span class="o">.</span><span class="n">cost_model</span><span class="o">.</span><span class="n">sensitivity_drag</span><span class="p">(</span><span class="n">turnover</span><span class="p">)</span>
+            <span class="k">if</span> <span class="n">s</span> <span class="o">==</span> <span class="n">Strategy</span><span class="o">.</span><span class="n">DYNAMIC_GRID</span><span class="p">:</span>
+                <span class="n">row</span><span class="p">[</span><span class="s2">&quot;dynamic_gross&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">gross</span>
+                <span class="n">row</span><span class="p">[</span><span class="s2">&quot;dynamic_net_20bp&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">net20</span>
+                <span class="n">row</span><span class="p">[</span><span class="s2">&quot;dynamic_net_30bp&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">net30</span>
+            <span class="k">elif</span> <span class="n">s</span> <span class="o">==</span> <span class="n">Strategy</span><span class="o">.</span><span class="n">STATIC</span><span class="p">:</span>
+                <span class="n">row</span><span class="p">[</span><span class="s2">&quot;static_net_20bp&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">net20</span>
+                <span class="n">row</span><span class="p">[</span><span class="s2">&quot;static_net_30bp&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">net30</span>
+            <span class="k">elif</span> <span class="n">s</span> <span class="o">==</span> <span class="n">Strategy</span><span class="o">.</span><span class="n">DYNAMIC_BANDIT</span><span class="p">:</span>
+                <span class="n">row</span><span class="p">[</span><span class="s2">&quot;bandit_net_20bp&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">net20</span>
+        <span class="c1"># Defaults</span>
+        <span class="n">row</span><span class="o">.</span><span class="n">setdefault</span><span class="p">(</span><span class="s2">&quot;dynamic_gross&quot;</span><span class="p">,</span> <span class="mf">0.0</span><span class="p">)</span>
+        <span class="n">row</span><span class="o">.</span><span class="n">setdefault</span><span class="p">(</span><span class="s2">&quot;dynamic_net_20bp&quot;</span><span class="p">,</span> <span class="mf">0.0</span><span class="p">)</span>
+        <span class="n">row</span><span class="o">.</span><span class="n">setdefault</span><span class="p">(</span><span class="s2">&quot;dynamic_net_30bp&quot;</span><span class="p">,</span> <span class="mf">0.0</span><span class="p">)</span>
+        <span class="n">row</span><span class="o">.</span><span class="n">setdefault</span><span class="p">(</span><span class="s2">&quot;static_net_20bp&quot;</span><span class="p">,</span> <span class="mf">0.0</span><span class="p">)</span>
+        <span class="n">row</span><span class="o">.</span><span class="n">setdefault</span><span class="p">(</span><span class="s2">&quot;static_net_30bp&quot;</span><span class="p">,</span> <span class="mf">0.0</span><span class="p">)</span>
+        <span class="c1"># HRP robustness-comparison book (PLAN §5.3)</span>
+        <span class="n">row</span><span class="p">[</span><span class="s2">&quot;hrp_net_20bp&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_hrp_monthly_returns</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">rb_date</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span>
+        <span class="n">row</span><span class="o">.</span><span class="n">setdefault</span><span class="p">(</span><span class="s2">&quot;bandit_net_20bp&quot;</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span>
+        <span class="c1"># Benchmarks (PLAN §7.13 + user-requested advanced multi-benchmark)</span>
+        <span class="k">if</span> <span class="n">ew_bench</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="ow">and</span> <span class="bp">self</span><span class="o">.</span><span class="n">_ew_bench_weights_prev</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">row</span><span class="p">[</span><span class="s2">&quot;benchmark_ew&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">ew_bench</span><span class="o">.</span><span class="n">period_return</span><span class="p">(</span>
+                <span class="n">rb_date</span><span class="p">,</span> <span class="n">next_rb_date</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_ew_bench_weights_prev</span>
+            <span class="p">)</span>
+        <span class="k">elif</span> <span class="nb">len</span><span class="p">(</span><span class="n">ctx</span><span class="o">.</span><span class="n">returns_usd</span><span class="p">):</span>
+            <span class="c1"># Fallback</span>
+            <span class="n">row</span><span class="p">[</span><span class="s2">&quot;benchmark_ew&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="nb">float</span><span class="p">(</span><span class="n">ctx</span><span class="o">.</span><span class="n">returns_usd</span><span class="o">.</span><span class="n">iloc</span><span class="p">[</span><span class="o">-</span><span class="mi">21</span><span class="p">:]</span><span class="o">.</span><span class="n">mean</span><span class="p">(</span><span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span><span class="o">.</span><span class="n">sum</span><span class="p">())</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">row</span><span class="p">[</span><span class="s2">&quot;benchmark_ew&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="mf">0.0</span>
+        <span class="k">if</span> <span class="n">spx_bench</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">row</span><span class="p">[</span><span class="s2">&quot;benchmark_spx&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">spx_bench</span><span class="o">.</span><span class="n">period_return</span><span class="p">(</span><span class="n">rb_date</span><span class="p">,</span> <span class="n">next_rb_date</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">row</span><span class="p">[</span><span class="s2">&quot;benchmark_spx&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="mf">0.0</span>
+        <span class="k">if</span> <span class="n">blend_bench</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">row</span><span class="p">[</span><span class="s2">&quot;benchmark_cash_market_50_50&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">blend_bench</span><span class="o">.</span><span class="n">period_return</span><span class="p">(</span><span class="n">rb_date</span><span class="p">,</span> <span class="n">next_rb_date</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">row</span><span class="p">[</span><span class="s2">&quot;benchmark_cash_market_50_50&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="mf">0.0</span>
+        <span class="c1"># L/S leg realised monthly returns (PLAN §6 contract + §8.4)</span>
+        <span class="n">row</span><span class="p">[</span><span class="s2">&quot;long_leg&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_long_leg_returns</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">rb_date</span><span class="p">,</span> <span class="mf">0.0</span><span class="p">)</span>
+        <span class="n">row</span><span class="p">[</span><span class="s2">&quot;short_leg&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_short_leg_returns</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">rb_date</span><span class="p">,</span> <span class="mf">0.0</span><span class="p">)</span>
+        <span class="n">row</span><span class="p">[</span><span class="s2">&quot;rf_rate&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">ctx</span><span class="o">.</span><span class="n">rf_rate</span> <span class="o">/</span> <span class="mf">12.0</span>      <span class="c1"># monthly</span>
+        <span class="k">return</span> <span class="n">row</span>
+
+    <span class="c1"># ------------------------------------------------------------------</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">_recent_turnover</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">strategy</span><span class="p">:</span> <span class="n">Strategy</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">float</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;One-way turnover for the just-completed rebalance.</span>
+
+<span class="sd">        Called from ``_assemble_portfolio_returns_row`` to compute the</span>
+<span class="sd">        cost-drag component of the net-return columns in</span>
+<span class="sd">        ``portfolio_returns.parquet``.</span>
+
+<span class="sd">        **Bug fix (PR-6 / #2):** previously compared the new weights to an</span>
+<span class="sd">        empty ``Series``, which makes ``one_way_turnover`` equal to</span>
+<span class="sd">        ``0.5 × sum(|w|) ≈ 1.0`` for a dollar-neutral book.  That inflated</span>
+<span class="sd">        the cost drag in the net-return columns vs. the main-loop NAV</span>
+<span class="sd">        update (which correctly used the pre-update weights) and caused</span>
+<span class="sd">        the exposure-log ``turnover_1way`` (actual ~ 0.71) to diverge</span>
+<span class="sd">        from the cost implied by the net-return columns.  Now compares</span>
+<span class="sd">        the current weights against ``_prev_weights_for_cost`` (the</span>
+<span class="sd">        pre-update snapshot), matching the main-loop calculation exactly.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">w_new</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_prev_weights</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">strategy</span><span class="p">,</span> <span class="n">pd</span><span class="o">.</span><span class="n">Series</span><span class="p">(</span><span class="n">dtype</span><span class="o">=</span><span class="nb">float</span><span class="p">))</span>
+        <span class="n">w_prev</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_prev_weights_for_cost</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">strategy</span><span class="p">,</span> <span class="n">pd</span><span class="o">.</span><span class="n">Series</span><span class="p">(</span><span class="n">dtype</span><span class="o">=</span><span class="nb">float</span><span class="p">))</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">cost_model</span><span class="o">.</span><span class="n">one_way_turnover</span><span class="p">(</span><span class="n">w_new</span><span class="p">,</span> <span class="n">w_prev</span><span class="p">)</span>
+
+    <span class="c1"># ------------------------------------------------------------------</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">_leg_alpha</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">leg_weights</span><span class="p">:</span> <span class="n">pd</span><span class="o">.</span><span class="n">Series</span><span class="p">,</span> <span class="n">ctx</span><span class="p">:</span> <span class="n">PITContext</span><span class="p">,</span> <span class="n">rb_date</span><span class="p">:</span> <span class="n">date</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">float</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Leg mean-return minus benchmark mean-return (Viz Ref §1.4).&quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">leg_weights</span><span class="p">)</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+            <span class="k">return</span> <span class="mf">0.0</span>
+        <span class="n">w</span> <span class="o">=</span> <span class="n">leg_weights</span> <span class="o">/</span> <span class="n">leg_weights</span><span class="o">.</span><span class="n">abs</span><span class="p">()</span><span class="o">.</span><span class="n">sum</span><span class="p">()</span>
+        <span class="n">r_leg</span> <span class="o">=</span> <span class="nb">float</span><span class="p">((</span><span class="n">ctx</span><span class="o">.</span><span class="n">returns_usd</span><span class="o">.</span><span class="n">iloc</span><span class="p">[</span><span class="o">-</span><span class="mi">21</span><span class="p">:]</span><span class="o">.</span><span class="n">reindex</span><span class="p">(</span><span class="n">columns</span><span class="o">=</span><span class="n">w</span><span class="o">.</span><span class="n">index</span><span class="p">,</span> <span class="n">fill_value</span><span class="o">=</span><span class="mf">0.0</span><span class="p">)</span> <span class="o">@</span> <span class="n">w</span><span class="p">)</span><span class="o">.</span><span class="n">mean</span><span class="p">())</span>
+        <span class="n">r_bench</span> <span class="o">=</span> <span class="nb">float</span><span class="p">(</span><span class="n">ctx</span><span class="o">.</span><span class="n">returns_usd</span><span class="o">.</span><span class="n">iloc</span><span class="p">[</span><span class="o">-</span><span class="mi">21</span><span class="p">:]</span><span class="o">.</span><span class="n">mean</span><span class="p">(</span><span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span><span class="o">.</span><span class="n">mean</span><span class="p">())</span>
+        <span class="k">return</span> <span class="n">r_leg</span> <span class="o">-</span> <span class="n">r_bench</span></div>
+
+
+
+<span class="n">__all__</span> <span class="o">=</span> <span class="p">[</span><span class="s2">&quot;BacktestEngine&quot;</span><span class="p">,</span> <span class="s2">&quot;BacktestResult&quot;</span><span class="p">,</span> <span class="s2">&quot;monthly_rebalance_dates&quot;</span><span class="p">]</span>
+</pre></div>
+
+                </article>
+              
+              
+              
+              
+              
+                <footer class="prev-next-footer d-print-none">
+                  
+<div class="prev-next-area">
+</div>
+                </footer>
+              
+            </div>
+            
+            
+              
+            
+          </div>
+          <footer class="bd-footer-content">
+            
+          </footer>
+        
+      </main>
+    </div>
+  </div>
+  
+  <!-- Scripts loaded after <body> so the DOM is not blocked -->
+  <script defer src="../../_static/scripts/bootstrap.js?digest=8878045cc6db502f8baf"></script>
+<script defer src="../../_static/scripts/pydata-sphinx-theme.js?digest=8878045cc6db502f8baf"></script>
+
+  <footer class="bd-footer">
+<div class="bd-footer__inner bd-page-width">
+  
+    <div class="footer-items__start">
+      
+        <div class="footer-item">
+
+  <p class="copyright">
+    
+      © Copyright 2026, Team Kolmogorov.
+      <br/>
+    
+  </p>
+</div>
+      
+        <div class="footer-item">
+
+  <p class="sphinx-version">
+    Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 8.2.3.
+    <br/>
+  </p>
+</div>
+      
+    </div>
+  
+  
+  
+    <div class="footer-items__end">
+      
+        <div class="footer-item">
+<p class="theme-version">
+  <!-- # L10n: Setting the PST URL as an argument as this does not need to be localized -->
+  Built with the <a href="https://pydata-sphinx-theme.readthedocs.io/en/stable/index.html">PyData Sphinx Theme</a> 0.16.1.
+</p></div>
+      
+    </div>
+  
+</div>
+
+  </footer>
+  </body>
+</html>

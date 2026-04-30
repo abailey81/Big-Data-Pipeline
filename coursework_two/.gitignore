@@ -1,0 +1,51 @@
+# Python bytecode
+__pycache__/
+*.py[cod]
+*.so
+*.egg-info/
+
+# Virtualenv
+.venv/
+venv/
+env/
+
+# Testing
+.pytest_cache/
+.coverage
+htmlcov/
+.mypy_cache/
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Editors
+.idea/
+.vscode/
+*.swp
+*.swo
+
+# Jupyter
+.ipynb_checkpoints/
+
+# Sphinx build artefacts (source committed, build output not)
+docs/_build/
+
+# Env secrets (template `.env.example` IS committed)
+.env
+.env.*
+!.env.example
+
+# Log files
+*.log
+
+# Kenneth-French data cache — re-downloadable from the Dartmouth
+# data library on demand via analytics/fama_french.py
+output/.ff_cache/
+
+# Deliverables that ARE committed (kept here for documentation):
+#   charts/*.png          — 300 DPI report figures
+#   output/*.parquet      — backtest data-contract outputs
+#   notebooks/*.ipynb     — Plotly interactive tearsheet
+#   notebooks/*.html      — self-contained HTML tearsheet
+#   reports/*.md          — CW1 integration report

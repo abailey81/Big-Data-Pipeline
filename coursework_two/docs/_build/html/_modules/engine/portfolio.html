@@ -1,0 +1,879 @@
+
+<!DOCTYPE html>
+
+
+<html lang="en" data-content_root="../../" >
+
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>engine.portfolio &#8212; CW2 Backtest Engine — Team Kolmogorov</title>
+  
+  
+  
+  <script data-cfasync="false">
+    document.documentElement.dataset.mode = localStorage.getItem("mode") || "";
+    document.documentElement.dataset.theme = localStorage.getItem("theme") || "";
+  </script>
+  <!--
+    this give us a css class that will be invisible only if js is disabled
+  -->
+  <noscript>
+    <style>
+      .pst-js-only { display: none !important; }
+
+    </style>
+  </noscript>
+  
+  <!-- Loaded before other Sphinx assets -->
+  <link href="../../_static/styles/theme.css?digest=8878045cc6db502f8baf" rel="stylesheet" />
+<link href="../../_static/styles/pydata-sphinx-theme.css?digest=8878045cc6db502f8baf" rel="stylesheet" />
+
+    <link rel="stylesheet" type="text/css" href="../../_static/pygments.css?v=8f2a1f02" />
+  
+  <!-- So that users can add custom icons -->
+  <script src="../../_static/scripts/fontawesome.js?digest=8878045cc6db502f8baf"></script>
+  <!-- Pre-loaded scripts that we'll load fully later -->
+  <link rel="preload" as="script" href="../../_static/scripts/bootstrap.js?digest=8878045cc6db502f8baf" />
+<link rel="preload" as="script" href="../../_static/scripts/pydata-sphinx-theme.js?digest=8878045cc6db502f8baf" />
+
+    <script src="../../_static/documentation_options.js?v=d5a15cff"></script>
+    <script src="../../_static/doctools.js?v=9bcbadda"></script>
+    <script src="../../_static/sphinx_highlight.js?v=dc90522c"></script>
+    <script>DOCUMENTATION_OPTIONS.pagename = '_modules/engine/portfolio';</script>
+    <link rel="index" title="Index" href="../../genindex.html" />
+    <link rel="search" title="Search" href="../../search.html" />
+  <meta name="viewport" content="width=device-width, initial-scale=1"/>
+  <meta name="docsearch:language" content="en"/>
+  <meta name="docsearch:version" content="" />
+  </head>
+  
+  
+  <body data-bs-spy="scroll" data-bs-target=".bd-toc-nav" data-offset="180" data-bs-root-margin="0px 0px -60%" data-default-mode="">
+
+  
+  
+  <div id="pst-skip-link" class="skip-link d-print-none"><a href="#main-content">Skip to main content</a></div>
+  
+  <div id="pst-scroll-pixel-helper"></div>
+  
+  <button type="button" class="btn rounded-pill" id="pst-back-to-top">
+    <i class="fa-solid fa-arrow-up"></i>Back to top</button>
+
+  
+  <dialog id="pst-search-dialog">
+    
+<form class="bd-search d-flex align-items-center"
+      action="../../search.html"
+      method="get">
+  <i class="fa-solid fa-magnifying-glass"></i>
+  <input type="search"
+         class="form-control"
+         name="q"
+         placeholder="Search the docs ..."
+         aria-label="Search the docs ..."
+         autocomplete="off"
+         autocorrect="off"
+         autocapitalize="off"
+         spellcheck="false"/>
+  <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd>K</kbd></span>
+</form>
+  </dialog>
+
+  <div class="pst-async-banner-revealer d-none">
+  <aside id="bd-header-version-warning" class="d-none d-print-none" aria-label="Version warning"></aside>
+</div>
+
+  
+    <header class="bd-header navbar navbar-expand-lg bd-navbar d-print-none">
+<div class="bd-header__inner bd-page-width">
+  <button class="pst-navbar-icon sidebar-toggle primary-toggle" aria-label="Site navigation">
+    <span class="fa-solid fa-bars"></span>
+  </button>
+  
+  
+  <div class="col-lg-3 navbar-header-items__start">
+    
+      <div class="navbar-item">
+
+  
+    
+  
+
+<a class="navbar-brand logo" href="../../index.html">
+  
+  
+  
+  
+  
+  
+    <p class="title logo__title">CW2 Backtest Engine — Team Kolmogorov</p>
+  
+</a></div>
+    
+  </div>
+  
+  <div class="col-lg-9 navbar-header-items">
+    
+    <div class="me-auto navbar-header-items__center">
+      
+        <div class="navbar-item">
+<nav>
+  <ul class="bd-navbar-elements navbar-nav">
+    
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../installation.html">
+    Installation
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../architecture.html">
+    Architecture
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../usage.html">
+    Usage
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../api_engine.html">
+    Engine API Reference
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../api_analytics.html">
+    Analytics API Reference
+  </a>
+</li>
+
+  </ul>
+</nav></div>
+      
+    </div>
+    
+    
+    <div class="navbar-header-items__end">
+      
+        <div class="navbar-item navbar-persistent--container">
+          
+
+<button class="btn search-button-field search-button__button pst-js-only" title="Search" aria-label="Search" data-bs-placement="bottom" data-bs-toggle="tooltip">
+ <i class="fa-solid fa-magnifying-glass"></i>
+ <span class="search-button__default-text">Search</span>
+ <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd class="kbd-shortcut__modifier">K</kbd></span>
+</button>
+        </div>
+      
+      
+        <div class="navbar-item">
+
+<button class="btn btn-sm nav-link pst-navbar-icon theme-switch-button pst-js-only" aria-label="Color mode" data-bs-title="Color mode"  data-bs-placement="bottom" data-bs-toggle="tooltip">
+  <i class="theme-switch fa-solid fa-sun                fa-lg" data-mode="light" title="Light"></i>
+  <i class="theme-switch fa-solid fa-moon               fa-lg" data-mode="dark"  title="Dark"></i>
+  <i class="theme-switch fa-solid fa-circle-half-stroke fa-lg" data-mode="auto"  title="System Settings"></i>
+</button></div>
+      
+    </div>
+    
+  </div>
+  
+  
+    <div class="navbar-persistent--mobile">
+
+<button class="btn search-button-field search-button__button pst-js-only" title="Search" aria-label="Search" data-bs-placement="bottom" data-bs-toggle="tooltip">
+ <i class="fa-solid fa-magnifying-glass"></i>
+ <span class="search-button__default-text">Search</span>
+ <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd class="kbd-shortcut__modifier">K</kbd></span>
+</button>
+    </div>
+  
+
+  
+</div>
+
+    </header>
+  
+
+  <div class="bd-container">
+    <div class="bd-container__inner bd-page-width">
+      
+      
+      
+        
+      
+      <dialog id="pst-primary-sidebar-modal"></dialog>
+      <div id="pst-primary-sidebar" class="bd-sidebar-primary bd-sidebar hide-on-wide">
+        
+
+  
+  <div class="sidebar-header-items sidebar-primary__section">
+    
+    
+      <div class="sidebar-header-items__center">
+        
+          
+          
+            <div class="navbar-item">
+<nav>
+  <ul class="bd-navbar-elements navbar-nav">
+    
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../installation.html">
+    Installation
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../architecture.html">
+    Architecture
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../usage.html">
+    Usage
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../api_engine.html">
+    Engine API Reference
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../api_analytics.html">
+    Analytics API Reference
+  </a>
+</li>
+
+  </ul>
+</nav></div>
+          
+        
+      </div>
+    
+    
+    
+      <div class="sidebar-header-items__end">
+        
+          <div class="navbar-item">
+
+<button class="btn btn-sm nav-link pst-navbar-icon theme-switch-button pst-js-only" aria-label="Color mode" data-bs-title="Color mode"  data-bs-placement="bottom" data-bs-toggle="tooltip">
+  <i class="theme-switch fa-solid fa-sun                fa-lg" data-mode="light" title="Light"></i>
+  <i class="theme-switch fa-solid fa-moon               fa-lg" data-mode="dark"  title="Dark"></i>
+  <i class="theme-switch fa-solid fa-circle-half-stroke fa-lg" data-mode="auto"  title="System Settings"></i>
+</button></div>
+        
+      </div>
+    
+  </div>
+  
+  
+  <div class="sidebar-primary-items__end sidebar-primary__section">
+      <div class="sidebar-primary-item">
+<div id="ethical-ad-placement"
+      class="flat"
+      data-ea-publisher="readthedocs"
+      data-ea-type="readthedocs-sidebar"
+      data-ea-manual="true">
+</div></div>
+  </div>
+
+
+      </div>
+      
+      <main id="main-content" class="bd-main" role="main">
+        
+        
+          <div class="bd-content">
+            <div class="bd-article-container">
+              
+              <div class="bd-header-article d-print-none">
+<div class="header-article-items header-article__inner">
+  
+    <div class="header-article-items__start">
+      
+        <div class="header-article-item">
+
+<nav aria-label="Breadcrumb" class="d-print-none">
+  <ul class="bd-breadcrumbs">
+    
+    <li class="breadcrumb-item breadcrumb-home">
+      <a href="../../index.html" class="nav-link" aria-label="Home">
+        <i class="fa-solid fa-home"></i>
+      </a>
+    </li>
+    
+    <li class="breadcrumb-item"><a href="../index.html" class="nav-link">Module code</a></li>
+    
+    <li class="breadcrumb-item active" aria-current="page"><span class="ellipsis">engine.portfolio</span></li>
+  </ul>
+</nav>
+</div>
+      
+    </div>
+  
+  
+</div>
+</div>
+              
+              
+              
+                
+<div id="searchbox"></div>
+                <article class="bd-article">
+                  
+  <h1>Source code for engine.portfolio</h1><div class="highlight"><pre>
+<span></span><span class="sd">&quot;&quot;&quot;Portfolio construction: MinVar (LW + Denoised LW + turnover-penalised) and HRP.</span>
+
+<span class="sd">Implements the four construction variants listed in PLAN §5.1–5.3:</span>
+
+<span class="sd">1. **MinVar + vanilla Ledoit-Wolf** — baseline (CW1 Eq. 10 foundation).</span>
+<span class="sd">2. **MinVar + Denoised Ledoit-Wolf** — López de Prado (2020) Marchenko-Pastur</span>
+<span class="sd">   eigenvalue clipping to remove &quot;noise subspace&quot; before shrinkage.</span>
+<span class="sd">3. **MinVar + turnover-penalty (L2)** — DeMiguel et al. (2009); stabilises</span>
+<span class="sd">   weight changes between rebalances.</span>
+<span class="sd">4. **Hierarchical Risk Parity** — López de Prado (2016); no covariance</span>
+<span class="sd">   inversion needed — a natural robustness check.</span>
+
+<span class="sd">Every variant obeys the constraints:</span>
+<span class="sd">    w_i ≥ 0   (long-only per leg — both legs run separately)</span>
+<span class="sd">    1&#39; w = 1  (fully-invested each leg)</span>
+<span class="sd">    w_i ≤ max_weight (default 5%)</span>
+
+<span class="sd">References</span>
+<span class="sd">----------</span>
+<span class="sd">Ledoit &amp; Wolf (2004); López de Prado (2016, 2020); DeMiguel, Garlappi, Uppal</span>
+<span class="sd">(2009); Baker, Bradley &amp; Wurgler (2011).</span>
+<span class="sd">&quot;&quot;&quot;</span>
+
+<span class="kn">from</span><span class="w"> </span><span class="nn">__future__</span><span class="w"> </span><span class="kn">import</span> <span class="n">annotations</span>
+
+<span class="kn">import</span><span class="w"> </span><span class="nn">logging</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">dataclasses</span><span class="w"> </span><span class="kn">import</span> <span class="n">dataclass</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">typing</span><span class="w"> </span><span class="kn">import</span> <span class="n">Literal</span><span class="p">,</span> <span class="n">Optional</span>
+
+<span class="kn">import</span><span class="w"> </span><span class="nn">numpy</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">np</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">pandas</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">pd</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">scipy.cluster.hierarchy</span><span class="w"> </span><span class="kn">import</span> <span class="n">linkage</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">scipy.spatial.distance</span><span class="w"> </span><span class="kn">import</span> <span class="n">squareform</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">scipy.optimize</span><span class="w"> </span><span class="kn">import</span> <span class="n">minimize</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">sklearn.covariance</span><span class="w"> </span><span class="kn">import</span> <span class="n">LedoitWolf</span>
+
+<span class="kn">from</span><span class="w"> </span><span class="nn">engine.config</span><span class="w"> </span><span class="kn">import</span> <span class="n">Config</span>
+
+<span class="n">logger</span> <span class="o">=</span> <span class="n">logging</span><span class="o">.</span><span class="n">getLogger</span><span class="p">(</span><span class="vm">__name__</span><span class="p">)</span>
+
+
+<span class="c1"># =============================================================================</span>
+<span class="c1"># Weight-cap helper (PLAN §4.5)</span>
+<span class="c1"># =============================================================================</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">_iterative_cap</span><span class="p">(</span><span class="n">w</span><span class="p">:</span> <span class="n">pd</span><span class="o">.</span><span class="n">Series</span><span class="p">,</span> <span class="n">max_w</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span> <span class="n">tol</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">1e-9</span><span class="p">,</span> <span class="n">max_iter</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">50</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">pd</span><span class="o">.</span><span class="n">Series</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Enforce ``w_i ≤ max_w`` while keeping ``sum(w) ≤ 1`` and non-negativity.</span>
+
+<span class="sd">    Clip-then-renormalise is broken: renormalising after clipping pushes the</span>
+<span class="sd">    capped weights back above the cap, which is exactly the bug flagged in the</span>
+<span class="sd">    CW2 audit. The correct fix is to redistribute the excess mass only to</span>
+<span class="sd">    *uncapped* positions, and repeat until every weight is at or below the cap.</span>
+
+<span class="sd">    When the long-leg universe is too small to respect the cap</span>
+<span class="sd">    (``n &lt; 1 / max_w``), every position is pinned at ``max_w`` and the portfolio</span>
+<span class="sd">    holds ``1 - n*max_w`` in cash rather than silently violating the constraint.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    w : Series</span>
+<span class="sd">        Non-negative, sums to ≤ 1.  Any negative entries are floored at zero.</span>
+<span class="sd">    max_w : float</span>
+<span class="sd">        Single-name upper bound (default 0.05 per PLAN §4.5).</span>
+<span class="sd">    tol : float</span>
+<span class="sd">        Numerical tolerance on the cap.</span>
+<span class="sd">    max_iter : int</span>
+<span class="sd">        Safety stop.</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    Series</span>
+<span class="sd">        Weights satisfying ``0 ≤ w_i ≤ max_w`` and ``sum(w) ≤ 1``.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">w</span> <span class="o">=</span> <span class="n">w</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="nb">float</span><span class="p">)</span><span class="o">.</span><span class="n">clip</span><span class="p">(</span><span class="n">lower</span><span class="o">=</span><span class="mf">0.0</span><span class="p">)</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
+    <span class="k">if</span> <span class="n">w</span><span class="o">.</span><span class="n">sum</span><span class="p">()</span> <span class="o">&lt;=</span> <span class="mi">0</span><span class="p">:</span>
+        <span class="k">return</span> <span class="n">w</span>
+    <span class="c1"># Callers pass a weight vector that already sums to ≤ 1 (normalised leg</span>
+    <span class="c1"># weights).  We deliberately do *not* re-normalise here — that was the</span>
+    <span class="c1"># original bug — we just cap and redistribute while preserving total mass.</span>
+    <span class="k">for</span> <span class="n">_</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">max_iter</span><span class="p">):</span>
+        <span class="n">over</span> <span class="o">=</span> <span class="n">w</span> <span class="o">&gt;</span> <span class="n">max_w</span> <span class="o">+</span> <span class="n">tol</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">over</span><span class="o">.</span><span class="n">any</span><span class="p">():</span>
+            <span class="k">break</span>
+        <span class="n">excess</span> <span class="o">=</span> <span class="nb">float</span><span class="p">((</span><span class="n">w</span><span class="p">[</span><span class="n">over</span><span class="p">]</span> <span class="o">-</span> <span class="n">max_w</span><span class="p">)</span><span class="o">.</span><span class="n">sum</span><span class="p">())</span>
+        <span class="n">w</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span><span class="n">over</span><span class="p">]</span> <span class="o">=</span> <span class="n">max_w</span>
+        <span class="n">uncapped</span> <span class="o">=</span> <span class="p">(</span><span class="o">~</span><span class="n">over</span><span class="p">)</span> <span class="o">&amp;</span> <span class="p">(</span><span class="n">w</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">)</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">uncapped</span><span class="o">.</span><span class="n">any</span><span class="p">():</span>
+            <span class="c1"># No room to redistribute: the universe is too small.  Return the</span>
+            <span class="c1"># capped weights and accept that sum &lt; 1 (residual cash).</span>
+            <span class="k">break</span>
+        <span class="n">room</span> <span class="o">=</span> <span class="p">(</span><span class="n">max_w</span> <span class="o">-</span> <span class="n">w</span><span class="p">[</span><span class="n">uncapped</span><span class="p">])</span><span class="o">.</span><span class="n">clip</span><span class="p">(</span><span class="n">lower</span><span class="o">=</span><span class="mf">0.0</span><span class="p">)</span>
+        <span class="n">room_total</span> <span class="o">=</span> <span class="nb">float</span><span class="p">(</span><span class="n">room</span><span class="o">.</span><span class="n">sum</span><span class="p">())</span>
+        <span class="k">if</span> <span class="n">room_total</span> <span class="o">&lt;=</span> <span class="n">tol</span><span class="p">:</span>
+            <span class="k">break</span>
+        <span class="c1"># Distribute excess proportionally to remaining head-room per name.</span>
+        <span class="n">w</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span><span class="n">uncapped</span><span class="p">]</span> <span class="o">=</span> <span class="n">w</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span><span class="n">uncapped</span><span class="p">]</span> <span class="o">+</span> <span class="n">excess</span> <span class="o">*</span> <span class="p">(</span><span class="n">room</span> <span class="o">/</span> <span class="n">room_total</span><span class="p">)</span>
+    <span class="c1"># Final numerical safety: clip and floor, don&#39;t re-normalise (that&#39;s what</span>
+    <span class="c1"># reintroduced the bug in the first place).</span>
+    <span class="k">return</span> <span class="n">w</span><span class="o">.</span><span class="n">clip</span><span class="p">(</span><span class="n">lower</span><span class="o">=</span><span class="mf">0.0</span><span class="p">,</span> <span class="n">upper</span><span class="o">=</span><span class="n">max_w</span><span class="p">)</span>
+
+
+<span class="c1"># =============================================================================</span>
+<span class="c1"># Covariance estimators</span>
+<span class="c1"># =============================================================================</span>
+<div class="viewcode-block" id="ledoit_wolf_cov">
+<a class="viewcode-back" href="../../api_engine.html#engine.portfolio.ledoit_wolf_cov">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">ledoit_wolf_cov</span><span class="p">(</span><span class="n">returns</span><span class="p">:</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Vanilla Ledoit-Wolf shrinkage covariance (scikit-learn).&quot;&quot;&quot;</span>
+    <span class="n">lw</span> <span class="o">=</span> <span class="n">LedoitWolf</span><span class="p">()</span><span class="o">.</span><span class="n">fit</span><span class="p">(</span><span class="n">returns</span><span class="o">.</span><span class="n">dropna</span><span class="p">(</span><span class="n">how</span><span class="o">=</span><span class="s2">&quot;any&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">values</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">lw</span><span class="o">.</span><span class="n">covariance_</span></div>
+
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">_mp_pdf</span><span class="p">(</span><span class="n">var</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span> <span class="n">q</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span> <span class="n">pts</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">1000</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">tuple</span><span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">]:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Marchenko-Pastur PDF support (López de Prado 2020 §2.3).&quot;&quot;&quot;</span>
+    <span class="n">eig_min</span> <span class="o">=</span> <span class="n">var</span> <span class="o">*</span> <span class="p">(</span><span class="mi">1</span> <span class="o">-</span> <span class="n">np</span><span class="o">.</span><span class="n">sqrt</span><span class="p">(</span><span class="mf">1.0</span> <span class="o">/</span> <span class="n">q</span><span class="p">))</span> <span class="o">**</span> <span class="mi">2</span>
+    <span class="n">eig_max</span> <span class="o">=</span> <span class="n">var</span> <span class="o">*</span> <span class="p">(</span><span class="mi">1</span> <span class="o">+</span> <span class="n">np</span><span class="o">.</span><span class="n">sqrt</span><span class="p">(</span><span class="mf">1.0</span> <span class="o">/</span> <span class="n">q</span><span class="p">))</span> <span class="o">**</span> <span class="mi">2</span>
+    <span class="n">xs</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">linspace</span><span class="p">(</span><span class="n">eig_min</span><span class="p">,</span> <span class="n">eig_max</span><span class="p">,</span> <span class="n">pts</span><span class="p">)</span>
+    <span class="n">pdf</span> <span class="o">=</span> <span class="n">q</span> <span class="o">/</span> <span class="p">(</span><span class="mi">2</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">pi</span> <span class="o">*</span> <span class="n">var</span> <span class="o">*</span> <span class="n">xs</span><span class="p">)</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">sqrt</span><span class="p">((</span><span class="n">eig_max</span> <span class="o">-</span> <span class="n">xs</span><span class="p">)</span> <span class="o">*</span> <span class="p">(</span><span class="n">xs</span> <span class="o">-</span> <span class="n">eig_min</span><span class="p">))</span>
+    <span class="k">return</span> <span class="n">xs</span><span class="p">,</span> <span class="n">pdf</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">_fit_mp_variance</span><span class="p">(</span><span class="n">eigenvalues</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span> <span class="n">q</span><span class="p">:</span> <span class="nb">float</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">float</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Fit implied MP variance by minimising MSE between empirical and theoretical PDFs.&quot;&quot;&quot;</span>
+    <span class="kn">from</span><span class="w"> </span><span class="nn">scipy.optimize</span><span class="w"> </span><span class="kn">import</span> <span class="n">minimize_scalar</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">_mse</span><span class="p">(</span><span class="n">var</span><span class="p">:</span> <span class="nb">float</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">float</span><span class="p">:</span>
+        <span class="k">if</span> <span class="n">var</span> <span class="o">&lt;=</span> <span class="mi">0</span><span class="p">:</span>
+            <span class="k">return</span> <span class="n">np</span><span class="o">.</span><span class="n">inf</span>
+        <span class="n">eig_min</span> <span class="o">=</span> <span class="n">var</span> <span class="o">*</span> <span class="p">(</span><span class="mi">1</span> <span class="o">-</span> <span class="n">np</span><span class="o">.</span><span class="n">sqrt</span><span class="p">(</span><span class="mf">1.0</span> <span class="o">/</span> <span class="n">q</span><span class="p">))</span> <span class="o">**</span> <span class="mi">2</span>
+        <span class="n">eig_max</span> <span class="o">=</span> <span class="n">var</span> <span class="o">*</span> <span class="p">(</span><span class="mi">1</span> <span class="o">+</span> <span class="n">np</span><span class="o">.</span><span class="n">sqrt</span><span class="p">(</span><span class="mf">1.0</span> <span class="o">/</span> <span class="n">q</span><span class="p">))</span> <span class="o">**</span> <span class="mi">2</span>
+        <span class="n">mask</span> <span class="o">=</span> <span class="p">(</span><span class="n">eigenvalues</span> <span class="o">&gt;=</span> <span class="n">eig_min</span><span class="p">)</span> <span class="o">&amp;</span> <span class="p">(</span><span class="n">eigenvalues</span> <span class="o">&lt;=</span> <span class="n">eig_max</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">mask</span><span class="o">.</span><span class="n">sum</span><span class="p">()</span> <span class="o">&lt;</span> <span class="mi">5</span><span class="p">:</span>
+            <span class="k">return</span> <span class="n">np</span><span class="o">.</span><span class="n">inf</span>
+        <span class="n">emp</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">histogram</span><span class="p">(</span><span class="n">eigenvalues</span><span class="p">[</span><span class="n">mask</span><span class="p">],</span> <span class="n">bins</span><span class="o">=</span><span class="mi">50</span><span class="p">,</span> <span class="n">density</span><span class="o">=</span><span class="kc">True</span><span class="p">)[</span><span class="mi">0</span><span class="p">]</span>
+        <span class="n">xs</span><span class="p">,</span> <span class="n">pdf</span> <span class="o">=</span> <span class="n">_mp_pdf</span><span class="p">(</span><span class="n">var</span><span class="p">,</span> <span class="n">q</span><span class="p">,</span> <span class="n">pts</span><span class="o">=</span><span class="nb">len</span><span class="p">(</span><span class="n">emp</span><span class="p">))</span>
+        <span class="k">return</span> <span class="nb">float</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">mean</span><span class="p">((</span><span class="n">emp</span> <span class="o">-</span> <span class="n">pdf</span><span class="p">)</span> <span class="o">**</span> <span class="mi">2</span><span class="p">))</span>
+
+    <span class="n">res</span> <span class="o">=</span> <span class="n">minimize_scalar</span><span class="p">(</span><span class="n">_mse</span><span class="p">,</span> <span class="n">bounds</span><span class="o">=</span><span class="p">(</span><span class="mf">1e-6</span><span class="p">,</span> <span class="mi">10</span><span class="p">),</span> <span class="n">method</span><span class="o">=</span><span class="s2">&quot;bounded&quot;</span><span class="p">)</span>
+    <span class="k">return</span> <span class="nb">float</span><span class="p">(</span><span class="n">res</span><span class="o">.</span><span class="n">x</span><span class="p">)</span>
+
+
+<div class="viewcode-block" id="denoised_ledoit_wolf_cov">
+<a class="viewcode-back" href="../../api_engine.html#engine.portfolio.denoised_ledoit_wolf_cov">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">denoised_ledoit_wolf_cov</span><span class="p">(</span><span class="n">returns</span><span class="p">:</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">,</span> <span class="n">mp_q</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">float</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Denoised LW covariance via MP eigenvalue clipping (López de Prado 2020).</span>
+
+<span class="sd">    Steps:</span>
+<span class="sd">        1. Compute sample covariance Σ.</span>
+<span class="sd">        2. Normalise to correlation C = D^{-1/2} Σ D^{-1/2}.</span>
+<span class="sd">        3. Eigen-decompose C; identify MP &quot;noise&quot; eigenvalues.</span>
+<span class="sd">        4. Replace noisy eigenvalues with their mean (preserves trace).</span>
+<span class="sd">        5. Reconstruct C_denoised, rescale to Σ_denoised.</span>
+<span class="sd">        6. Apply Ledoit-Wolf shrinkage on Σ_denoised.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    returns : DataFrame</span>
+<span class="sd">        T × N return matrix.</span>
+<span class="sd">    mp_q : float | None</span>
+<span class="sd">        T/N ratio; defaults to empirical.</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    ndarray (N × N)</span>
+<span class="sd">        Denoised-LW covariance matrix.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">X</span> <span class="o">=</span> <span class="n">returns</span><span class="o">.</span><span class="n">dropna</span><span class="p">(</span><span class="n">how</span><span class="o">=</span><span class="s2">&quot;any&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">values</span>
+    <span class="n">T</span><span class="p">,</span> <span class="n">N</span> <span class="o">=</span> <span class="n">X</span><span class="o">.</span><span class="n">shape</span>
+    <span class="k">if</span> <span class="n">T</span> <span class="o">&lt;=</span> <span class="mi">1</span> <span class="ow">or</span> <span class="n">N</span> <span class="o">&lt;=</span> <span class="mi">1</span><span class="p">:</span>
+        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Need &gt;1 observations and &gt;1 variables, got (</span><span class="si">{</span><span class="n">T</span><span class="si">}</span><span class="s2">,</span><span class="si">{</span><span class="n">N</span><span class="si">}</span><span class="s2">)&quot;</span><span class="p">)</span>
+    <span class="n">q</span> <span class="o">=</span> <span class="n">T</span> <span class="o">/</span> <span class="n">N</span> <span class="k">if</span> <span class="n">mp_q</span> <span class="ow">is</span> <span class="kc">None</span> <span class="k">else</span> <span class="n">mp_q</span>
+
+    <span class="c1"># 1. Sample covariance + normalisation</span>
+    <span class="n">Sigma</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">cov</span><span class="p">(</span><span class="n">X</span><span class="p">,</span> <span class="n">rowvar</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+    <span class="n">diag_sd</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">sqrt</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">diag</span><span class="p">(</span><span class="n">Sigma</span><span class="p">))</span>
+    <span class="c1"># Guard zero-variance assets</span>
+    <span class="n">diag_sd</span><span class="p">[</span><span class="n">diag_sd</span> <span class="o">==</span> <span class="mi">0</span><span class="p">]</span> <span class="o">=</span> <span class="mf">1e-10</span>
+    <span class="n">C</span> <span class="o">=</span> <span class="n">Sigma</span> <span class="o">/</span> <span class="n">np</span><span class="o">.</span><span class="n">outer</span><span class="p">(</span><span class="n">diag_sd</span><span class="p">,</span> <span class="n">diag_sd</span><span class="p">)</span>
+    <span class="n">C</span> <span class="o">=</span> <span class="p">(</span><span class="n">C</span> <span class="o">+</span> <span class="n">C</span><span class="o">.</span><span class="n">T</span><span class="p">)</span> <span class="o">/</span> <span class="mf">2.0</span>
+
+    <span class="c1"># 2. Eigendecomposition</span>
+    <span class="n">eigvals</span><span class="p">,</span> <span class="n">eigvecs</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">linalg</span><span class="o">.</span><span class="n">eigh</span><span class="p">(</span><span class="n">C</span><span class="p">)</span>
+    <span class="c1"># 3. Fit MP to noise region (bottom ~80% of eigenvalues typically noise)</span>
+    <span class="n">implied_var</span> <span class="o">=</span> <span class="n">_fit_mp_variance</span><span class="p">(</span><span class="n">eigvals</span><span class="p">,</span> <span class="n">q</span><span class="p">)</span>
+    <span class="n">eig_max</span> <span class="o">=</span> <span class="n">implied_var</span> <span class="o">*</span> <span class="p">(</span><span class="mi">1</span> <span class="o">+</span> <span class="n">np</span><span class="o">.</span><span class="n">sqrt</span><span class="p">(</span><span class="mf">1.0</span> <span class="o">/</span> <span class="n">q</span><span class="p">))</span> <span class="o">**</span> <span class="mi">2</span>
+
+    <span class="c1"># 4. Noise eigenvalues: those below the MP upper bound → replace with mean</span>
+    <span class="n">noise_mask</span> <span class="o">=</span> <span class="n">eigvals</span> <span class="o">&lt;</span> <span class="n">eig_max</span>
+    <span class="k">if</span> <span class="n">noise_mask</span><span class="o">.</span><span class="n">any</span><span class="p">():</span>
+        <span class="n">noise_mean</span> <span class="o">=</span> <span class="n">eigvals</span><span class="p">[</span><span class="n">noise_mask</span><span class="p">]</span><span class="o">.</span><span class="n">mean</span><span class="p">()</span>
+        <span class="n">eigvals</span><span class="p">[</span><span class="n">noise_mask</span><span class="p">]</span> <span class="o">=</span> <span class="n">noise_mean</span>
+
+    <span class="c1"># 5. Reconstruct C_denoised</span>
+    <span class="n">C_denoised</span> <span class="o">=</span> <span class="n">eigvecs</span> <span class="o">@</span> <span class="n">np</span><span class="o">.</span><span class="n">diag</span><span class="p">(</span><span class="n">eigvals</span><span class="p">)</span> <span class="o">@</span> <span class="n">eigvecs</span><span class="o">.</span><span class="n">T</span>
+    <span class="c1"># Rescale to unit diagonal (covariance consistency)</span>
+    <span class="n">d</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">sqrt</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">diag</span><span class="p">(</span><span class="n">C_denoised</span><span class="p">))</span>
+    <span class="n">d</span><span class="p">[</span><span class="n">d</span> <span class="o">==</span> <span class="mi">0</span><span class="p">]</span> <span class="o">=</span> <span class="mf">1e-10</span>
+    <span class="n">C_denoised</span> <span class="o">=</span> <span class="n">C_denoised</span> <span class="o">/</span> <span class="n">np</span><span class="o">.</span><span class="n">outer</span><span class="p">(</span><span class="n">d</span><span class="p">,</span> <span class="n">d</span><span class="p">)</span>
+    <span class="n">Sigma_denoised</span> <span class="o">=</span> <span class="n">C_denoised</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">outer</span><span class="p">(</span><span class="n">diag_sd</span><span class="p">,</span> <span class="n">diag_sd</span><span class="p">)</span>
+
+    <span class="c1"># 6. LW-shrink on top of denoising for further stability</span>
+    <span class="c1"># Fall back to plain sample if LW fails</span>
+    <span class="k">try</span><span class="p">:</span>
+        <span class="n">lw</span> <span class="o">=</span> <span class="n">LedoitWolf</span><span class="p">()</span><span class="o">.</span><span class="n">fit</span><span class="p">(</span><span class="n">X</span><span class="p">)</span>
+        <span class="c1"># Blend: use LW&#39;s shrinkage intensity against denoised target</span>
+        <span class="n">shrink</span> <span class="o">=</span> <span class="n">lw</span><span class="o">.</span><span class="n">shrinkage_</span>
+        <span class="n">T_</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">diag</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">diag</span><span class="p">(</span><span class="n">Sigma_denoised</span><span class="p">)</span><span class="o">.</span><span class="n">mean</span><span class="p">()</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">ones</span><span class="p">(</span><span class="n">N</span><span class="p">))</span>
+        <span class="n">Sigma_final</span> <span class="o">=</span> <span class="p">(</span><span class="mi">1</span> <span class="o">-</span> <span class="n">shrink</span><span class="p">)</span> <span class="o">*</span> <span class="n">Sigma_denoised</span> <span class="o">+</span> <span class="n">shrink</span> <span class="o">*</span> <span class="n">T_</span>
+    <span class="k">except</span> <span class="ne">Exception</span> <span class="k">as</span> <span class="n">exc</span><span class="p">:</span>
+        <span class="n">logger</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span><span class="s2">&quot;LW fallback on denoised cov failed: </span><span class="si">%s</span><span class="s2">&quot;</span><span class="p">,</span> <span class="n">exc</span><span class="p">)</span>
+        <span class="n">Sigma_final</span> <span class="o">=</span> <span class="n">Sigma_denoised</span>
+    <span class="k">return</span> <span class="p">(</span><span class="n">Sigma_final</span> <span class="o">+</span> <span class="n">Sigma_final</span><span class="o">.</span><span class="n">T</span><span class="p">)</span> <span class="o">/</span> <span class="mf">2.0</span></div>
+
+
+
+<span class="c1"># =============================================================================</span>
+<span class="c1"># Portfolio constructors</span>
+<span class="c1"># =============================================================================</span>
+<div class="viewcode-block" id="PortfolioEngine">
+<a class="viewcode-back" href="../../api_engine.html#engine.portfolio.PortfolioEngine">[docs]</a>
+<span class="nd">@dataclass</span>
+<span class="k">class</span><span class="w"> </span><span class="nc">PortfolioEngine</span><span class="p">:</span>
+    <span class="n">cfg</span><span class="p">:</span> <span class="n">Config</span>
+
+<div class="viewcode-block" id="PortfolioEngine.score_weighted_leg">
+<a class="viewcode-back" href="../../api_engine.html#engine.portfolio.PortfolioEngine.score_weighted_leg">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">score_weighted_leg</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span>
+        <span class="n">leg_symbols</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="nb">str</span><span class="p">],</span>
+        <span class="n">leg_scores</span><span class="p">:</span> <span class="n">pd</span><span class="o">.</span><span class="n">Series</span><span class="p">,</span>
+        <span class="n">is_long</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">,</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">pd</span><span class="o">.</span><span class="n">Series</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;**Factor-weighted (score-weighted) within-leg allocation** — CW2 spec permits this</span>
+<span class="sd">        per the task&#39;s recommended-process list (&quot;equal-weighted, factor-weighted, risk-parity&quot;).</span>
+
+<span class="sd">        Weight is proportional to (composite_score - leg_threshold), clipped at the</span>
+<span class="sd">        5% cap.  Concentrates capital on the strongest conviction names within the</span>
+<span class="sd">        top/bottom decile, dramatically amplifying signal-to-noise compared with MinVar</span>
+<span class="sd">        which treats all leg members near-equally.</span>
+
+<span class="sd">        For the long leg: w_i ∝ max(0, score_i - score_median_of_leg)</span>
+<span class="sd">        For the short leg: w_i ∝ max(0, score_median_of_leg - score_i)</span>
+
+<span class="sd">        Reference: Grinold &amp; Kahn (2000) Ch. 14 — &quot;The Fundamental Law of Active Management&quot;:</span>
+<span class="sd">        IR ∝ IC × √breadth.  Score-weighting extracts maximum IR by weighting proportional</span>
+<span class="sd">        to signal strength.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">max_w</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">cfg</span><span class="o">.</span><span class="n">portfolio</span><span class="o">.</span><span class="n">max_weight_per_stock</span>
+        <span class="n">s</span> <span class="o">=</span> <span class="n">leg_scores</span><span class="o">.</span><span class="n">reindex</span><span class="p">(</span><span class="n">leg_symbols</span><span class="p">)</span><span class="o">.</span><span class="n">dropna</span><span class="p">()</span>
+        <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">s</span><span class="p">)</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+            <span class="k">return</span> <span class="n">pd</span><span class="o">.</span><span class="n">Series</span><span class="p">(</span><span class="n">dtype</span><span class="o">=</span><span class="nb">float</span><span class="p">)</span>
+        <span class="n">median</span> <span class="o">=</span> <span class="nb">float</span><span class="p">(</span><span class="n">s</span><span class="o">.</span><span class="n">median</span><span class="p">())</span>
+        <span class="k">if</span> <span class="n">is_long</span><span class="p">:</span>
+            <span class="n">raw</span> <span class="o">=</span> <span class="p">(</span><span class="n">s</span> <span class="o">-</span> <span class="n">median</span><span class="p">)</span><span class="o">.</span><span class="n">clip</span><span class="p">(</span><span class="n">lower</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">raw</span> <span class="o">=</span> <span class="p">(</span><span class="n">median</span> <span class="o">-</span> <span class="n">s</span><span class="p">)</span><span class="o">.</span><span class="n">clip</span><span class="p">(</span><span class="n">lower</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">raw</span><span class="o">.</span><span class="n">sum</span><span class="p">()</span> <span class="o">&lt;=</span> <span class="mi">0</span><span class="p">:</span>
+            <span class="c1"># Fallback: equal-weighted</span>
+            <span class="n">raw</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">Series</span><span class="p">(</span><span class="mf">1.0</span> <span class="o">/</span> <span class="nb">len</span><span class="p">(</span><span class="n">s</span><span class="p">),</span> <span class="n">index</span><span class="o">=</span><span class="n">s</span><span class="o">.</span><span class="n">index</span><span class="p">)</span>
+        <span class="n">w</span> <span class="o">=</span> <span class="n">raw</span> <span class="o">/</span> <span class="n">raw</span><span class="o">.</span><span class="n">sum</span><span class="p">()</span>
+        <span class="c1"># Iterative cap: clip-then-renormalise pushes capped weights back over the</span>
+        <span class="c1"># cap, so we redistribute excess mass to *uncapped* names and repeat until</span>
+        <span class="c1"># every weight satisfies w_i ≤ max_w (PLAN §4.5). If |s| &lt; 1/max_w, every</span>
+        <span class="c1"># position hits the cap and the leg is held equal-weighted at max_w with</span>
+        <span class="c1"># residual cash — a legitimate sparse-universe outcome.</span>
+        <span class="n">w</span> <span class="o">=</span> <span class="n">_iterative_cap</span><span class="p">(</span><span class="n">w</span><span class="p">,</span> <span class="n">max_w</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">w</span><span class="o">.</span><span class="n">reindex</span><span class="p">(</span><span class="n">leg_symbols</span><span class="p">,</span> <span class="n">fill_value</span><span class="o">=</span><span class="mf">0.0</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="PortfolioEngine.optimise_leg">
+<a class="viewcode-back" href="../../api_engine.html#engine.portfolio.PortfolioEngine.optimise_leg">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">optimise_leg</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span>
+        <span class="n">returns</span><span class="p">:</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">,</span>
+        <span class="n">leg_symbols</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="nb">str</span><span class="p">],</span>
+        <span class="n">previous_weights</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">pd</span><span class="o">.</span><span class="n">Series</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="n">construction_override</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">pd</span><span class="o">.</span><span class="n">Series</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Build long-only weights for one leg using the configured construction.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        returns : DataFrame</span>
+<span class="sd">            Trailing T×N return matrix (already USD-converted).</span>
+<span class="sd">        leg_symbols : list[str]</span>
+<span class="sd">            Subset of returns columns to include.</span>
+<span class="sd">        previous_weights : Series | None</span>
+<span class="sd">            Previous rebalance&#39;s weights — used by turnover-penalty variant.</span>
+<span class="sd">        construction_override : str | None</span>
+<span class="sd">            Force a construction variant for this one call (e.g. ``&quot;hrp&quot;``) —</span>
+<span class="sd">            used by the backtest engine to produce the HRP side-run alongside</span>
+<span class="sd">            the primary score-weighted book (PLAN §5.3 robustness comparison).</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        Series</span>
+<span class="sd">            Non-negative weights summing to 1 over ``leg_symbols``.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">ret_leg</span> <span class="o">=</span> <span class="n">returns</span><span class="p">[</span><span class="n">leg_symbols</span><span class="p">]</span><span class="o">.</span><span class="n">dropna</span><span class="p">(</span><span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">how</span><span class="o">=</span><span class="s2">&quot;all&quot;</span><span class="p">)</span>
+        <span class="c1"># Drop columns with &lt; 20 observations (low-data names)</span>
+        <span class="n">valid</span> <span class="o">=</span> <span class="n">ret_leg</span><span class="o">.</span><span class="n">count</span><span class="p">()</span> <span class="o">&gt;=</span> <span class="mi">20</span>
+        <span class="n">ret_leg</span> <span class="o">=</span> <span class="n">ret_leg</span><span class="o">.</span><span class="n">loc</span><span class="p">[:,</span> <span class="n">valid</span><span class="p">]</span>
+        <span class="n">leg_symbols</span> <span class="o">=</span> <span class="p">[</span><span class="n">s</span> <span class="k">for</span> <span class="n">s</span> <span class="ow">in</span> <span class="n">leg_symbols</span> <span class="k">if</span> <span class="n">s</span> <span class="ow">in</span> <span class="n">ret_leg</span><span class="o">.</span><span class="n">columns</span><span class="p">]</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">leg_symbols</span><span class="p">:</span>
+            <span class="k">return</span> <span class="n">pd</span><span class="o">.</span><span class="n">Series</span><span class="p">(</span><span class="n">dtype</span><span class="o">=</span><span class="nb">float</span><span class="p">)</span>
+
+        <span class="c1"># Fill forward any remaining NaNs then drop remaining rows</span>
+        <span class="n">ret_leg</span> <span class="o">=</span> <span class="n">ret_leg</span><span class="o">.</span><span class="n">ffill</span><span class="p">()</span><span class="o">.</span><span class="n">dropna</span><span class="p">(</span><span class="n">how</span><span class="o">=</span><span class="s2">&quot;any&quot;</span><span class="p">)</span>
+
+        <span class="n">construction</span> <span class="o">=</span> <span class="n">construction_override</span> <span class="ow">or</span> <span class="bp">self</span><span class="o">.</span><span class="n">cfg</span><span class="o">.</span><span class="n">portfolio</span><span class="o">.</span><span class="n">construction</span>
+        <span class="k">if</span> <span class="n">construction</span> <span class="o">==</span> <span class="s2">&quot;hrp&quot;</span><span class="p">:</span>
+            <span class="n">w</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_hrp</span><span class="p">(</span><span class="n">ret_leg</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="c1"># Denoised LW always preferred when enabled (it&#39;s strictly more stable)</span>
+            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">cfg</span><span class="o">.</span><span class="n">portfolio</span><span class="o">.</span><span class="n">denoise_enabled</span> <span class="ow">and</span> <span class="n">construction</span> <span class="ow">in</span> <span class="p">(</span><span class="s2">&quot;minvar_denoised_lw&quot;</span><span class="p">,</span> <span class="s2">&quot;minvar_turnover&quot;</span><span class="p">):</span>
+                <span class="n">Sigma</span> <span class="o">=</span> <span class="n">denoised_ledoit_wolf_cov</span><span class="p">(</span><span class="n">ret_leg</span><span class="p">)</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">Sigma</span> <span class="o">=</span> <span class="n">ledoit_wolf_cov</span><span class="p">(</span><span class="n">ret_leg</span><span class="p">)</span>
+            <span class="n">use_turnover</span> <span class="o">=</span> <span class="n">construction</span> <span class="o">==</span> <span class="s2">&quot;minvar_turnover&quot;</span>
+            <span class="n">w</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_minvar</span><span class="p">(</span>
+                <span class="n">Sigma</span><span class="p">,</span>
+                <span class="n">symbols</span><span class="o">=</span><span class="nb">list</span><span class="p">(</span><span class="n">ret_leg</span><span class="o">.</span><span class="n">columns</span><span class="p">),</span>
+                <span class="n">prev_w</span><span class="o">=</span><span class="n">previous_weights</span><span class="p">,</span>
+                <span class="n">turnover_penalty</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">cfg</span><span class="o">.</span><span class="n">portfolio</span><span class="o">.</span><span class="n">turnover_penalty_lambda</span> <span class="k">if</span> <span class="n">use_turnover</span> <span class="k">else</span> <span class="mf">0.0</span><span class="p">,</span>
+            <span class="p">)</span>
+        <span class="k">return</span> <span class="n">pd</span><span class="o">.</span><span class="n">Series</span><span class="p">(</span><span class="n">w</span><span class="p">,</span> <span class="n">index</span><span class="o">=</span><span class="n">ret_leg</span><span class="o">.</span><span class="n">columns</span><span class="p">)</span><span class="o">.</span><span class="n">reindex</span><span class="p">(</span><span class="n">leg_symbols</span><span class="p">,</span> <span class="n">fill_value</span><span class="o">=</span><span class="mf">0.0</span><span class="p">)</span></div>
+
+
+    <span class="c1"># ------------------------------------------------------------------</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">_minvar</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span>
+        <span class="n">Sigma</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span>
+        <span class="n">symbols</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="nb">str</span><span class="p">],</span>
+        <span class="n">prev_w</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">pd</span><span class="o">.</span><span class="n">Series</span><span class="p">],</span>
+        <span class="n">turnover_penalty</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Solve: min w&#39;Σw + λ * ||w − w_prev||^2 s.t. w ≥ 0, 1&#39;w = 1, w ≤ max.</span>
+
+<span class="sd">        Uses SLSQP with an analytic gradient-friendly formulation.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">N</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">symbols</span><span class="p">)</span>
+        <span class="n">max_w</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">cfg</span><span class="o">.</span><span class="n">portfolio</span><span class="o">.</span><span class="n">max_weight_per_stock</span>
+        <span class="n">min_w</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">cfg</span><span class="o">.</span><span class="n">portfolio</span><span class="o">.</span><span class="n">min_weight_per_stock</span>
+        <span class="n">w0</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">ones</span><span class="p">(</span><span class="n">N</span><span class="p">)</span> <span class="o">/</span> <span class="n">N</span>
+
+        <span class="k">if</span> <span class="n">prev_w</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="ow">and</span> <span class="n">turnover_penalty</span> <span class="o">&gt;</span> <span class="mf">0.0</span><span class="p">:</span>
+            <span class="n">w_prev</span> <span class="o">=</span> <span class="n">prev_w</span><span class="o">.</span><span class="n">reindex</span><span class="p">(</span><span class="n">symbols</span><span class="p">,</span> <span class="n">fill_value</span><span class="o">=</span><span class="mf">0.0</span><span class="p">)</span><span class="o">.</span><span class="n">values</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">w_prev</span> <span class="o">=</span> <span class="kc">None</span>
+
+        <span class="k">def</span><span class="w"> </span><span class="nf">obj</span><span class="p">(</span><span class="n">w</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">float</span><span class="p">:</span>
+            <span class="n">risk</span> <span class="o">=</span> <span class="nb">float</span><span class="p">(</span><span class="n">w</span> <span class="o">@</span> <span class="n">Sigma</span> <span class="o">@</span> <span class="n">w</span><span class="p">)</span>
+            <span class="k">if</span> <span class="n">w_prev</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+                <span class="n">risk</span> <span class="o">+=</span> <span class="n">turnover_penalty</span> <span class="o">*</span> <span class="nb">float</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">sum</span><span class="p">((</span><span class="n">w</span> <span class="o">-</span> <span class="n">w_prev</span><span class="p">)</span> <span class="o">**</span> <span class="mi">2</span><span class="p">))</span>
+            <span class="k">return</span> <span class="n">risk</span>
+
+        <span class="k">def</span><span class="w"> </span><span class="nf">grad</span><span class="p">(</span><span class="n">w</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">:</span>
+            <span class="n">g</span> <span class="o">=</span> <span class="mi">2</span> <span class="o">*</span> <span class="n">Sigma</span> <span class="o">@</span> <span class="n">w</span>
+            <span class="k">if</span> <span class="n">w_prev</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+                <span class="n">g</span> <span class="o">+=</span> <span class="mi">2</span> <span class="o">*</span> <span class="n">turnover_penalty</span> <span class="o">*</span> <span class="p">(</span><span class="n">w</span> <span class="o">-</span> <span class="n">w_prev</span><span class="p">)</span>
+            <span class="k">return</span> <span class="n">g</span>
+
+        <span class="n">bounds</span> <span class="o">=</span> <span class="p">[(</span><span class="n">min_w</span><span class="p">,</span> <span class="n">max_w</span><span class="p">)</span> <span class="k">for</span> <span class="n">_</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">N</span><span class="p">)]</span>
+        <span class="n">constraints</span> <span class="o">=</span> <span class="p">[{</span><span class="s2">&quot;type&quot;</span><span class="p">:</span> <span class="s2">&quot;eq&quot;</span><span class="p">,</span> <span class="s2">&quot;fun&quot;</span><span class="p">:</span> <span class="k">lambda</span> <span class="n">w</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="n">w</span><span class="p">)</span> <span class="o">-</span> <span class="mf">1.0</span><span class="p">}]</span>
+        <span class="n">res</span> <span class="o">=</span> <span class="n">minimize</span><span class="p">(</span>
+            <span class="n">obj</span><span class="p">,</span>
+            <span class="n">w0</span><span class="p">,</span>
+            <span class="n">jac</span><span class="o">=</span><span class="n">grad</span><span class="p">,</span>
+            <span class="n">method</span><span class="o">=</span><span class="s2">&quot;SLSQP&quot;</span><span class="p">,</span>
+            <span class="n">bounds</span><span class="o">=</span><span class="n">bounds</span><span class="p">,</span>
+            <span class="n">constraints</span><span class="o">=</span><span class="n">constraints</span><span class="p">,</span>
+            <span class="n">options</span><span class="o">=</span><span class="p">{</span><span class="s2">&quot;ftol&quot;</span><span class="p">:</span> <span class="mf">1e-10</span><span class="p">,</span> <span class="s2">&quot;maxiter&quot;</span><span class="p">:</span> <span class="mi">500</span><span class="p">},</span>
+        <span class="p">)</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">res</span><span class="o">.</span><span class="n">success</span><span class="p">:</span>
+            <span class="n">logger</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span><span class="s2">&quot;MinVar SLSQP did not converge: </span><span class="si">%s</span><span class="s2">. Falling back to equal-weight.&quot;</span><span class="p">,</span> <span class="n">res</span><span class="o">.</span><span class="n">message</span><span class="p">)</span>
+            <span class="k">return</span> <span class="n">w0</span>
+        <span class="c1"># SLSQP bounds can be violated by tiny floating-point slips, and</span>
+        <span class="c1"># renormalising after a naive clip reintroduces the same cap-violation</span>
+        <span class="c1"># bug found in score_weighted_leg.  Go through the iterative capper so</span>
+        <span class="c1"># MinVar, score-weighted and HRP all share one cap-enforcement path.</span>
+        <span class="n">w_series</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">Series</span><span class="p">(</span><span class="n">res</span><span class="o">.</span><span class="n">x</span><span class="p">,</span> <span class="n">index</span><span class="o">=</span><span class="n">symbols</span><span class="p">)</span><span class="o">.</span><span class="n">clip</span><span class="p">(</span><span class="n">lower</span><span class="o">=</span><span class="n">min_w</span><span class="p">,</span> <span class="n">upper</span><span class="o">=</span><span class="kc">None</span><span class="p">)</span>
+        <span class="n">w_capped</span> <span class="o">=</span> <span class="n">_iterative_cap</span><span class="p">(</span><span class="n">w_series</span><span class="p">,</span> <span class="n">max_w</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">w_capped</span><span class="o">.</span><span class="n">values</span>
+
+    <span class="c1"># ------------------------------------------------------------------</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">_hrp</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">returns</span><span class="p">:</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Hierarchical Risk Parity (López de Prado 2016).</span>
+
+<span class="sd">        Steps: (1) corr → distance, (2) linkage, (3) quasi-diagonalisation,</span>
+<span class="sd">        (4) recursive bisection inverse-variance allocation.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">cov</span> <span class="o">=</span> <span class="n">returns</span><span class="o">.</span><span class="n">cov</span><span class="p">()</span><span class="o">.</span><span class="n">values</span>
+        <span class="n">corr</span> <span class="o">=</span> <span class="n">returns</span><span class="o">.</span><span class="n">corr</span><span class="p">()</span><span class="o">.</span><span class="n">values</span>
+        <span class="c1"># Corr → distance</span>
+        <span class="n">dist</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">sqrt</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">maximum</span><span class="p">(</span><span class="mf">0.0</span><span class="p">,</span> <span class="p">(</span><span class="mi">1</span> <span class="o">-</span> <span class="n">corr</span><span class="p">)</span> <span class="o">/</span> <span class="mi">2</span><span class="p">))</span>
+        <span class="n">np</span><span class="o">.</span><span class="n">fill_diagonal</span><span class="p">(</span><span class="n">dist</span><span class="p">,</span> <span class="mf">0.0</span><span class="p">)</span>
+        <span class="c1"># Linkage needs a condensed form</span>
+        <span class="n">link</span> <span class="o">=</span> <span class="n">linkage</span><span class="p">(</span><span class="n">squareform</span><span class="p">(</span><span class="n">dist</span><span class="p">,</span> <span class="n">checks</span><span class="o">=</span><span class="kc">False</span><span class="p">),</span> <span class="n">method</span><span class="o">=</span><span class="s2">&quot;single&quot;</span><span class="p">)</span>
+        <span class="c1"># Quasi-diagonalisation: reorder via dendrogram</span>
+        <span class="n">N</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">returns</span><span class="o">.</span><span class="n">columns</span><span class="p">)</span>
+        <span class="n">sort_order</span> <span class="o">=</span> <span class="n">_get_quasi_diag</span><span class="p">(</span><span class="n">link</span><span class="p">,</span> <span class="n">N</span><span class="p">)</span>
+        <span class="c1"># Recursive bisection</span>
+        <span class="n">w</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">Series</span><span class="p">(</span><span class="mf">1.0</span><span class="p">,</span> <span class="n">index</span><span class="o">=</span><span class="n">sort_order</span><span class="p">)</span>
+        <span class="n">clusters</span> <span class="o">=</span> <span class="p">[</span><span class="n">sort_order</span><span class="p">]</span>
+        <span class="k">while</span> <span class="n">clusters</span><span class="p">:</span>
+            <span class="n">new_clusters</span> <span class="o">=</span> <span class="p">[]</span>
+            <span class="k">for</span> <span class="n">c</span> <span class="ow">in</span> <span class="n">clusters</span><span class="p">:</span>
+                <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">c</span><span class="p">)</span> <span class="o">&lt;=</span> <span class="mi">1</span><span class="p">:</span>
+                    <span class="k">continue</span>
+                <span class="n">half</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">c</span><span class="p">)</span> <span class="o">//</span> <span class="mi">2</span>
+                <span class="n">left</span><span class="p">,</span> <span class="n">right</span> <span class="o">=</span> <span class="n">c</span><span class="p">[:</span><span class="n">half</span><span class="p">],</span> <span class="n">c</span><span class="p">[</span><span class="n">half</span><span class="p">:]</span>
+                <span class="n">var_left</span> <span class="o">=</span> <span class="n">_cluster_var</span><span class="p">(</span><span class="n">cov</span><span class="p">,</span> <span class="n">left</span><span class="p">)</span>
+                <span class="n">var_right</span> <span class="o">=</span> <span class="n">_cluster_var</span><span class="p">(</span><span class="n">cov</span><span class="p">,</span> <span class="n">right</span><span class="p">)</span>
+                <span class="n">alpha</span> <span class="o">=</span> <span class="mi">1</span> <span class="o">-</span> <span class="n">var_left</span> <span class="o">/</span> <span class="p">(</span><span class="n">var_left</span> <span class="o">+</span> <span class="n">var_right</span> <span class="o">+</span> <span class="mf">1e-12</span><span class="p">)</span>
+                <span class="n">w</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span><span class="n">left</span><span class="p">]</span> <span class="o">*=</span> <span class="n">alpha</span>
+                <span class="n">w</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span><span class="n">right</span><span class="p">]</span> <span class="o">*=</span> <span class="p">(</span><span class="mi">1</span> <span class="o">-</span> <span class="n">alpha</span><span class="p">)</span>
+                <span class="n">new_clusters</span><span class="o">.</span><span class="n">extend</span><span class="p">([</span><span class="n">left</span><span class="p">,</span> <span class="n">right</span><span class="p">])</span>
+            <span class="n">clusters</span> <span class="o">=</span> <span class="n">new_clusters</span>
+        <span class="c1"># Reindex back to original order.  HRP natively produces weights with</span>
+        <span class="c1"># no single-name cap, which can violate the 5% constraint on</span>
+        <span class="c1"># concentrated correlation clusters (López de Prado 2016 §3).</span>
+        <span class="c1"># Route through the iterative capper so all three constructions (MinVar,</span>
+        <span class="c1"># score-weighted, HRP) share one cap-enforcement path.</span>
+        <span class="n">w_arr</span> <span class="o">=</span> <span class="n">w</span><span class="o">.</span><span class="n">reindex</span><span class="p">(</span><span class="nb">range</span><span class="p">(</span><span class="n">N</span><span class="p">))</span><span class="o">.</span><span class="n">fillna</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span><span class="o">.</span><span class="n">values</span>
+        <span class="n">w_arr</span> <span class="o">=</span> <span class="n">w_arr</span> <span class="o">/</span> <span class="n">w_arr</span><span class="o">.</span><span class="n">sum</span><span class="p">()</span> <span class="k">if</span> <span class="n">w_arr</span><span class="o">.</span><span class="n">sum</span><span class="p">()</span> <span class="o">&gt;</span> <span class="mi">0</span> <span class="k">else</span> <span class="n">w_arr</span>
+        <span class="n">max_w</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">cfg</span><span class="o">.</span><span class="n">portfolio</span><span class="o">.</span><span class="n">max_weight_per_stock</span>
+        <span class="k">return</span> <span class="n">_iterative_cap</span><span class="p">(</span><span class="n">pd</span><span class="o">.</span><span class="n">Series</span><span class="p">(</span><span class="n">w_arr</span><span class="p">),</span> <span class="n">max_w</span><span class="p">)</span><span class="o">.</span><span class="n">values</span></div>
+
+
+
+<span class="c1"># =============================================================================</span>
+<span class="c1"># HRP helpers</span>
+<span class="c1"># =============================================================================</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">_get_quasi_diag</span><span class="p">(</span><span class="n">link</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span> <span class="n">N</span><span class="p">:</span> <span class="nb">int</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">list</span><span class="p">[</span><span class="nb">int</span><span class="p">]:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Post-order traversal of SciPy linkage tree → leaf order.&quot;&quot;&quot;</span>
+    <span class="n">link</span> <span class="o">=</span> <span class="n">link</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="nb">int</span><span class="p">)</span>
+    <span class="n">sort_ix</span> <span class="o">=</span> <span class="p">[</span><span class="nb">int</span><span class="p">(</span><span class="n">link</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="mi">0</span><span class="p">]),</span> <span class="nb">int</span><span class="p">(</span><span class="n">link</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">])]</span>
+    <span class="n">num_items</span> <span class="o">=</span> <span class="n">N</span>
+    <span class="k">while</span> <span class="nb">max</span><span class="p">(</span><span class="n">sort_ix</span><span class="p">)</span> <span class="o">&gt;=</span> <span class="n">num_items</span><span class="p">:</span>
+        <span class="n">new</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="n">sort_ix</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">i</span> <span class="o">&lt;</span> <span class="n">num_items</span><span class="p">:</span>
+                <span class="n">new</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">i</span><span class="p">)</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">row</span> <span class="o">=</span> <span class="n">link</span><span class="p">[</span><span class="n">i</span> <span class="o">-</span> <span class="n">num_items</span><span class="p">]</span>
+                <span class="n">new</span><span class="o">.</span><span class="n">extend</span><span class="p">([</span><span class="nb">int</span><span class="p">(</span><span class="n">row</span><span class="p">[</span><span class="mi">0</span><span class="p">]),</span> <span class="nb">int</span><span class="p">(</span><span class="n">row</span><span class="p">[</span><span class="mi">1</span><span class="p">])])</span>
+        <span class="n">sort_ix</span> <span class="o">=</span> <span class="n">new</span>
+    <span class="k">return</span> <span class="n">sort_ix</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">_cluster_var</span><span class="p">(</span><span class="n">cov</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span> <span class="n">cluster</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="nb">int</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="nb">float</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Cluster-level inverse-variance portfolio variance.&quot;&quot;&quot;</span>
+    <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">cluster</span><span class="p">)</span> <span class="o">==</span> <span class="mi">1</span><span class="p">:</span>
+        <span class="k">return</span> <span class="nb">float</span><span class="p">(</span><span class="n">cov</span><span class="p">[</span><span class="n">cluster</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">cluster</span><span class="p">[</span><span class="mi">0</span><span class="p">]])</span>
+    <span class="n">sub</span> <span class="o">=</span> <span class="n">cov</span><span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">ix_</span><span class="p">(</span><span class="n">cluster</span><span class="p">,</span> <span class="n">cluster</span><span class="p">)]</span>
+    <span class="n">ivp</span> <span class="o">=</span> <span class="mf">1.0</span> <span class="o">/</span> <span class="n">np</span><span class="o">.</span><span class="n">diag</span><span class="p">(</span><span class="n">sub</span><span class="p">)</span>
+    <span class="n">ivp</span> <span class="o">=</span> <span class="n">ivp</span> <span class="o">/</span> <span class="n">ivp</span><span class="o">.</span><span class="n">sum</span><span class="p">()</span>
+    <span class="k">return</span> <span class="nb">float</span><span class="p">(</span><span class="n">ivp</span> <span class="o">@</span> <span class="n">sub</span> <span class="o">@</span> <span class="n">ivp</span><span class="p">)</span>
+
+
+<span class="n">__all__</span> <span class="o">=</span> <span class="p">[</span>
+    <span class="s2">&quot;PortfolioEngine&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;denoised_ledoit_wolf_cov&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;ledoit_wolf_cov&quot;</span><span class="p">,</span>
+<span class="p">]</span>
+</pre></div>
+
+                </article>
+              
+              
+              
+              
+              
+                <footer class="prev-next-footer d-print-none">
+                  
+<div class="prev-next-area">
+</div>
+                </footer>
+              
+            </div>
+            
+            
+              
+            
+          </div>
+          <footer class="bd-footer-content">
+            
+          </footer>
+        
+      </main>
+    </div>
+  </div>
+  
+  <!-- Scripts loaded after <body> so the DOM is not blocked -->
+  <script defer src="../../_static/scripts/bootstrap.js?digest=8878045cc6db502f8baf"></script>
+<script defer src="../../_static/scripts/pydata-sphinx-theme.js?digest=8878045cc6db502f8baf"></script>
+
+  <footer class="bd-footer">
+<div class="bd-footer__inner bd-page-width">
+  
+    <div class="footer-items__start">
+      
+        <div class="footer-item">
+
+  <p class="copyright">
+    
+      © Copyright 2026, Team Kolmogorov.
+      <br/>
+    
+  </p>
+</div>
+      
+        <div class="footer-item">
+
+  <p class="sphinx-version">
+    Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 8.2.3.
+    <br/>
+  </p>
+</div>
+      
+    </div>
+  
+  
+  
+    <div class="footer-items__end">
+      
+        <div class="footer-item">
+<p class="theme-version">
+  <!-- # L10n: Setting the PST URL as an argument as this does not need to be localized -->
+  Built with the <a href="https://pydata-sphinx-theme.readthedocs.io/en/stable/index.html">PyData Sphinx Theme</a> 0.16.1.
+</p></div>
+      
+    </div>
+  
+</div>
+
+  </footer>
+  </body>
+</html>
