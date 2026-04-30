@@ -25,10 +25,10 @@ import subprocess
 import sys
 
 SCRIPT_DIR = os.path.dirname(os.path.abspath(__file__))
-REPO_ROOT = os.path.dirname(SCRIPT_DIR)
-sys.path.insert(0, os.path.join(REPO_ROOT, "coursework_two", "analytics"))
+CW2_ROOT = os.path.dirname(SCRIPT_DIR)
+sys.path.insert(0, os.path.join(CW2_ROOT, "analytics"))
 
-CW2 = os.path.join(REPO_ROOT, "coursework_two")
+CW2 = CW2_ROOT
 MY_OUTPUT = os.path.join(SCRIPT_DIR, "output")
 
 import pandas as pd  # noqa: E402  (path setup above)

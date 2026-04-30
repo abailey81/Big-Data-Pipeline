@@ -71,3 +71,4 @@ coursework_two/.env.*
 
 # Analysis scratch dirs (PR #7 cost-stress writes per-stress backtest outputs here)
 analysis/_cost_stress_output/
+*.pdf
