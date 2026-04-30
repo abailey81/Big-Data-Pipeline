@@ -31,7 +31,7 @@ Setup
                           print('OK' if DataLoader(load_config()).health_check() else 'DB unreachable')"
 
     # 4. Run a smoke test
-    poetry run pytest test/ -x
+    poetry run python -m pytest test/ -x
 
     # 5. Run the full backtest
     poetry run python Main.py --mode full --start 2023-07-01 --end 2026-03-31

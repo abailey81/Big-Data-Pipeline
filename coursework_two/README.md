@@ -84,6 +84,13 @@ poetry run python -c "from engine.data_loader import DataLoader; \
 
 End-to-end pipeline.  Wall-clock ≈ 40 min total; ablation is the long pole.
 
+> **Important:** stay inside `coursework_two/` for every `poetry run` invocation.
+> The repository root has its own `pyproject.toml` (CW1's `ift-systematic-equity`
+> project) — `cd`-ing up there makes Poetry build a different empty venv and
+> the analysis scripts will fail with `ModuleNotFoundError: No module named 'numpy'`.
+> The analysis scripts resolve their own paths absolutely, so the `../analysis/...`
+> form works correctly from `coursework_two/`.
+
 ```bash
 cd coursework_two
 
@@ -95,17 +102,16 @@ poetry run python Main.py --mode stress                                         
 poetry run python Main.py --mode monte_carlo                                       # ~ 30 s
 poetry run python Main.py --mode regime_perf                                       # ~  5 s
 
-# Analysis CSVs — read parquets only, no DB
-cd ..
-poetry run python analysis/run_attribution_ls.py        # ~ 10 s — Table 10
-poetry run python analysis/run_inference_ls.py          # ~ 30 s — Tables 11–13
-poetry run python analysis/run_cost_stress_ls_v2.py     # ~  6 min — Table 14
+# Analysis CSVs — read parquets only, no DB.  Stay in coursework_two/.
+poetry run python ../analysis/run_attribution_ls.py     # ~ 10 s — Table 10
+poetry run python ../analysis/run_inference_ls.py       # ~ 30 s — Tables 11–13
+poetry run python ../analysis/run_cost_stress_ls_v2.py  # ~  6 min — Table 14
 
-# Tearsheet
+# Tearsheet — paths are relative to coursework_two/
 poetry run jupyter nbconvert --to notebook --execute \
-    coursework_two/notebooks/CW2_Tearsheet.ipynb --inplace \
+    notebooks/CW2_Tearsheet.ipynb --inplace \
     --ExecutePreprocessor.timeout=900
-poetry run jupyter nbconvert --to html coursework_two/notebooks/CW2_Tearsheet.ipynb
+poetry run jupyter nbconvert --to html notebooks/CW2_Tearsheet.ipynb
 ```
 
 **Headline-only fast path** (~ 8 min — skips sensitivity, ablation, cost stress, since those are committed in the repo):
@@ -116,11 +122,10 @@ poetry run python Main.py --mode full --start 2023-07-01 --end 2026-03-31 && \
 poetry run python Main.py --mode stress && \
 poetry run python Main.py --mode monte_carlo && \
 poetry run python Main.py --mode regime_perf && \
-cd .. && \
-poetry run python analysis/run_attribution_ls.py && \
-poetry run python analysis/run_inference_ls.py && \
+poetry run python ../analysis/run_attribution_ls.py && \
+poetry run python ../analysis/run_inference_ls.py && \
 poetry run jupyter nbconvert --to notebook --execute \
-    coursework_two/notebooks/CW2_Tearsheet.ipynb --inplace
+    notebooks/CW2_Tearsheet.ipynb --inplace --ExecutePreprocessor.timeout=900
 ```
 
 ### Path C — tearsheet only (no DB required)
@@ -192,7 +197,7 @@ weight to momentum and value, and `factor_ic.parquet` records
 |---|---|
 | `CW1 DB unreachable: psycopg2.OperationalError ... port 5439 ... Connection refused` | CW1 Docker is down.  From the repo root: `docker compose up -d --build`. |
 | `pyarrow ... Failed ... ModuleNotFoundError: No module named 'pkg_resources'` (on Python 3.13) | Old `poetry.lock` pinning pyarrow 15.  `poetry lock && poetry install` — the committed `pyproject.toml` requires pyarrow ≥ 18 which ships Py 3.13 wheels. |
-| `scipy TypeError ... _fitpack_impl.py` | Bare `python` / `pytest` invoked instead of Poetry's venv.  Always use `poetry run python …` / `poetry run pytest …`. |
+| `scipy TypeError ... _fitpack_impl.py` during pytest | `poetry run pytest` resolved a system-Python pytest from `PATH` instead of the venv's pytest (a known macOS issue when both Python 3.9 framework and Homebrew Python 3.13 are installed).  Use `poetry run python -m pytest test/` — invoking pytest as a module forces the venv's Python. |
 | Headline numbers differ slightly from the report | The CW1 snapshot has moved since the report was frozen.  The report's tables reference the snapshot whose hash is stamped in `output/backtest_metadata.parquet::data_snapshot_sha256`; current parquets reflect today's snapshot.  This is expected and the analysis CSVs always reflect the current run. |
 
 ## Data Contract
@@ -278,7 +283,7 @@ A point-in-time validation report is in
 ## Tests
 
 ```bash
-poetry run pytest test/ -v --cov=engine --cov=analytics --cov-report=term-missing
+poetry run python -m pytest test/ -v --cov=engine --cov=analytics --cov-report=term-missing
 ```
 
 87 tests across engine and analytics.  14 PIT integration tests are
